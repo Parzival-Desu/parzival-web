@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <title>About — Parzival Takei</title>
+
+  <style>
+    /* ===== Buttons ===== */
+    .social-btn, .skills-btn {
+      background: linear-gradient(135deg, #0078d7, #005fa3);
+      color: #fff;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 18px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    .social-btn:hover, .skills-btn:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #005fa3, #004f85);
+    }
+
+    /* ===== Modal Base ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 100px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+      animation: slideUp 0.4s ease;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover { color: #000; }
+
+    /* ===== Social Icons ===== */
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+    .social-icons a {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #f9f9f9;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .social-icons a:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+    .social-icons img { width: 35px; height: 35px; }
+
+    /* ===== Skills Layout ===== */
+    .skills-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 25px;
+      justify-items: center;
+      margin-top: 25px;
+    }
+
+    .skill-box {
+      width: 150px;
+      text-align: center;
+    }
+    .circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: conic-gradient(#ffb6c1 calc(var(--percent) * 1%), #ddd 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px auto;
+      position: relative;
+    }
+    .circle::after {
+      content: attr(data-percent) "%";
+      position: absolute;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .skill-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: #eee;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      background: #ffb6c1;
+      border-radius: 5px;
+      transition: width 1s ease;
+    }
+
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    @keyframes slideUp { from {transform: translateY(25px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo" />
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="intro">
+    <h2>About this site</h2>
+    <p>
+      This website is my personal space, a small corner of the internet where I share my work, thoughts, and creative experiments. 
+      It's intentionally simple, clean, and easy to explore, just the way I like to build things.
+    </p>
+  </section>
+
+  <section class="intro two-column">
+    <div class="content-column">
+      <h2>Who I am</h2>
+      <p>
+        Hey, I'm <strong>Rayhan Khadafi</strong>, a 20-year-old game and UI developer passionate about crafting interactive designs and visual experiences. I love experimenting with code, playing around with layouts, and creating things that look and feel right.
+      </p>
+      <p>
+        Outside of development, I enjoy reading comics, watching anime, playing games, and listening to music.
+      </p>
+      <div class="contact-info">
+        <h3>Contact</h3>
+        <p>
+          You can reach me at <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a> or via the <a href="contact.html">Contact</a> page.
+        </p>
+
+        <button id="socialBtn" class="social-btn">Connect with me</button>
+        <button id="skillsBtn" class="skills-btn">View my skills</button>
+
+        <!-- === Social Modal === -->
+        <div id="socialModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Find me online</h3>
+            <div class="social-icons">
+              <a href="https://x.com/ParzivalTakeii" target="_blank" title="Twitter"><img src="icons/twitter.png" alt="Twitter"></a>
+              <a href="https://www.linkedin.com/in/rayhan-khadafi-402640262/" target="_blank" title="LinkedIn"><img src="icons/linkedin.png" alt="LinkedIn"></a>
+              <a href="https://www.instagram.com/kichiku.desu/" target="_blank" title="Instagram"><img src="icons/instagram.png" alt="Instagram"></a>
+              <a href="https://github.com/Parzival-Desu" target="_blank" title="GitHub"><img src="icons/github.png" alt="GitHub"></a>
+              <a href="https://wa.me/6285314332610" target="_blank" title="WhatsApp"><img src="icons/whatsapp.png" alt="WhatsApp"></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- === Skills Modal === -->
+        <div id="skillsModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Software Skills</h3>
+            <div class="skills-wrapper">
+              <div class="skill-box">
+                <div class="circle" data-percent="80" style="--percent:80;"></div>
+                <div class="skill-name">Blender 3D</div>
+                <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="80" style="--percent:80;"></div>
+                <div class="skill-name">Coohom</div>
+                <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="85" style="--percent:85;"></div>
+                <div class="skill-name">SketchUp</div>
+                <div class="bar"><div class="bar-fill" style="width:85%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="70" style="--percent:70;"></div>
+                <div class="skill-name">Minemator</div>
+                <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="80" style="--percent:80;"></div>
+                <div class="skill-name">Unity</div>
+                <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="70" style="--percent:70;"></div>
+                <div class="skill-name">Ibis Paint</div>
+                <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="78" style="--percent:78;"></div>
+                <div class="skill-name">VRoid Studio</div>
+                <div class="bar"><div class="bar-fill" style="width:78%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="60" style="--percent:60;"></div>
+                <div class="skill-name">Live2D</div>
+                <div class="bar"><div class="bar-fill" style="width:60%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="80" style="--percent:80;"></div>
+                <div class="skill-name">Figma</div>
+                <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="80" style="--percent:80;"></div>
+                <div class="skill-name">Web Dev</div>
+                <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+              </div>
+              <div class="skill-box">
+                <div class="circle" data-percent="70" style="--percent:70;"></div>
+                <div class="skill-name">Android Studio</div>
+                <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="image-column">
+      <img src="https://i.pinimg.com/736x/2f/62/41/2f6241ea4f7b512b8e615fd96c5678da.jpg" alt="Profile illustration" />
+    </div>
+  </section>
+
+  <footer>
+    <p>© Parzival — All Rights Reserved</p>
+  </footer>
+
+  <script>
+  const socialModal = document.getElementById('socialModal');
+  const skillsModal = document.getElementById('skillsModal');
+  const socialBtn = document.getElementById('socialBtn');
+  const skillsBtn = document.getElementById('skillsBtn');
+  const closes = document.querySelectorAll('.close');
+
+  // === Modal Show / Hide ===
+  socialBtn.onclick = () => (socialModal.style.display = 'block');
+  skillsBtn.onclick = () => {
+    skillsModal.style.display = 'block';
+    animateSkills(); // animate only when modal opens
+  };
+  closes.forEach(c => (c.onclick = () => c.parentElement.parentElement.style.display = 'none'));
+  window.onclick = e => {
+    if (e.target === socialModal) socialModal.style.display = 'none';
+    if (e.target === skillsModal) skillsModal.style.display = 'none';
+  };
+
+  // === Animation for Skills ===
+  function animateSkills() {
+    const circles = document.querySelectorAll('.circle');
+    const bars = document.querySelectorAll('.bar-fill');
+
+    circles.forEach((circle, i) => {
+      const percent = parseInt(circle.getAttribute('data-percent'));
+      let current = 0;
+
+      // reset before animation
+      circle.style.background = 'conic-gradient(#ffb6c1 0%, #ddd 0)';
+      circle.setAttribute('data-percent', '0');
+      bars[i].style.width = '0%';
+
+      const update = setInterval(() => {
+        current++;
+        circle.setAttribute('data-percent', current);
+        circle.style.background = `conic-gradient(#ffb6c1 ${current * 3.6}deg, #ddd 0)`;
+        bars[i].style.width = `${current}%`;
+        if (current >= percent) clearInterval(update);
+      }, 15); // adjust speed here (lower = faster)
+    });
+  }
+</script>
+
+
+  <script src="particles.js"></script>
+</body>
+</html>

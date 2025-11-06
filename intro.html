@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Typing Challenge — Intro</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+      background-color: #000;
+    }
+
+    /* === Background === */
+    .background {
+      position: fixed;
+      inset: 0;
+      background: url("city background/7.png") no-repeat center center/cover;
+      filter: brightness(0.9);
+    }
+
+    /* === Character Sprites === */
+    .character {
+      position: absolute;
+      bottom: 0;
+      transition: opacity 0.5s ease;
+      height: 70vh;
+      user-select: none;
+    }
+
+    .airi { left: 5%; }
+    .mc { right: 5%; }
+    .dim { opacity: 0.5; }
+
+    /* === Dialogue Box === */
+    .dialogue-box {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 25px 50px;
+      font-size: 18px;
+      line-height: 1.5;
+      border-top: 3px solid #ff9a9e;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .name-tag {
+      font-weight: bold;
+      font-size: 20px;
+      color: #ffb6c1;
+      margin-bottom: 10px;
+    }
+
+    .next-indicator {
+      position: absolute;
+      bottom: 10px;
+      right: 30px;
+      font-size: 24px;
+      color: #ffb6c1;
+      opacity: 0.8;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* === Name Input Popup === */
+    .name-input {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 40px 50px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255, 182, 193, 0.3);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .name-input h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      color: #ffb6c1;
+    }
+
+    .name-input input {
+      padding: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
+      width: 250px;
+      text-align: center;
+      margin-bottom: 15px;
+      outline: none;
+    }
+
+    .name-input button {
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      border: none;
+      color: #333;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .name-input button:hover { transform: scale(1.05); }
+  </style>
+</head>
+
+<body>
+  <div class="background"></div>
+
+  <img src="img/Airi.png" class="character airi" id="airi" alt="Airi">
+  <img src="img/MC.png" class="character mc" id="mc" alt="MC">
+
+  <div class="name-input" id="nameInputBox">
+    <h2>Masukkan nama karaktermu:</h2>
+    <input type="text" id="playerName" placeholder="Tulis nama di sini...">
+    <br>
+    <button onclick="startIntro()">Mulai</button>
+  </div>
+
+  <div class="dialogue-box" id="dialogue-box" style="display:none;">
+    <div class="name-tag" id="name"></div>
+    <div class="text" id="text"></div>
+    <div class="next-indicator">▶</div>
+  </div>
+
+  <script>
+    // === Fix encoding problem by forcing clean text ===
+    const dialogues = [
+      { name: "Airi", text: "Selamat datang di Real Typing Challenge! Aku Airi, rekan kerjamu di sini~", speaker: "airi" },
+      { name: "Airi", text: "Kamu baru masuk hari ini kan? Aku bakal bantu kamu adaptasi dulu, tenang aja.", speaker: "airi" },
+      { name: "mc", text: "Hehe, makasih ya Airi. Jadi aku ngapain dulu nih?", speaker: "mc" },
+      { name: "Airi", text: "Pertama, buka aplikasi coding di layar kamu. Nanti kamu bakal lihat perintah yang harus diketik.", speaker: "airi" },
+      { name: "Airi", text: "Kalau kamu ngetik salah dan langsung submit ataupun ngetik nya lebih dari 30 detik... hmm... bisa dibilang game over, ya.", speaker: "airi" },
+      { name: "mc", text: "Oke noted... jadi harus cepat dan tepat ya?", speaker: "mc" },
+      { name: "Airi", text: "Exactly! Kalau udah siap, aku bakal nyalain sistemnya. Siap, partner?", speaker: "airi" },
+      { name: "mc", text: "Siap! Let's fix some bugs!", speaker: "mc" }
+    ];
+
+    let playerName = "MC";
+    const nameTag = document.getElementById("name");
+    const textEl = document.getElementById("text");
+    const airi = document.getElementById("airi");
+    const mc = document.getElementById("mc");
+    const dialogueBox = document.getElementById("dialogue-box");
+    const nameInputBox = document.getElementById("nameInputBox");
+
+    let index = 0;
+    let typingInterval;
+
+    function startIntro() {
+      const inputVal = document.getElementById("playerName").value.trim();
+      if (inputVal !== "") playerName = inputVal;
+      localStorage.setItem("playerName", playerName);
+
+      nameInputBox.style.display = "none";
+      dialogueBox.style.display = "block";
+      showDialogue();
+    }
+
+    function showDialogue() {
+      clearInterval(typingInterval);
+      const d = dialogues[index];
+      const displayName = d.name === "mc" ? playerName : d.name;
+
+      nameTag.textContent = displayName;
+      textEl.textContent = "";
+
+      // Ganti fokus karakter
+      if (d.speaker === "airi") {
+        airi.classList.remove("dim");
+        mc.classList.add("dim");
+      } else {
+        mc.classList.remove("dim");
+        airi.classList.add("dim");
+      }
+
+      // Efek mengetik
+      let i = 0;
+      typingInterval = setInterval(() => {
+        textEl.textContent += d.text.charAt(i);
+        i++;
+        if (i >= d.text.length) clearInterval(typingInterval);
+      }, 25);
+    }
+
+    document.addEventListener("click", () => {
+      if (dialogueBox.style.display === "none") return;
+      if (typingInterval) {
+        clearInterval(typingInterval);
+        textEl.textContent = dialogues[index].text;
+        typingInterval = null;
+        return;
+      }
+
+      index++;
+      if (index < dialogues.length) {
+        showDialogue();
+      } else {
+        dialogueBox.innerHTML = `
+          <div class="text" style="text-align:center; font-size:20px;">
+            <b>Tutorial selesai!</b><br>Menjalankan program Real Typing Challenge...
+          </div>`;
+        setTimeout(() => (window.location.href = "game.html"), 2000);
+      }
+    });
+  </script>
+</body>
+</html>

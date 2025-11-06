@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — Parzival Takei</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .gallery-container {
+      max-width: 1100px;
+      margin: 50px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .gallery-card {
+      background: rgba(255,255,255,0.65);
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+
+    .gallery-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    }
+
+    .gallery-card img {
+      width: 100%;
+      border-radius: 10px;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .gallery-card p {
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="logo/parzival-high-resolution-logo-transparent.png" class="site-logo">
+  </div>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="gallery.html" class="active">Gallery</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<h2 class="page-title">Portfolio Gallery</h2>
+
+<div class="gallery-container">
+
+  <div class="gallery-card">
+    <a href="3d-vtuber.html" style="text-decoration: none; color: inherit;">
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgnS4BskGphHAZtx_eBgpgo8XXtRTk6_sFlo2zXUAmWQlW3IkZMoZlz-UNCGaqZKXoXTs6XsrI2aHUvuy1hEptn9snfiJILoygnWYrQ4jkGkMV2PDqdW_WT0qOKTv3MkpaUkDR_H94opT043GvWzAdL50QObwetYQhvDjz8iLwvFNZt0t8b8rrxQGpGaVQ/w439-h247/Screenshot%20(329).png" alt="3D VTuber Avatar" />
+      <p>Portofolio - 3D VTuber Avatar Model</p>
+    </a>
+  </div>
+
+  <div class="gallery-card">
+    <a href="2d-character.html" style="text-decoration: none; color: inherit;">
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiFU4EsX9uP2PPyYIWUfqxZxSiqSPv_syKTahThjDQZqt7eY0ava__3620DtUraRN06nce4ZsjLVRGaDSB1MXslXCVOGE_WeLLptwvh0bfW0CYvSNUDCKm7NZQWFDnbsaas2wA34ASFQRA1hZr1QY0gJsGpUEBZByxhVH6P6SmMroGeShpzxNm8cVya/s320/Tak%20berjudul23-1.png" alt="2D Character" />
+      <p>Portofolio - 2D Character</p>
+    </a>
+  </div>
+
+  <div class="gallery-card">
+    <a href="lunar-veil.html" style="text-decoration: none; color: inherit;">
+      <img src="https://honeyfeed-novel-images.s3.amazonaws.com/uploads/novel_image/file/18775/cover_thumb_9c315627-a32c-4486-b360-520e431a8256.png" alt="Novel Lunar Veil" />
+      <p>Portofolio - Novel Lunar Veil</p>
+    </a>
+  </div>
+
+  <div class="gallery-card">
+    <a href="intro-youtube.html" style="text-decoration: none; color: inherit;">
+      <img src="https://via.placeholder.com/300x200" alt="Intro Youtube" />
+      <p>Portofolio - Intro Youtube</p>
+    </a>
+  </div>
+
+  <div class="gallery-card">
+    <a href="3d-character.html" style="text-decoration: none; color: inherit;">
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi_ILJ4dmMisTj89J-KJoe4JoXriA8VnB6KrSgLpNqGX7-l_aTHhyj6RA6rBan8wphnkQ3ZvPRGP4_PKV3sL6gvc6xbWFdcOhPH-8PLLjmL2oA1c-eq9C1IyIvqvvewof7xM2gaaHa_t9eWHw6r9Fdj1GBP2oXqoEBvEfjMKZYj3Y3JPkvt_-AWCCKq/s320/DOC-20190701-WA0048.jpg" alt="3D Character" />
+      <p>Portofolio - 3D Character</p>
+    </a>
+  </div>
+
+  <div class="gallery-card">
+    <a href="denah-interior.html" style="text-decoration: none; color: inherit;">
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhTRMjvSAe8TRoCb6ZLhfCFrFTOCn9UE4l2R_a3vKc0uWX1kl-7wz7lgLTNrTJDQHpe1E0-89LaLlQ67XXU-HjE5vCdSL5uEZ1vaVPIuJLBojHf5h_jjdVyMzbheUx1zSDMMwGqOpiN-VPR3bxBrc-ak6wIIZUaBQ-cx4WOtX2zuweo5F1o6YhwTSh9/s320/L3D559S14ENDP2QILIQUWJIUELUF3P3XS888_1024x576.jpg" alt="Interior" />
+      <p>Portofolio - Denah + Interior Rumah</p>
+    </a>
+  </div>
+
+  <div class="gallery-card">
+    <a href="3d-bangunan.html" style="text-decoration: none; color: inherit;">
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhzgDd_HwPB-k-ZZ6fQQYvwDwGTfsSp9SaujPgCCwy6TYqtG-YeeBrfSld5d78JyMJqEmfL8yayWqkRf6gqqmrDsvIngXE-zq8TnAnc9AB0nhktTHKh68y-8MWCnZ-fFvmhqX4llkxXcDbl2XpxaVk9UX3HDq4c3HWOd3xfsacXxQNJmu7RM21TE3Pn/s320/3d%20rumah.jpg" alt="3D Building" />
+      <p>Portofolio - 3D Bangunan</p>
+    </a>
+  </div>
+
+  <div class="gallery-card">
+    <a href="games.html" style="text-decoration: none; color: inherit;">
+      <img src="https://content.instructables.com/F4Z/P9T2/HWFLPMUZ/F4ZP9T2HWFLPMUZ.jpg?auto=webp" alt="games" />
+      <p>Portofolio - Games</p>
+    </a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© Parzival — All Rights Reserved</p>
+</footer>
+
+</body>
+  <script src="particles.js"></script>
+</html>

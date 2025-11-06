@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Contact — Parzival Takei</title>
+    <style>
+        .contact-section {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-description {
+            text-align: center;
+            margin: 20px 0 30px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .contact-description a {
+            color: #ff9a9e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-description a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-field label {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .form-field input,
+        .form-field textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-field input:focus,
+        .form-field textarea:focus {
+            outline: none;
+            border-color: #ff9a9e;
+            box-shadow: 0 0 0 2px rgba(255, 154, 158, 0.2);
+        }
+
+        .form-field textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .send-button {
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            align-self: flex-start;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-note {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .form-note a {
+            color: #ff9a9e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-note a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="intro contact-section">
+        <h2>Get in touch</h2>
+        <p class="contact-description">
+            You can email directly at <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a> or use the form below to open your
+            mail client with a prefilled message.
+        </p>
+
+        <form id="contactForm" class="contact-form" novalidate>
+            <div class="form-field">
+                <label for="name">Your name</label>
+                <input type="text" id="name" name="name" placeholder="Jane Doe" required>
+            </div>
+
+            <div class="form-field">
+                <label for="email">Your email</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+            </div>
+
+            <div class="form-field">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" name="subject" placeholder="Subject" required>
+            </div>
+
+            <div class="form-field">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" placeholder="Write your message..." required></textarea>
+            </div>
+
+            <button type="submit" class="send-button">Send via Email</button>
+
+            <p class="form-note">
+                This will open your email client with a prefilled message. You may also email directly:
+                <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a>
+            </p>
+        </form>
+    </section>
+
+    <footer>
+        <p>© Parzival — All Rights Reserved</p>
+    </footer>
+
+    <script src="particles.js"></script>
+    <script>
+        (function () {
+            const form = document.getElementById('contactForm');
+            const status = document.getElementById('status');
+            const recipient = 'rayhancombet@gmail.com';
+
+            function encode(s) { return encodeURIComponent(s || ''); }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (!form.checkValidity()) { form.reportValidity(); return; }
+
+                const name = document.getElementById('name').value.trim();
+                const fromEmail = document.getElementById('email').value.trim();
+                const subject = document.getElementById('subject').value.trim();
+                const message = document.getElementById('message').value.trim();
+
+                const fullSubject = subject || 'Contact from website';
+                const bodyLines = [
+                    'Name: ' + name,
+                    'From: ' + fromEmail,
+                    '',
+                    message
+                ].join('\n');
+
+                const mailto = 'mailto:' + recipient + '?subject=' + encode(fullSubject) + '&body=' + encode(bodyLines);
+
+                status.style.display = 'inline-block';
+                window.location.href = mailto;
+
+                setTimeout(() => { status.style.display = 'none'; }, 3000);
+            });
+        })();
+    </script>
+</body>
+</html>

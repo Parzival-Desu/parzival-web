@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home — Parzival Takei</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .music-list {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .song-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .song-item {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .song-item:hover {
+      transform: translateX(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .song-item img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .song-info {
+      margin-left: 20px;
+    }
+
+    .song-info h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .song-info p {
+      margin: 5px 0 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .hidden-songs {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      margin-top: -15px; /* Compensate for the gap from the last visible item */
+    }
+
+    .hidden-songs.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .hidden-songs .song-item {
+      margin-top: 15px; /* Consistent gap for hidden songs */
+    }
+
+    .toggle-button {
+      display: block;
+      width: fit-content;
+      margin: 20px auto 0;
+      padding: 10px 25px;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .hidden-songs {
+      display: none;
+    }
+
+    .hidden-songs.show {
+      display: block;
+    }
+
+    .toggle-button {
+      display: block;
+      width: fit-content;
+      margin: 20px auto 0;
+      padding: 10px 25px;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="banner">
+    <img src="https://i.pinimg.com/originals/44/2f/87/442f87102c6e80b2b18d001543d5b0d5.jpg" alt="Banner">
+  </section>
+
+  <section class="intro">
+    <h2>Welcome to My Colorful Page</h2>
+    <p>
+      Hello, I'm Rayhan Khadafi!
+      <p>I'm a Game & UI Developer from Bandung, passionate about crafting visuals that blend creativity and technology. I also enjoy designing 3D buildings, interiors, and characters that bring ideas to life.</p>
+      My favorite songs are listed below. Enjoy browsing!:
+    </p>
+  </section>
+
+  <section class="music-list">
+    <div class="song-container">
+      <!-- Initially visible songs -->
+      <a href="https://open.spotify.com/track/50viqPbAvhYq8cednKv1a9?si=e8c315695bf94484" target="_blank" class="song-item">
+        <img src="https://i.pinimg.com/736x/fc/62/cf/fc62cfedaf76a55278cc7021f56b202f.jpg" alt="The Light That Dwells Here">
+        <div class="song-info">
+          <h3>The Light That Dwells Here</h3>
+          <p>Nightcord at 25:00</p>
+        </div>
+      </a>
+
+      <a href="https://open.spotify.com/track/1H2pPtoPS8kNlqCN7HfT6g?si=758d9b74f9964cac" target="_blank" class="song-item">
+        <img src="https://i.pinimg.com/736x/64/da/2a/64da2ae6d085d7d1a6c4a8b964e13e67.jpg" alt="Machine Love">
+        <div class="song-info">
+          <h3>Machine Love</h3>
+          <p>JamieP</p>
+        </div>
+      </a>
+
+      <a href="https://open.spotify.com/track/4Ts3FQkEs1jRIbcgxxT7R0?si=28a5bc8077e04108" target="_blank" class="song-item">
+        <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2Ffef8452c919750ce2afd3fdb8ef3ea27.725x725x1.jpg" alt="Fuyubiyori">
+        <div class="song-info">
+          <h3>Fuyubiyori</h3>
+          <p>Eri Sasaki</p>
+        </div>
+      </a>
+
+      <a href="https://open.spotify.com/track/7sMRDjjwsB7wQEBOkdfg0i?si=e12d5a98b412420e" target="_blank" class="song-item">
+        <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2F1721b4fdf56722aa52fb73f3195a1f51.1000x1000x1.png" alt="Kaijuu">
+        <div class="song-info">
+          <h3>Kaijuu</h3>
+          <p>Sakanaction</p>
+        </div>
+      </a>
+
+      <!-- Hidden songs -->
+      <div class="hidden-songs">
+        <a href="https://open.spotify.com/track/0JJP0IS4w0fJx01EcrfkDe?si=91adf5a331c94f18" target="_blank" class="song-item">
+          <img src="https://i.scdn.co/image/ab67616d0000b273bc808b144fcb8afe6a82214a" alt="Dear Maria Count Me In">
+          <div class="song-info">
+            <h3>Dear Maria Count Me In</h3>
+            <p>All Time Low</p>
+          </div>
+        </a>
+
+        <a href="https://open.spotify.com/track/4Ni2mtHVH4yvlVRM3KlKfd?si=ecf4bfbc08e543c0" target="_blank" class="song-item">
+          <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2F0e636fea36a0b570fdfc887300c85ffc.994x1000x1.png" alt="Mass Destruction">
+          <div class="song-info">
+            <h3>Mass Destruction</h3>
+            <p>Lotus Juice</p>
+          </div>
+        </a>
+
+        <a href="https://open.spotify.com/track/56aR8fCNORk8XIrQGo75IQ?si=6337802b55544281" target="_blank" class="song-item">
+          <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2F8f01ca2182e17b9269a14e2fd21bb311.1000x1000x1.png" alt="Da Capo">
+          <div class="song-info">
+            <h3>Da Capo</h3>
+            <p>HOYO-Mix</p>
+          </div>
+        </a>
+
+        <a href="https://open.spotify.com/track/2rKQWt3ijoXObAUWi1gSJC?si=528bcb6c56134d99" target="_blank" class="song-item">
+          <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2F1d1e94071fcbc1122bccc4efb5a5cd75.1000x1000x1.png" alt="Psyche">
+          <div class="song-info">
+            <h3>Psyche</h3>
+            <p>Heiakim & Kitsui Akira</p>
+          </div>
+        </a>
+
+        <a href="https://open.spotify.com/track/6Ap1zrEjcbKKoUyE3taghj?si=bf3ba02281b343de" target="_blank" class="song-item">
+          <img src="https://i.scdn.co/image/ab67616d0000b27372a19e1a056e097461088d5b" alt="Angel with a shotgun">
+          <div class="song-info">
+            <h3>Nightcore - Angel with a shotgun</h3>
+          </div>
+        </a>
+
+        <a href="https://open.spotify.com/track/2SLuTdPR3ptm4V4byF8Iry?si=9118726bee784e9e" target="_blank" class="song-item">
+          <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2F11aec7b8f1074770c7da9b0c5e10f209.1000x1000x1.jpg" alt="Hello, SEKAI">
+          <div class="song-info">
+            <h3>Hello, SEKAI</h3>
+            <p>DECO*27</p>
+          </div>
+        </a>
+
+        <a href="https://open.spotify.com/track/3BaFJ4XIwXiL3oFGH5LHeK?si=6ddd408d28964e0f" target="_blank" class="song-item">
+          <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2F7913f253ff478ff13a0ac048aeadc313.1000x1000x1.png" alt="Only Up">
+          <div class="song-info">
+            <h3>Only Up</h3>
+            <p>AJ DiSpirito & Lizz Robinett</p>
+          </div>
+        </a>
+
+        <a href="https://open.spotify.com/track/3znIACSXPLn3HFCf7moZ28?si=f1b1acac1a09487b" target="_blank" class="song-item">
+          <img src="https://t2.genius.com/unsafe/387x387/https%3A%2F%2Fimages.genius.com%2F49435de205128762caf51951c5b7c52c.1000x1000x1.png" alt="It's Going Down Now">
+          <div class="song-info">
+            <h3>It's Going Down Now</h3>
+            <p>Azumi Takahashi & Lotus Juice</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Toggle button -->
+      <button class="toggle-button" onclick="toggleSongs()">Show More</button>
+    </div>
+  </section>
+
+  <div class="draw-area">
+    <h3>Draw something! 🎨</h3>
+    <canvas id="drawCanvas" width="300" height="150"></canvas>
+    <div class="controls">
+      <button id="clearBtn">↺ Clear</button>
+      <input type="color" id="colorPicker" value="#a73c3c">
+    </div>
+  </div>
+
+  <script>
+    // Show/Hide songs functionality
+    function toggleSongs() {
+      const hiddenSongs = document.querySelector('.hidden-songs');
+      const button = document.querySelector('.toggle-button');
+      
+      hiddenSongs.classList.toggle('show');
+      if (hiddenSongs.classList.contains('show')) {
+        button.textContent = 'Show Less';
+      } else {
+        button.textContent = 'Show More';
+      }
+    }
+
+    // Simple drawing functionality
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let color = document.getElementById('colorPicker').value;  canvas.addEventListener('mousedown', () => drawing = true);
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseout', () => drawing = false);
+  canvas.addEventListener('mousemove', draw);
+  document.getElementById('colorPicker').addEventListener('input', e => color = e.target.value);
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+
+  function draw(e) {
+    if (!drawing) return;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(e.offsetX, e.offsetY, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+</script>
+
+  <footer>
+    <p>© Parzival — All Rights Reserved</p>
+  </footer>
+  <script src="particles.js"></script>
+</body>
+</html>

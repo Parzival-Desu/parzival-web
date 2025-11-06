@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denah + Interior Rumah - Parzival Takei</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .portfolio-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .portfolio-wrapper {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .portfolio-wrapper h2 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .portfolio-image {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .video-wrapper {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .video-player {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+            background: #000;
+        }
+
+        .custom-video-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 10px auto 0;
+        }
+
+        .play-pause-btn {
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .play-pause-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .time-display {
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .description {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin: 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #ff9a9e;
+        }
+
+        .section-title {
+            color: #333;
+            margin: 30px 0 15px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .portfolio-container {
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="portfolio-container">
+        <a href="gallery.html" class="back-link">← Back to Gallery</a>
+        
+        <div class="portfolio-grid">
+            <div class="portfolio-wrapper">
+                <h2>Denah + Interior Rumah</h2>
+                
+                <h3 class="section-title">Floor Plan & Interior Preview</h3>
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhTRMjvSAe8TRoCb6ZLhfCFrFTOCn9UE4l2R_a3vKc0uWX1kl-7wz7lgLTNrTJDQHpe1E0-89LaLlQ67XXU-HjE5vCdSL5uEZ1vaVPIuJLBojHf5h_jjdVyMzbheUx1zSDMMwGqOpiN-VPR3bxBrc-ak6wIIZUaBQ-cx4WOtX2zuweo5F1o6YhwTSh9/s320/L3D559S14ENDP2QILIQUWJIUELUF3P3XS888_1024x576.jpg" alt="Interior Design" class="portfolio-image">
+                
+                <h3 class="section-title">3D Walkthrough</h3>
+                <div class="video-wrapper">
+                    <video class="video-player" id="video1">
+                        <source src="videos/Denah-Rumah.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="custom-video-controls">
+                        <button class="play-pause-btn" onclick="togglePlay('video1')">Play</button>
+                        <span class="time-display" id="time1">0:00 / 0:00</span>
+                    </div>
+                </div>
+
+                <div class="description">
+                    <p>Created using Coohom.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Parzival Takei. All rights reserved.</p>
+    </footer>
+
+    <script src="particles.js"></script>
+    <script>
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            seconds = Math.floor(seconds % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimeDisplay(videoId) {
+            const video = document.getElementById(videoId);
+            const timeDisplay = document.getElementById('time' + videoId.slice(-1));
+            const currentTime = formatTime(video.currentTime);
+            const duration = formatTime(video.duration || 0);
+            timeDisplay.textContent = `${currentTime} / ${duration}`;
+        }
+
+        function togglePlay(videoId) {
+            const video = document.getElementById(videoId);
+            const btn = video.parentElement.querySelector('.play-pause-btn');
+            
+            if (video.paused) {
+                video.play();
+                btn.textContent = 'Pause';
+            } else {
+                video.pause();
+                btn.textContent = 'Play';
+            }
+        }
+
+        // Set up event listeners for video
+        const video = document.getElementById('video1');
+        video.addEventListener('timeupdate', () => updateTimeDisplay('video1'));
+        video.addEventListener('loadedmetadata', () => updateTimeDisplay('video1'));
+        video.addEventListener('ended', () => {
+            const btn = video.parentElement.querySelector('.play-pause-btn');
+            btn.textContent = 'Play';
+        });
+    </script>
+</body>
+</html>

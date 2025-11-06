@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>About — Parzival Takei</title>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="intro">
+        <h2>About this site</h2>
+        <p>
+            This website is my personal space, a small corner of the internet where I share my work, thoughts, and creative experiments. 
+            It's intentionally simple, clean, and easy to explore, just the way I like to build things.
+        </p>
+    </section>
+
+    <section class="intro two-column">
+        <div class="content-column">
+            <h2>Who I am</h2>
+            <p>
+                Hey, I'm <strong>Parzival Takei</strong>, a 20-year-old game and UI developer passionate about crafting interactive designs and visual experiences. I love experimenting with code, playing around with layouts, and creating things that look and feel right.
+            </p>
+            <p>
+                Outside of development, I enjoy reading comics, watching anime, playing games, and listening to music.
+            </p>
+            <div class="contact-info">
+                <h3>Contact</h3>
+                <p>
+                    You can reach me at <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a> or via the <a href="contact.html">Contact</a> page.
+                </p>
+            </div>
+        </div>
+        <div class="image-column">
+            <img src="https://i.pinimg.com/736x/2f/62/41/2f6241ea4f7b512b8e615fd96c5678da.jpg" alt="Profile illustration">
+        </div>
+    </section>
+
+    <footer>
+        <p>© Parzival — All Rights Reserved</p>
+    </footer>
+<script src="particles.js"></script>
+</body>
+</html>

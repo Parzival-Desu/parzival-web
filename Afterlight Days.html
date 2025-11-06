@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Afterlight Days — Scene 1</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+  body { background: #000; color: #fff; overflow: hidden; }
+
+  #vn-container, #start-screen, #end-screen {
+    width: 100vw; height: 100vh;
+    position: absolute; top: 0; left: 0;
+    display: flex; justify-content: center; align-items: center;
+    transition: opacity 0.8s ease;
+  }
+
+  #start-screen, #end-screen {
+    background: linear-gradient(180deg, #1b1b2f 0%, #16213e 100%);
+    flex-direction: column;
+    text-align: center;
+  }
+
+  #start-title {
+    font-size: 3rem;
+    color: #ffb6c1;
+    margin-bottom: 40px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  #name-input {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    width: 220px;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  #start-btn, #restart-btn {
+    padding: 10px 30px;
+    font-size: 18px;
+    background: #ffb6c1;
+    color: #000;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+  }
+  #start-btn:hover, #restart-btn:hover { background: #ff92a8; }
+
+  #bg, #char {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease;
+  }
+
+  #textbox {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.6);
+    padding: 30px 60px;
+    font-size: 24px;
+    line-height: 1.7;
+  }
+
+  #namebox {
+    font-weight: 600;
+    color: #ffb6c1;
+    margin-bottom: 10px;
+    font-size: 22px;
+  }
+
+  #indicator {
+    position: absolute;
+    bottom: 20px;
+    right: 50px;
+    color: #fff;
+    font-size: 24px;
+    opacity: 0.7;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 50%, 100% { opacity: 0.7; }
+    25%, 75% { opacity: 0; }
+  }
+
+  #vn-container { opacity: 0; pointer-events: none; display: none; }
+  #end-screen { opacity: 0; pointer-events: none; display: none; }
+
+  #end-text {
+    color: #ffb6c1;
+    font-size: 2.8rem;
+    margin-bottom: 30px;
+    font-weight: 600;
+  }
+
+  #credits {
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    text-align: center;
+    color: #ddd;
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
+
+  #credits b { color: #ffb6c1; }
+  .credit-link { color: #ffb6c1; text-decoration: none; transition: 0.2s ease; }
+  .credit-link:hover { color: #ffd2dc; text-shadow: 0 0 6px rgba(255,182,193,0.6); }
+
+  #back-btn {
+    position: absolute;
+    top: 20px; left: 20px;
+    background: rgba(255,182,193,0.9);
+    color: #000;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    z-index: 999;
+  }
+  #back-btn:hover { background: #ff92a8; transform: scale(1.05); }
+
+  /* === Mute Button === */
+  #mute-btn {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    background: rgba(255,182,193,0.9);
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 999;
+    transition: 0.3s ease;
+  }
+  #mute-btn:hover { background: #ff92a8; transform: scale(1.1); }
+</style>
+</head>
+<body>
+  
+<!-- === Start Screen === -->
+<div id="start-screen">
+  <button id="back-btn" onclick="window.location.href='games.html'">← Back</button>
+  <div id="start-title">Afterlight Days</div>
+  <input type="text" id="name-input" placeholder="Enter your name..." maxlength="12" />
+  <button id="start-btn">Play</button>
+</div>
+
+<!-- === VN Scene === -->
+<div id="vn-container">
+  <button id="mute-btn">🔊</button>
+  <img id="bg" src="img/bg_classroom.png" />
+  <img id="char" src="img/aiko_smile.png" />
+  <div id="textbox">
+    <div id="namebox"></div>
+    <div id="text"></div>
+    <div id="indicator">▶</div>
+  </div>
+</div>
+
+<!-- === End Screen === -->
+<div id="end-screen">
+  <button id="back-btn" onclick="window.location.href='games.html'">← Back</button>
+  <div id="end-text">The End</div>
+  <div id="credits">
+    <p><b>Credits</b></p>
+    <p>
+      CG & Character Art — 
+      <b><a href="https://noranekogames.itch.io/" target="_blank" class="credit-link">NoranekoGames</a></b><br>
+      Backgrounds Class — 
+      <b><a href="https://potat0master.itch.io/" target="_blank" class="credit-link">potat0master</a></b><br>
+      Backgrounds Park — 
+      <b><a href="https://tidalblossoms.itch.io/" target="_blank" class="credit-link">Delphinium Interactive</a></b><br>
+      Backgrounds Bar and City — 
+      <b><a href="https://lemmasoft.renai.us/forums/viewtopic.php?f=52&t=17302#p226871" target="_blank" class="credit-link">Uncle Mugen's</a></b><br>
+      Music —
+      <b><a href="https://www.davidkbd.com/" target="_blank" class="credit-link">DavidKBD</a></b><br>
+      Script & Code — <b>Parzival</b>
+    </p>
+    <p style="margin-top: 15px; font-size: 0.9rem; color: #aaa;">Thank you for playing.</p>
+    <button id="restart-btn" style="margin-top:30px;">Back to Title</button>
+  </div>
+</div>
+
+<!-- === Background Music === -->
+<audio id="bgm" loop>
+  <source src="audio/DavidKBD - Tropical Pack - 01 - Spring Romance - Acoustic.ogg" type="audio/ogg">
+</audio>
+
+<script>
+let playerName = "Kamu";
+let index = 0;
+let isMuted = false;
+
+const bgm = document.getElementById("bgm");
+const muteBtn = document.getElementById("mute-btn");
+
+muteBtn.addEventListener("click", (event) => {
+  event.stopPropagation(); // ⛔
+  isMuted = !isMuted;
+  bgm.muted = isMuted;
+  muteBtn.textContent = isMuted ? "🔇" : "🔊";
+});
+
+
+// === Mulai game ===
+const startScreen = document.getElementById("start-screen");
+const vnContainer = document.getElementById("vn-container");
+const endScreen = document.getElementById("end-screen");
+const credits = document.getElementById("credits");
+const nameInput = document.getElementById("name-input");
+const startBtn = document.getElementById("start-btn");
+const restartBtn = document.getElementById("restart-btn");
+const bg = document.getElementById("bg");
+const char = document.getElementById("char");
+const namebox = document.getElementById("namebox");
+const text = document.getElementById("text");
+
+// === Scenes ===
+const scenes = [
+  { name: "", text: "Sore hari di ruang kelas yang mulai sepi.\nKau baru saja selesai membereskan buku ketika suara langkah terdengar.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "" },
+  { name: "Aiko", text: "Oh, [name]? Aku kira udah nggak ada siapa-siapa di sini.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/4.png" },
+  { name: playerName, text: "Aku cuma mau ambil pensilku yang ketinggalan tadi pagi.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/3.png" },
+  { name: "Aiko", text: "Heh, sama. Aku juga… ternyata kita berdua pelupa, ya?", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/4.png" },
+  { name: "", text: "Kau dan Aiko saling tertawa kecil.\nSuasana di antara kalian terasa aneh… tapi hangat.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "" },
+  { name: "Aiko", text: "Eh, [name]… aku nggak tahu kenapa, tapi senja hari ini kelihatan beda.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/1.png" },
+  { name: playerName, text: "Mungkin karena kita ngelihatnya bareng.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/2.png" },
+  { name: "Aiko", text: "W-what? Dasar… ngomong gitu tiba-tiba.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/1.png" },
+  { name: "", text: "Kau tersenyum. Dan untuk sesaat, waktu terasa melambat bersama cahaya sore yang lembut.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "" },
+
+  // === Scene tambahan (lanjutan) ===
+  { name: playerName, text: "Eh, ngomong-ngomong, kamu udah mau pulang?", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/3.png" },
+  { name: "Aiko", text: "Iya, bentar lagi. Tapi kayaknya aku pengen jalan pelan-pelan aja, adem banget soalnya sore ini.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/4.png" },
+  { name: playerName, text: "Kalau gitu bareng aja yuk. Aku juga mau lewat taman, sekalian nyari angin.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/2.png" },
+  { name: "Aiko", text: "Heh~ ngajak pulang bareng gini, kamu nggak takut aku GR?", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/1.png" },
+  { name: playerName, text: "Kalau kamu GR, berarti ajakanku berhasil.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/2.png" },
+  { name: "Aiko", text: "Haha, dasar. Kamu berubah ya akhir-akhir ini. Lebih lancar ngomongnya.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/4.png" },
+  { name: playerName, text: "Atau mungkin aku cuma nyaman aja kalau ngobrol sama kamu.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/2.png" },
+  { name: "Aiko", text: "…jangan ngomong manis gitu dong, aku jadi nggak tahu harus ngelihat ke mana.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/1.png" },
+  { name: "", text: "Aiko tersenyum kecil, menatap jendela yang mulai dipenuhi warna jingga.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "" },
+  { name: "Aiko", text: "Eh, [name]… kamu sibuk nggak akhir minggu ini?", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/4.png" },
+  { name: playerName, text: "Nggak juga, kenapa?", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/3.png" },
+  { name: "Aiko", text: "Aku cuma kepikiran... mungkin kita bisa jalan bareng. Kayak ke taman atau kafe gitu.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/1.png" },
+  { name: playerName, text: "Kedengarannya seru. Aku mau, ayo.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/2.png" },
+  { name: "Aiko", text: "Hehe, oke. Jadi janji ya, akhir minggu ini.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "Aiko/SummerUniform/4.png" },
+
+  // === Transition: fade out (menuju date scene) ===
+  { name: "", text: "Langit senja mulai meredup. Suara langkah kalian berdua menyatu di lorong sekolah yang mulai kosong.\nSebuah sore sederhana… tapi terasa istimewa.", bg: "SchoolBG/smp_classroom3_evening1.png", char: "", transition: "fadeOut" },
+
+  // === Scene: Depan Apartment Aiko (fade in) ===
+  { name: "", text: "Beberapa hari kemudian, akhir minggu pun tiba.\nKau berdiri di depan Apartment nya Aiko, menunggu dia untuk keluar dari dalam.", bg: "AnotherBG/Apartment_Exterior.png", char: "", transition: "fadeIn" },
+  { name: playerName, text: "(Dia bilang siapnya jam sepuluh...)", bg: "AnotherBG/Apartment_Exterior.png", char: "" },
+  { name: "", text: "Pintu depan terbuka perlahan. Aiko muncul dengan pakaian kasual, rambutnya sedikit dibiarkan terurai.", bg: "AnotherBG/Small_Apartment_Kitchen.png", char: "Aiko/Casual/4.png" },
+  { name: "Aiko", text: "Maaf nunggu lama ya, [name]. Aku sempet bingung milih baju.", bg: "AnotherBG/Small_Apartment_Kitchen.png", char: "Aiko/Casual/3.png" },
+  { name: playerName, text: "Nggak apa-apa. Lagian... kamu kelihatan cantik banget sekarang.", bg: "AnotherBG/Small_Apartment_Kitchen.png", char: "Aiko/Casual/5.png" },
+  { name: "Aiko", text: "Heh... kamu tuh ya, bisa aja ngomongnya.", bg: "AnotherBG/Small_Apartment_Kitchen.png", char: "Aiko/Casual/2.png" },
+
+  // === Scene: Taman ===
+  { name: "", text: "Kalian berjalan berdua menuju taman yang tak terlalu jauh.\nAngin lembut berhembus di antara pepohonan.", bg: "AnotherBG/Spring_Park1.png", char: "" },
+  { name: "Aiko", text: "Wah, udah lama aku nggak ke sini. Dulu sering banget main di taman ini.", bg: "AnotherBG/Spring_Park1.png", char: "Aiko/Casual/4.png" },
+  { name: playerName, text: "Tempatnya tenang juga, ya. Pas banget buat jalan santai.", bg: "AnotherBG/Spring_Park1.png", char: "Aiko/Casual/2.png" },
+  { name: "Aiko", text: "Iya, apalagi sama temen yang asik~", bg: "AnotherBG/Spring_Park1.png", char: "Aiko/Casual/1.png" },
+  { name: playerName, text: "Temen doang nih?", bg: "AnotherBG/Spring_Park1.png", char: "Aiko/Casual/2.png" },
+  { name: "Aiko", text: "Heh, jangan mancing ah.", bg: "AnotherBG/Spring_Park1.png", char: "Aiko/Casual/3.png" },
+  { name: "", text: "Kalian duduk di bangku taman, menikmati suasana siang yang tenang.\nAiko tertawa kecil melihat anak-anak bermain di kejauhan.", bg: "AnotherBG/Spring_Park4.png", char: "Aiko/Casual/4.png" },
+  { name: playerName, text: "Aku senang kita bisa jalan bareng hari ini.", bg: "AnotherBG/Spring_Park4.png", char: "Aiko/Casual/5.png" },
+  { name: "Aiko", text: "Aku juga, [name]. Terima kasih sudah ngajak aku keluar.", bg: "AnotherBG/Spring_Park4.png", char: "Aiko/Casual/1.png" },
+  { name: "", text: "Hari itu terasa hangat, bukan hanya karena matahari, tapi juga karena kehadiran satu sama lain.", bg: "AnotherBG/Spring_Park4.png", char: "" },
+
+  // === Scene: Outside ===
+  { name: "", text: "Matahari mulai tenggelam, dan kalian pun memutuskan mencari tempat makan terdekat.", bg: "RestaurantBG/Backstreet_Spring_Afternoon.png", char: "", transition: "fade" },
+  { name: "Aiko", text: "Eh, itu tuh restoran yang baru buka minggu lalu. Katanya enak!", bg: "RestaurantBG/Backstreet_Spring_Afternoon.png", char: "Aiko/Casual/3.png" },
+  { name: playerName, text: "Oke, kita coba ke situ aja, perut juga udah mulai protes nih.", bg: "RestaurantBG/Backstreet_Spring_Afternoon.png", char: "Aiko/Casual/4.png" },
+
+  // === Scene: Inside restaurant ===
+  { name: "", text: "Kalian masuk ke dalam restoran kecil dengan suasana hangat dan aroma masakan yang menggoda.", bg: "RestaurantBG/Restaurant_A.png", char: "", transition: "fade" },
+  { name: "Aiko", text: "Wah, ternyata tempatnya lucu juga ya. Nggak seramai yang kukira.", bg: "RestaurantBG/Restaurant_A.png", char: "Aiko/Casual/4.png" },
+  { name: playerName, text: "Iya, nyaman banget. Mau duduk di mana?", bg: "RestaurantBG/Restaurant_A.png", char: "Aiko/Casual/4.png" },
+  { name: "", text: "Seorang pegawai mendekat dengan senyum ramah.", bg: "RestaurantBG/Restaurant_A.png", char: "" },
+  { name: "Pegawai", text: "Selamat malam! Mau di meja biasa, atau kami punya ruang lesehan di belakang kalau mau yang lebih santai.", bg: "RestaurantBG/Restaurant_A.png", char: "" },
+  { name: "Aiko", text: "Lesehan? Wah, aku belum pernah makan di tempat lesehan bareng kamu.", bg: "RestaurantBG/Restaurant_A.png", char: "Aiko/Casual/4.png" },
+  { name: playerName, text: "Ya udah, cobain aja. Sekalian santai juga kan.", bg: "RestaurantBG/Restaurant_A.png", char: "Aiko/Casual/1.png" },
+
+  // === Scene: Lesehan area ===
+  { name: "", text: "Pegawai itu mengantar kalian ke ruangan kecil di belakang.\nLantainya dilapisi karpet lembut dengan meja kayu rendah dan lampu hangat di atasnya.", bg: "RestaurantBG/lesehan_room.png", char: "", transition: "fade" },
+  { name: "", text: "Kalian duduk di ruangan lesehan yang tenang.\nLampu kekuningan memantul lembut di dinding kayu, menciptakan suasana hangat.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "", transition: "fade" },
+  { name: "Aiko", text: "Hehe, kalau gitu jangan buru-buru pulang.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: "Aiko", text: "Wah… suasananya cozy banget ya. Kayak di rumah sendiri.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: playerName, text: "Iya, malah bikin betah. Makanannya juga wangi banget.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: "", text: "Kalian duduk berhadapan di atas alas empuk.\nWaktu terasa berjalan lambat di tengah cahaya lampu temaram.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: "Aiko", text: "Thanks ya, [name]. Hari ini rasanya... tenang banget.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: playerName, text: "Aku juga. Rasanya kayak nggak pengen hari ini cepat selesai.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: "Aiko", text: "Hehe, kalau gitu jangan buru-buru pulang.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: "", text: "Aiko tersenyum lembut, lalu menatap keluar jendela kecil di samping ruangan.\nCahaya lampu kota berbaur dengan warna malam yang menenangkan.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_3.png", char: "" },
+  { name: playerName, text: "Boleh kan… kalau aku bilang ini salah satu hari terbaikku?", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_18.png", char: "" },
+  { name: "Aiko", text: "…Aku juga ngerasa gitu.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_4.png", char: "" },
+  { name: "", text: "Keduanya saling bertukar senyum kecil.\nMalam itu sederhana, tapi terasa begitu dekat.", bg: "Aiko/Aiko_Food/None/CG_Aiko_Food_Casual_None_4.png", char: "" },
+
+  // === Scene: Bar Night ===
+  { name: "", text: "Beberapa hari kemudian, malam di kota terasa lebih hidup dari biasanya.\nLampu-lampu neon memantul di jalan basah seusai hujan.", bg: "BarBG/outside_bar.webp", char: "", transition: "fade" },
+  { name: playerName, text: "(Aiko bilang tempatnya nggak terlalu ramai... tapi suasananya tetap elegan.)", bg: "BarBG/outside_bar.webp", char: "" },
+  { name: "", text: "Kau melangkah masuk ke dalam bar kecil yang dipenuhi musik pelan dan aroma kopi serta alkohol ringan.", bg: "BarBG/DSC_0232.webp", char: "" },
+  { name: "Aiko", text: "[name]! Sini!", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/1.png" },
+  { name: playerName, text: "Heh... kamu kelihatan beda banget malam ini.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/4.png" },
+  { name: "Aiko", text: "Makasih. Aku cuma... pengen tampil sedikit rapi aja, gitu.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/5.png" },
+  { name: playerName, text: "Rapi sih iya, tapi kayaknya lebih dari itu. Kamu keliatan cantik banget.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/5.png" },
+  { name: "Aiko", text: "Heh?! J-jangan ngomong kayak gitu di tempat umum...", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/4.png" },
+  { name: "", text: "Kau tertawa kecil. Aiko berusaha menutupi wajahnya dengan tangan, tapi pipinya jelas memerah.", bg: "BarBG/DSC_0170.webp", char: "" },
+  { name: "Aiko", text: "Ngomong-ngomong... mereka bilang bakal ada band akustik yang tampil bentar lagi.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/1.png" },
+  { name: playerName, text: "Oh ya? Wah, pas banget buat santai malam-malam gini.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/1.png" },
+  { name: "Aiko", text: "Hehe... terus nanti katanya boleh ikut naik ke panggung kalau mau nyanyi bareng.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/1.png" },
+  { name: playerName, text: "Haha, kamu mau coba?", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/4.png" },
+  { name: "Aiko", text: "Mungkin... kalau kamu juga mau nyanyi.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/5.png" },
+  { name: "", text: "Kau tersenyum, lalu mengangguk kecil.\nMusik mulai pelan, dan suasana bar terasa hangat dengan cahaya kuning lembut dari lampu gantung.", bg: "BarBG/DSC_0170.webp", char: "" },
+  { name: "Aiko", text: "Malam ini... aku pengen waktu berhenti sebentar aja.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/1.png" },
+  { name: playerName, text: "Kalau bisa, aku juga nggak mau malam ini cepet berakhir.", bg: "BarBG/DSC_0170.webp", char: "Aiko/Formal/1.png" },
+  { name: "", text: "Keduanya saling menatap dalam diam.\nDi luar, hujan kembali turun pelan... menambah hangatnya malam yang sederhana itu.", bg: "BarBG/DSC_0170.webp", char: "" }
+];
+
+startBtn.addEventListener("click", () => {
+  const nameValue = nameInput.value.trim();
+  if (nameValue !== "") playerName = nameValue;
+  index = 0;
+  startScreen.style.opacity = 0;
+  setTimeout(() => {
+    startScreen.style.display = "none";
+    vnContainer.style.display = "flex";
+    vnContainer.style.opacity = 1;
+    vnContainer.style.pointerEvents = "auto";
+    bgm.play().catch(()=>{});
+    showScene(index);
+  }, 800);
+});
+
+function showScene(i) {
+  const s = scenes[i];
+  bg.style.opacity = 0;
+  char.style.opacity = 0;
+  setTimeout(() => {
+    bg.src = s.bg;
+    char.src = s.char || "";
+    bg.style.opacity = 1;
+    char.style.opacity = 1;
+  }, 150);
+  namebox.textContent = s.name ? s.name.replaceAll("[name]", playerName) : "";
+  text.textContent = s.text.replaceAll("[name]", playerName);
+  if (i >= scenes.length - 1) {
+    setTimeout(() => {
+      vnContainer.style.opacity = 0;
+      setTimeout(() => {
+        vnContainer.style.display = "none";
+        endScreen.style.display = "flex";
+        endScreen.style.opacity = 1;
+        endScreen.style.pointerEvents = "auto";
+        setTimeout(() => { credits.style.opacity = 1; }, 1200);
+      }, 800);
+    }, 1200);
+  }
+}
+
+document.addEventListener("click", () => {
+  if (startScreen.style.display !== "none" || endScreen.style.display === "flex") return;
+  index++;
+  if (index < scenes.length) showScene(index);
+});
+
+restartBtn.addEventListener("click", () => {
+  endScreen.style.opacity = 0;
+  credits.style.opacity = 0;
+  setTimeout(() => {
+    endScreen.style.display = "none";
+    startScreen.style.display = "flex";
+    startScreen.style.opacity = 1;
+    vnContainer.style.display = "none";
+    vnContainer.style.opacity = 0;
+    vnContainer.style.pointerEvents = "none";
+    index = 0;
+    playerName = "Kamu";
+    nameInput.value = "";
+    bgm.pause();
+    bgm.currentTime = 0;
+  }, 800);
+});
+</script>
+</body>
+</html>

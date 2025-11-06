@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Typing Challenge — Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+      background: url("city background/7.png") no-repeat center center/cover;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(3px);
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 800px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 182, 193, 0.3);
+      padding: 30px 40px;
+      text-align: center;
+      color: white;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: #ffb6c1;
+      margin-bottom: 15px;
+      font-size: 28px;
+    }
+
+    .timer {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #ffd6da;
+    }
+
+    .command-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid #ffb6c1;
+      border-radius: 10px;
+      padding: 20px;
+      font-size: 18px;
+      margin-bottom: 20px;
+      text-align: left;
+      white-space: pre-wrap;
+      user-select: none;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      border: none;
+      border-radius: 8px;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover { transform: scale(1.05); }
+
+    .result {
+      margin-top: 15px;
+      font-size: 18px;
+      height: 25px;
+    }
+
+    .correct { color: #90ee90; }
+    .wrong { color: #ff6961; }
+
+    .score {
+      margin-top: 10px;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    .game-over, .ending-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 999;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .game-over h2, .ending-screen h2 {
+      color: #ffb6c1;
+      margin-bottom: 15px;
+    }
+
+    .ending-screen .credits {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .ending-buttons {
+      display: flex;
+      gap: 20px;
+    }
+
+    .ending-buttons button {
+      background: linear-gradient(90deg, #ffb6c1, #fad0c4);
+      border: none;
+      color: #000;
+      padding: 10px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s ease;
+    }
+
+    .ending-buttons button:hover {
+      transform: scale(1.05);
+    }
+
+      #credits {
+        opacity: 0;
+        transition: opacity 1.5s ease;
+        text-align: center;
+        color: #ddd;
+        font-size: 1.1rem;
+        line-height: 1.8;
+      }
+
+      #credits b { color: #ffb6c1; }
+        .credit-link { color: #ffb6c1; text-decoration: none; transition: 0.2s ease; }
+        .credit-link:hover { color: #ffd2dc; text-shadow: 0 0 6px rgba(255,182,193,0.6);}
+  </style>
+</head>
+
+<body oncontextmenu="return false">
+  <div class="overlay"></div>
+  <div class="container">
+    <h1 id="welcome"></h1>
+    <div class="timer" id="timer">Waktu: 30s</div>
+    <div class="command-box" id="commandBox"></div>
+
+    <input type="text" id="inputCommand" placeholder="Ketik di sini..." autocomplete="off" spellcheck="false" />
+    <button id="submitBtn">Submit</button>
+
+    <div class="result" id="result"></div>
+    <div class="score" id="score"></div>
+  </div>
+
+  <div class="game-over" id="gameOver" style="display: none;">
+    <h2>GAME OVER</h2>
+    <p>Waktumu habis atau perintah salah...</p>
+    <button onclick="location.reload()">Coba Lagi</button>
+  </div>
+
+  <div class="ending-screen" id="endingScreen" style="display: none;">
+    <h2>Selamat, kamu sudah menyelesaikan semua tugas!</h2>
+    <div id="credits">
+    <p><b>Credits</b></p>
+    <p>
+      Character Art — 
+      <b><a href="https://nsaid.itch.io/" target="_blank" class="credit-link">nsaid</a></b><br>
+      Backgrounds City — 
+      <b><a href="https://craftpix.net/freebies/free-city-backgrounds-pixel-art/" target="_blank" class="credit-link">CraftPix</a></b><br>
+      Script & Code — <b>Parzival</b>
+    </p>
+    <p style="margin-top: 15px; font-size: 0.9rem; color: #aaa;">Thank you for playing.</p>
+  </div>
+    <div class="ending-buttons">
+      <button onclick="window.location.href='intro.html'">Kembali ke Awal</button>
+      <button onclick="restartRandom()">Main Lagi</button>
+    </div>
+    <div style="margin-top: 20px;">
+    <button onclick="window.location.href='games.html'" 
+            style="background: linear-gradient(90deg, #90ee90, #aaf0d1); 
+                   color: #000; border: none; 
+                   padding: 10px 25px; border-radius: 8px; 
+                   font-weight: bold; cursor: pointer; 
+                   transition: transform 0.2s;">
+      ← Kembali ke Game Menu
+    </button>
+  </div>
+  </div>
+
+  <script>
+    const playerName = localStorage.getItem("playerName") || "Player";
+    const welcome = document.getElementById("welcome");
+    const commandBox = document.getElementById("commandBox");
+    const input = document.getElementById("inputCommand");
+    const result = document.getElementById("result");
+    const scoreText = document.getElementById("score");
+    const gameOver = document.getElementById("gameOver");
+    const endingScreen = document.getElementById("endingScreen");
+    const timerText = document.getElementById("timer");
+
+    welcome.textContent = `Selamat datang, ${playerName}. Mari kita mulai debugging hari ini.`;
+
+    let commands = [
+      "console.log('Hello, world!');",
+      "let score = 0;",
+      "if (bugFound) fixBug();",
+      "for(let i=0; i<10; i++){console.log(i);}",
+      "function greet(name){ return 'Hello ' + name; }",
+      "const sum = (a, b) => a + b;",
+      "while(true){ break; }",
+      "try { runCode(); } catch(e) { console.error(e); }",
+      "document.getElementById('main').style.color = 'pink';",
+      "import GameEngine from './engine.js';"
+    ];
+
+    let index = 0;
+    let score = 0;
+    let timer = 30;
+    let timerInterval;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timer = 30;
+      timerText.textContent = `Waktu: ${timer}s`;
+      timerInterval = setInterval(() => {
+        timer--;
+        timerText.textContent = `Waktu: ${timer}s`;
+
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          gameOverScreen("Waktumu habis...");
+        }
+      }, 1000);
+    }
+
+    function showNextCommand() {
+      if (index >= commands.length) {
+        clearInterval(timerInterval);
+        document.querySelector(".container").style.display = "none";
+        endingScreen.style.display = "flex";
+        return;
+      }
+      commandBox.textContent = `> ${commands[index]}`;
+      input.value = "";
+      result.textContent = "";
+      scoreText.textContent = `Progress: ${index + 1} / ${commands.length}`;
+      startTimer();
+    }
+
+    function submitCommand() {
+      const userInput = input.value.trim();
+      if (userInput === commands[index]) {
+        result.textContent = "Benar!";
+        result.className = "correct";
+        score++;
+        index++;
+        setTimeout(showNextCommand, 800);
+      } else {
+        gameOverScreen("Perintah salah...");
+      }
+    }
+
+    function gameOverScreen(message) {
+      clearInterval(timerInterval);
+      document.querySelector(".container").style.display = "none";
+      gameOver.querySelector("p").textContent = message;
+      gameOver.style.display = "flex";
+    }
+
+    function restartRandom() {
+      endingScreen.style.display = "none";
+      document.querySelector(".container").style.display = "block";
+      commands = shuffle(commands);
+      index = 0;
+      score = 0;
+      input.style.display = "block";
+      document.getElementById("submitBtn").style.display = "inline-block";
+      showNextCommand();
+    }
+
+    input.addEventListener("paste", e => e.preventDefault());
+    input.addEventListener("drop", e => e.preventDefault());
+    input.addEventListener("contextmenu", e => e.preventDefault());
+    input.addEventListener("copy", e => e.preventDefault());
+    input.addEventListener("cut", e => e.preventDefault());
+
+    document.getElementById("submitBtn").addEventListener("click", submitCommand);
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") submitCommand();
+    });
+
+    showNextCommand();
+  </script>
+</body>
+</html>
