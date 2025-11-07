@@ -149,6 +149,10 @@
       line-height: 1.8;
     }
 
+    #credits.show {
+      opacity: 1;
+    }
+
     #credits b { color: #ffb6c1; }
     .credit-link {
       color: #ffb6c1;
@@ -221,6 +225,7 @@
     const gameOver = document.getElementById("gameOver");
     const endingScreen = document.getElementById("endingScreen");
     const timerText = document.getElementById("timer");
+    const credits = document.getElementById("credits");
 
     welcome.textContent = `Selamat datang, ${playerName}. Mari kita mulai debugging hari ini.`;
 
@@ -238,7 +243,6 @@
     ];
 
     let index = 0;
-    let score = 0;
     let timer = 30;
     let timerInterval;
 
@@ -269,7 +273,6 @@
         clearInterval(timerInterval);
         document.querySelector(".container").style.display = "none";
 
-        // Airi smiling scene before ending
         setTimeout(() => {
           const airiDialog = document.createElement("div");
           airiDialog.style.position = "fixed";
@@ -295,13 +298,15 @@
           `;
           document.body.appendChild(airiDialog);
 
-          // ✅ fix tombol tidak berfungsi
+          // Fix tombol + fade-in credit
           setTimeout(() => {
-            const btn = document.getElementById("continueToCredit");
-            btn.addEventListener("click", () => {
-              airiDialog.remove();
-              endingScreen.style.display = "flex";
-            });
+            document
+              .getElementById("continueToCredit")
+              .addEventListener("click", () => {
+                airiDialog.remove();
+                endingScreen.style.display = "flex";
+                setTimeout(() => credits.classList.add("show"), 300);
+              });
           }, 100);
         }, 500);
 
@@ -320,7 +325,6 @@
       if (userInput === commands[index]) {
         result.textContent = "Benar!";
         result.className = "correct";
-        score++;
         index++;
         setTimeout(showNextCommand, 800);
       } 
@@ -341,16 +345,14 @@
 
     function restartRandom() {
       endingScreen.style.display = "none";
+      credits.classList.remove("show");
       document.querySelector(".container").style.display = "block";
       commands = shuffle(commands);
       index = 0;
-      score = 0;
-      input.style.display = "block";
-      document.getElementById("submitBtn").style.display = "inline-block";
       showNextCommand();
     }
 
-    // Easter egg: Airi angry
+    // Easter egg
     function triggerAiriEasterEgg() {
       clearInterval(timerInterval);
       document.querySelector(".container").style.display = "none";
@@ -367,7 +369,6 @@
       easterDiv.style.zIndex = "1000";
       easterDiv.style.textAlign = "center";
       easterDiv.style.animation = "fadeIn 0.5s ease";
-
       easterDiv.innerHTML = `
         <div style="background: rgba(0,0,0,0.6); padding: 20px 40px; border-radius: 10px; max-width: 600px;">
           <h2 style="color: #ff6961;">Ehh!? Apa yang kamu ketik barusan!?</h2>
@@ -380,12 +381,6 @@
       `;
       document.body.appendChild(easterDiv);
     }
-
-    input.addEventListener("paste", e => e.preventDefault());
-    input.addEventListener("drop", e => e.preventDefault());
-    input.addEventListener("contextmenu", e => e.preventDefault());
-    input.addEventListener("copy", e => e.preventDefault());
-    input.addEventListener("cut", e => e.preventDefault());
 
     document.getElementById("submitBtn").addEventListener("click", submitCommand);
     input.addEventListener("keydown", e => { if (e.key === "Enter") submitCommand(); });
