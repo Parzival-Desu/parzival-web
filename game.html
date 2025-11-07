@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Real Typing Challenge — Game</title>
   <style>
     * {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       box-sizing: border-box;
       font-family: "Poppins", sans-serif;
     }
@@ -48,11 +47,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    h1 {
-      color: #ffb6c1;
-      margin-bottom: 15px;
-      font-size: 28px;
-    }
+    h1 { color: #ffb6c1; margin-bottom: 15px; font-size: 28px; }
 
     .timer {
       font-size: 18px;
@@ -99,20 +94,11 @@
 
     button:hover { transform: scale(1.05); }
 
-    .result {
-      margin-top: 15px;
-      font-size: 18px;
-      height: 25px;
-    }
-
+    .result { margin-top: 15px; font-size: 18px; height: 25px; }
     .correct { color: #90ee90; }
     .wrong { color: #ff6961; }
 
-    .score {
-      margin-top: 10px;
-      font-size: 16px;
-      opacity: 0.8;
-    }
+    .score { margin-top: 10px; font-size: 16px; opacity: 0.8; }
 
     .game-over, .ending-screen {
       position: fixed;
@@ -127,10 +113,7 @@
       animation: fadeIn 0.4s ease;
     }
 
-    .game-over h2, .ending-screen h2 {
-      color: #ffb6c1;
-      margin-bottom: 15px;
-    }
+    .game-over h2, .ending-screen h2 { color: #ffb6c1; margin-bottom: 15px; }
 
     .ending-screen .credits {
       font-size: 14px;
@@ -155,9 +138,7 @@
       transition: transform 0.2s ease;
     }
 
-    .ending-buttons button:hover {
-      transform: scale(1.05);
-    }
+    .ending-buttons button:hover { transform: scale(1.05); }
 
     #credits {
       opacity: 0;
@@ -169,8 +150,15 @@
     }
 
     #credits b { color: #ffb6c1; }
-    .credit-link { color: #ffb6c1; text-decoration: none; transition: 0.2s ease; }
-    .credit-link:hover { color: #ffd2dc; text-shadow: 0 0 6px rgba(255,182,193,0.6);}
+    .credit-link {
+      color: #ffb6c1;
+      text-decoration: none;
+      transition: 0.2s ease;
+    }
+    .credit-link:hover {
+      color: #ffd2dc;
+      text-shadow: 0 0 6px rgba(255,182,193,0.6);
+    }
   </style>
 </head>
 
@@ -212,12 +200,12 @@
       <button onclick="restartRandom()">Main Lagi</button>
     </div>
     <div style="margin-top: 20px;">
-      <button onclick="window.location.href='games.html'" 
-              style="background: linear-gradient(90deg, #90ee90, #aaf0d1); 
-                     color: #000; border: none; 
-                     padding: 10px 25px; border-radius: 8px; 
-                     font-weight: bold; cursor: pointer; 
-                     transition: transform 0.2s;">
+      <button onclick="window.location.href='games.html'"
+        style="background: linear-gradient(90deg, #90ee90, #aaf0d1);
+               color: #000; border: none;
+               padding: 10px 25px; border-radius: 8px;
+               font-weight: bold; cursor: pointer;
+               transition: transform 0.2s;">
         ← Kembali ke Game Menu
       </button>
     </div>
@@ -233,27 +221,6 @@
     const gameOver = document.getElementById("gameOver");
     const endingScreen = document.getElementById("endingScreen");
     const timerText = document.getElementById("timer");
-
-    // Tambah sprite Airi
-    const airiImg = document.createElement("img");
-    airiImg.id = "airi";
-    airiImg.src = "img/Airi_default.png";
-    airiImg.style.position = "fixed";
-    airiImg.style.bottom = "0";
-    airiImg.style.left = "5%";
-    airiImg.style.height = "70vh";
-    airiImg.style.transition = "opacity 0.3s ease";
-    airiImg.style.zIndex = "99";
-    document.body.appendChild(airiImg);
-
-    function safeSetImage(src) {
-      return new Promise(resolve => {
-        const testImg = new Image();
-        testImg.onload = () => { airiImg.src = src; resolve(true); };
-        testImg.onerror = () => { resolve(false); };
-        testImg.src = src;
-      });
-    }
 
     welcome.textContent = `Selamat datang, ${playerName}. Mari kita mulai debugging hari ini.`;
 
@@ -301,11 +268,43 @@
       if (index >= commands.length) {
         clearInterval(timerInterval);
         document.querySelector(".container").style.display = "none";
-        endingScreen.style.display = "flex";
-        safeSetImage("img/Airi_cry.png").then(ok => {
-          if (!ok) airiImg.src = "img/Airi_default.png";
-        });
-        setTimeout(() => document.getElementById("credits").style.opacity = 1, 800);
+
+        // Airi smiling scene before ending
+        setTimeout(() => {
+          const airiDialog = document.createElement("div");
+          airiDialog.style.position = "fixed";
+          airiDialog.style.inset = "0";
+          airiDialog.style.background = "rgba(0,0,0,0.9) url('img/Airi_default.png') no-repeat center bottom / contain";
+          airiDialog.style.display = "flex";
+          airiDialog.style.flexDirection = "column";
+          airiDialog.style.justifyContent = "center";
+          airiDialog.style.alignItems = "center";
+          airiDialog.style.color = "white";
+          airiDialog.style.zIndex = "1000";
+          airiDialog.style.textAlign = "center";
+          airiDialog.style.animation = "fadeIn 0.5s ease";
+          airiDialog.innerHTML = `
+            <div style="background: rgba(0,0,0,0.6); padding: 20px 40px; border-radius: 10px; max-width: 600px;">
+              <h2 style="color: #ffb6c1;">Hehe... ${playerName}, kamu hebat banget...</h2>
+              <p style="margin-top: 10px;">Kerja Bagus!</p>
+              <button id="continueToCredit"
+                style="margin-top:20px;background:#ffb6c1;color:#000;border:none;padding:10px 25px;border-radius:8px;font-weight:bold;cursor:pointer;">
+                👉 Lanjut ke Credit
+              </button>
+            </div>
+          `;
+          document.body.appendChild(airiDialog);
+
+          // ✅ fix tombol tidak berfungsi
+          setTimeout(() => {
+            const btn = document.getElementById("continueToCredit");
+            btn.addEventListener("click", () => {
+              airiDialog.remove();
+              endingScreen.style.display = "flex";
+            });
+          }, 100);
+        }, 500);
+
         return;
       }
 
@@ -324,7 +323,11 @@
         score++;
         index++;
         setTimeout(showNextCommand, 800);
-      } else {
+      } 
+      else if (userInput === "console.log('Airi is cute!');") {
+        triggerAiriEasterEgg();
+      } 
+      else {
         gameOverScreen("Perintah salah...");
       }
     }
@@ -334,9 +337,6 @@
       document.querySelector(".container").style.display = "none";
       gameOver.querySelector("p").textContent = message;
       gameOver.style.display = "flex";
-      safeSetImage("img/Airi_angry.png").then(ok => {
-        if (!ok) airiImg.src = "img/Airi_default.png";
-      });
     }
 
     function restartRandom() {
@@ -347,13 +347,45 @@
       score = 0;
       input.style.display = "block";
       document.getElementById("submitBtn").style.display = "inline-block";
-      airiImg.src = "img/Airi_default.png";
       showNextCommand();
     }
 
-    ["paste", "drop", "contextmenu", "copy", "cut"].forEach(evt => {
-      input.addEventListener(evt, e => e.preventDefault());
-    });
+    // Easter egg: Airi angry
+    function triggerAiriEasterEgg() {
+      clearInterval(timerInterval);
+      document.querySelector(".container").style.display = "none";
+
+      const easterDiv = document.createElement("div");
+      easterDiv.style.position = "fixed";
+      easterDiv.style.inset = "0";
+      easterDiv.style.background = "rgba(0,0,0,0.9) url('img/Airi_angry.png') no-repeat center bottom / contain";
+      easterDiv.style.display = "flex";
+      easterDiv.style.flexDirection = "column";
+      easterDiv.style.justifyContent = "center";
+      easterDiv.style.alignItems = "center";
+      easterDiv.style.color = "white";
+      easterDiv.style.zIndex = "1000";
+      easterDiv.style.textAlign = "center";
+      easterDiv.style.animation = "fadeIn 0.5s ease";
+
+      easterDiv.innerHTML = `
+        <div style="background: rgba(0,0,0,0.6); padding: 20px 40px; border-radius: 10px; max-width: 600px;">
+          <h2 style="color: #ff6961;">Ehh!? Apa yang kamu ketik barusan!?</h2>
+          <p style="margin-top: 10px;">Jangan bilang aku imut di tengah kerja, dasar nakal~ 😡💢</p>
+          <button onclick="location.reload()" 
+            style="margin-top:20px;background:#ffb6c1;color:#000;border:none;padding:10px 25px;border-radius:8px;font-weight:bold;cursor:pointer;">
+            😳 Maaf...
+          </button>
+        </div>
+      `;
+      document.body.appendChild(easterDiv);
+    }
+
+    input.addEventListener("paste", e => e.preventDefault());
+    input.addEventListener("drop", e => e.preventDefault());
+    input.addEventListener("contextmenu", e => e.preventDefault());
+    input.addEventListener("copy", e => e.preventDefault());
+    input.addEventListener("cut", e => e.preventDefault());
 
     document.getElementById("submitBtn").addEventListener("click", submitCommand);
     input.addEventListener("keydown", e => { if (e.key === "Enter") submitCommand(); });
