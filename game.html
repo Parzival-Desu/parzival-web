@@ -159,18 +159,18 @@
       transform: scale(1.05);
     }
 
-      #credits {
-        opacity: 0;
-        transition: opacity 1.5s ease;
-        text-align: center;
-        color: #ddd;
-        font-size: 1.1rem;
-        line-height: 1.8;
-      }
+    #credits {
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      text-align: center;
+      color: #ddd;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
 
-      #credits b { color: #ffb6c1; }
-        .credit-link { color: #ffb6c1; text-decoration: none; transition: 0.2s ease; }
-        .credit-link:hover { color: #ffd2dc; text-shadow: 0 0 6px rgba(255,182,193,0.6);}
+    #credits b { color: #ffb6c1; }
+    .credit-link { color: #ffb6c1; text-decoration: none; transition: 0.2s ease; }
+    .credit-link:hover { color: #ffd2dc; text-shadow: 0 0 6px rgba(255,182,193,0.6);}
   </style>
 </head>
 
@@ -197,30 +197,30 @@
   <div class="ending-screen" id="endingScreen" style="display: none;">
     <h2>Selamat, kamu sudah menyelesaikan semua tugas!</h2>
     <div id="credits">
-    <p><b>Credits</b></p>
-    <p>
-      Character Art — 
-      <b><a href="https://nsaid.itch.io/" target="_blank" class="credit-link">nsaid</a></b><br>
-      Backgrounds City — 
-      <b><a href="https://craftpix.net/freebies/free-city-backgrounds-pixel-art/" target="_blank" class="credit-link">CraftPix</a></b><br>
-      Script & Code — <b>Parzival</b>
-    </p>
-    <p style="margin-top: 15px; font-size: 0.9rem; color: #aaa;">Thank you for playing.</p>
-  </div>
+      <p><b>Credits</b></p>
+      <p>
+        Character Art — 
+        <b><a href="https://nsaid.itch.io/" target="_blank" class="credit-link">nsaid</a></b><br>
+        Backgrounds City — 
+        <b><a href="https://craftpix.net/freebies/free-city-backgrounds-pixel-art/" target="_blank" class="credit-link">CraftPix</a></b><br>
+        Script & Code — <b>Parzival</b>
+      </p>
+      <p style="margin-top: 15px; font-size: 0.9rem; color: #aaa;">Thank you for playing.</p>
+    </div>
     <div class="ending-buttons">
       <button onclick="window.location.href='intro.html'">Kembali ke Awal</button>
       <button onclick="restartRandom()">Main Lagi</button>
     </div>
     <div style="margin-top: 20px;">
-    <button onclick="window.location.href='games.html'" 
-            style="background: linear-gradient(90deg, #90ee90, #aaf0d1); 
-                   color: #000; border: none; 
-                   padding: 10px 25px; border-radius: 8px; 
-                   font-weight: bold; cursor: pointer; 
-                   transition: transform 0.2s;">
-      ← Kembali ke Game Menu
-    </button>
-  </div>
+      <button onclick="window.location.href='games.html'" 
+              style="background: linear-gradient(90deg, #90ee90, #aaf0d1); 
+                     color: #000; border: none; 
+                     padding: 10px 25px; border-radius: 8px; 
+                     font-weight: bold; cursor: pointer; 
+                     transition: transform 0.2s;">
+        ← Kembali ke Game Menu
+      </button>
+    </div>
   </div>
 
   <script>
@@ -233,6 +233,27 @@
     const gameOver = document.getElementById("gameOver");
     const endingScreen = document.getElementById("endingScreen");
     const timerText = document.getElementById("timer");
+
+    // Tambah sprite Airi
+    const airiImg = document.createElement("img");
+    airiImg.id = "airi";
+    airiImg.src = "img/Airi_default.png";
+    airiImg.style.position = "fixed";
+    airiImg.style.bottom = "0";
+    airiImg.style.left = "5%";
+    airiImg.style.height = "70vh";
+    airiImg.style.transition = "opacity 0.3s ease";
+    airiImg.style.zIndex = "99";
+    document.body.appendChild(airiImg);
+
+    function safeSetImage(src) {
+      return new Promise(resolve => {
+        const testImg = new Image();
+        testImg.onload = () => { airiImg.src = src; resolve(true); };
+        testImg.onerror = () => { resolve(false); };
+        testImg.src = src;
+      });
+    }
 
     welcome.textContent = `Selamat datang, ${playerName}. Mari kita mulai debugging hari ini.`;
 
@@ -269,7 +290,6 @@
       timerInterval = setInterval(() => {
         timer--;
         timerText.textContent = `Waktu: ${timer}s`;
-
         if (timer <= 0) {
           clearInterval(timerInterval);
           gameOverScreen("Waktumu habis...");
@@ -282,8 +302,13 @@
         clearInterval(timerInterval);
         document.querySelector(".container").style.display = "none";
         endingScreen.style.display = "flex";
+        safeSetImage("img/Airi_cry.png").then(ok => {
+          if (!ok) airiImg.src = "img/Airi_default.png";
+        });
+        setTimeout(() => document.getElementById("credits").style.opacity = 1, 800);
         return;
       }
+
       commandBox.textContent = `> ${commands[index]}`;
       input.value = "";
       result.textContent = "";
@@ -309,6 +334,9 @@
       document.querySelector(".container").style.display = "none";
       gameOver.querySelector("p").textContent = message;
       gameOver.style.display = "flex";
+      safeSetImage("img/Airi_angry.png").then(ok => {
+        if (!ok) airiImg.src = "img/Airi_default.png";
+      });
     }
 
     function restartRandom() {
@@ -319,19 +347,16 @@
       score = 0;
       input.style.display = "block";
       document.getElementById("submitBtn").style.display = "inline-block";
+      airiImg.src = "img/Airi_default.png";
       showNextCommand();
     }
 
-    input.addEventListener("paste", e => e.preventDefault());
-    input.addEventListener("drop", e => e.preventDefault());
-    input.addEventListener("contextmenu", e => e.preventDefault());
-    input.addEventListener("copy", e => e.preventDefault());
-    input.addEventListener("cut", e => e.preventDefault());
+    ["paste", "drop", "contextmenu", "copy", "cut"].forEach(evt => {
+      input.addEventListener(evt, e => e.preventDefault());
+    });
 
     document.getElementById("submitBtn").addEventListener("click", submitCommand);
-    input.addEventListener("keydown", e => {
-      if (e.key === "Enter") submitCommand();
-    });
+    input.addEventListener("keydown", e => { if (e.key === "Enter") submitCommand(); });
 
     showNextCommand();
   </script>
