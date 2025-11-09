@@ -13,10 +13,26 @@
     transition:background 0.8s ease;
   }
 
+  /* INTRO SCREEN */
+  #intro{
+    position:fixed;
+    inset:0;
+    background:#000;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:36px;
+    font-weight:600;
+    opacity:1;
+    z-index:999;
+    transition:opacity 1s ease;
+  }
+
+  /* Clouds */
   .cloud{position:absolute;background:#fff;border-radius:50%;z-index:0;opacity:.95}
   .ground{position:absolute;bottom:0;height:100px;width:4000px;background:#fbeaea;z-index:2}
 
-  /* Scene: turun ke tanah */
   .scene{
     position:absolute;
     left:0;
@@ -29,10 +45,11 @@
     padding-left:220px;
     transition:left .12s linear;
     z-index:3;
+    opacity:0;
+    transition:opacity 1s ease;
   }
 
-  /* Player stay on the ground */
-  .player{position:fixed;bottom:110px;left:120px;z-index:6;pointer-events:none;transition:left .06s linear}
+  .player{position:fixed;bottom:110px;left:120px;z-index:6;pointer-events:none;transition:left .06s linear, opacity 1s ease;opacity:0}
   .player-box{width:60px;height:60px;background:#b3e5fc;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,.18);position:relative}
   .player-box::before,.player-box::after{content:"";position:absolute;top:22px;width:8px;height:8px;background:#333;border-radius:50%}
   .player-box::before{left:14px}.player-box::after{right:14px}
@@ -40,7 +57,6 @@
   @keyframes walk{from{transform:translateY(0)}to{transform:translateY(-6px)}}
   .player small{display:block;text-align:center;margin-top:6px;color:#444;font-size:12px}
 
-  /* Checkpoints: hilangin translateY biar nempel tanah */
   .checkpoint{
     position:relative;
     width:140px;height:100px;background:#f8f8ff;border-radius:10px;
@@ -51,10 +67,10 @@
   .checkpoint .dialog{position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:260px;background:rgba(255,255,255,.98);padding:10px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .22s ease;color:#333;font-size:14px;line-height:1.4}
   .checkpoint.active .dialog{opacity:1}
 
-  .progress-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;width:70%;height:10px;background:#eee;border-radius:8px;z-index:9}
+  .progress-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;width:70%;height:10px;background:#eee;border-radius:8px;z-index:9;opacity:0;transition:opacity 1s ease}
   .progress{height:100%;width:0;background:linear-gradient(90deg,#ffb6c1,#b3e5fc);border-radius:8px;transition:width .25s ease}
 
-  .controls{position:fixed;right:20px;bottom:22px;display:flex;flex-direction:column;gap:8px;z-index:9}
+  .controls{position:fixed;right:20px;bottom:22px;display:flex;flex-direction:column;gap:8px;z-index:9;opacity:0;transition:opacity 1s ease}
   .controls button{background:linear-gradient(90deg,#ffb6c1,#fad0c4);border:0;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer}
   .controls button:active{transform:translateY(1px)}
 
@@ -63,17 +79,33 @@
     background:linear-gradient(90deg,#b3e5fc,#ffb6c1);
     color:#333;padding:10px 20px;font-weight:700;border:none;
     border-radius:8px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.15);
-    transition:transform .15s;
+    transition:transform .15s;opacity:0;transition:opacity 1s ease;
   }
   .back-btn:hover{transform:scale(1.05)}
   .back-btn:active{transform:scale(0.97)}
+
+  /* Mute Button */
+  .mute-btn{
+    position:fixed;right:20px;top:20px;z-index:11;
+    background:linear-gradient(90deg,#fad0c4,#ffb6c1);
+    color:#333;padding:10px 20px;font-weight:700;border:none;
+    border-radius:8px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.15);
+    transition:transform .15s;opacity:0;transition:opacity 1s ease;
+  }
+  .mute-btn:hover{transform:scale(1.05)}
+  .mute-btn:active{transform:scale(0.97)}
 
   .ending{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;font-weight:800;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.25);opacity:0;z-index:12;pointer-events:none;transition:opacity .6s ease}
 </style>
 </head>
 <body>
 
-<button class="back-btn" onclick="window.location.href='about.html'">← Back to About</button>
+<div id="intro">Welcome to my journey</div>
+
+<button class="back-btn" id="backBtn" onclick="window.location.href='about.html'">← Back to About</button>
+<button class="mute-btn" id="muteBtn">🔊 Mute</button>
+
+<audio id="bgm" src="audio/DavidKBD - Tropical Pack - 01 - Spring Romance - Acoustic.ogg" loop></audio>
 
 <div class="player" id="player">
   <div class="player-box"></div>
@@ -81,12 +113,12 @@
 </div>
 
 <div class="scene" id="scene">
-  <div class="checkpoint"><div class="roof" style="border-bottom-color:#ffb6c1"></div><div class="dialog"><strong>Rumah Sakit</strong><br>Born in Jakarta, 28 September 2005.</div></div>
-  <div class="checkpoint"><div class="roof" style="border-bottom-color:#ffd6da"></div><div class="dialog"><strong>Rumah</strong><br>Lived in Jakarta until the age of 5, then moved to Palembang and live there till the age of 10.</div></div>
-  <div class="checkpoint"><div class="roof" style="border-bottom-color:#ffecb3"></div><div class="dialog"><strong>SDN Dahniar</strong><br>Then move to bandung and spent my current live here.</div></div>
-  <div class="checkpoint"><div class="roof" style="border-bottom-color:#b3e5fc"></div><div class="dialog"><strong>SMP Labschool Pulpen</strong><br>Started getting interested in games & self-taught Unity.</div></div>
-  <div class="checkpoint"><div class="roof" style="border-bottom-color:#d1c4e9"></div><div class="dialog"><strong>SMK Al-Wafa</strong><br>Learned coding, released a novel & formed Lucky Clover Studio along with my online friends.</div></div>
-  <div class="checkpoint"><div class="roof" style="border-bottom-color:#c8e6c9"></div><div class="dialog"><strong>UTB</strong><br>Studied at Universitas Teknologi Bandung. Projects on progress: Jawara Series (novel) & Paper Memory.</div></div>
+  <div class="checkpoint"><div class="roof" style="border-bottom-color:#ffb6c1"></div><div class="dialog"><strong>Hospital</strong><br>Born in Jakarta, 28 September 2005.</div></div>
+  <div class="checkpoint"><div class="roof" style="border-bottom-color:#ffd6da"></div><div class="dialog"><strong>House</strong><br>Lived in Jakarta until 5, then moved to Palembang.</div></div>
+  <div class="checkpoint"><div class="roof" style="border-bottom-color:#ffecb3"></div><div class="dialog"><strong>SDN Dahniar</strong><br>Elementary school days in Palembang.</div></div>
+  <div class="checkpoint"><div class="roof" style="border-bottom-color:#b3e5fc"></div><div class="dialog"><strong>SMP Labschool Pulpen</strong><br>Started learning Unity & loving gamedev.</div></div>
+  <div class="checkpoint"><div class="roof" style="border-bottom-color:#d1c4e9"></div><div class="dialog"><strong>SMK Al-Wafa</strong><br>Learned coding & built Lucky Clover Studio.</div></div>
+  <div class="checkpoint"><div class="roof" style="border-bottom-color:#c8e6c9"></div><div class="dialog"><strong>UTB</strong><br>Studying at Universitas Teknologi Bandung.</div></div>
 </div>
 
 <div class="ground"></div>
@@ -104,8 +136,31 @@ const player=document.getElementById('player');
 const checkpoints=[...document.querySelectorAll('.checkpoint')];
 const progressBar=document.getElementById('progress');
 const endingText=document.getElementById('ending');
+const bgm=document.getElementById('bgm');
+const backBtn=document.getElementById('backBtn');
+const muteBtn=document.getElementById('muteBtn');
 let playerX=120,sceneLeft=0,moving=false,moveDir=0,baseSpeed=6,reachedTrigger=false,triggerOffset=160,leftBoundaryPlayerX=120;
 let maxSceneLeft=-(scene.scrollWidth-window.innerWidth+220);
+
+/* INTRO SEQUENCE */
+window.addEventListener('load',()=>{
+  const intro=document.getElementById('intro');
+  setTimeout(()=>{intro.style.opacity=0;},2500); // fade out
+  setTimeout(()=>{
+    intro.remove();
+    document.querySelectorAll('.scene, .player, .controls, .progress-bar, .back-btn, .mute-btn')
+      .forEach(el=>el.style.opacity=1);
+    bgm.play().catch(()=>{}); // play music after fadeout
+  },3500);
+});
+
+/* MUTE BUTTON */
+let isMuted=false;
+muteBtn.onclick=()=>{
+  isMuted=!isMuted;
+  bgm.muted=isMuted;
+  muteBtn.textContent=isMuted?"🔇 Unmute":"🔊 Mute";
+};
 
 /* ===== CLOUD SYSTEM ===== */
 const cloudList=[];
@@ -124,7 +179,6 @@ function spawnClouds(){
   }
 }
 spawnClouds();
-
 function updateClouds(){
   cloudList.forEach(c=>{
     let x=parseFloat(c.style.left);

@@ -12,19 +12,42 @@
       background: linear-gradient(135deg, #0078d7, #005fa3);
       color: #fff;
       border: none;
-      padding: 12px 22px;
-      border-radius: 10px;
+      padding: 14px 28px;
+      border-radius: 12px;
       font-family: inherit;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 18px;
+      margin-top: 20px;
+      margin-right: 10px;
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
       transition: all 0.3s ease;
       display: inline-block;
+      font-size: 1rem;
     }
     .social-btn:hover, .skills-btn:hover {
       transform: translateY(-2px);
       background: linear-gradient(135deg, #005fa3, #004f85);
+    }
+
+    /* ===== Journey Button ===== */
+    .journey-btn {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: #333;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
+      display: block;
+      font-size: 1.1rem;
+    }
+    .journey-btn:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(135deg, #ff8ba0, #fac0c4);
     }
 
     /* ===== Modal Base ===== */
@@ -179,8 +202,12 @@
           You can reach me at <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a> or via the <a href="contact.html">Contact</a> page.
         </p>
 
-        <button id="socialBtn" class="social-btn">Connect with me</button>
-        <button id="skillsBtn" class="skills-btn">View my skills</button>
+        <div class="btn-group">
+          <button id="socialBtn" class="social-btn">Connect with me</button>
+          <button id="skillsBtn" class="skills-btn">View my skills</button>
+        </div>
+
+        <button class="journey-btn" onclick="window.location.href='journey.html'">🛣️ My Journey</button>
 
         <!-- === Social Modal === -->
         <div id="socialModal" class="modal">
@@ -261,7 +288,6 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -302,7 +328,6 @@
       const percent = parseInt(circle.getAttribute('data-percent'));
       let current = 0;
 
-      // reset before animation
       circle.style.background = 'conic-gradient(#ffb6c1 0%, #ddd 0)';
       circle.setAttribute('data-percent', '0');
       bars[i].style.width = '0%';
@@ -313,11 +338,10 @@
         circle.style.background = `conic-gradient(#ffb6c1 ${current * 3.6}deg, #ddd 0)`;
         bars[i].style.width = `${current}%`;
         if (current >= percent) clearInterval(update);
-      }, 15); // adjust speed here (lower = faster)
+      }, 15);
     });
   }
 </script>
-
 
   <script src="particles.js"></script>
 </body>
