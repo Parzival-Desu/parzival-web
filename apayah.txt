@@ -1,106 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Character - Parzival Takei</title>
-    <link rel="stylesheet" href="style.css" />
-    <style>
-        .portfolio-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <title>About — Parzival Takei</title>
 
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            margin-top: 30px;
-        }
+  <style>
+/* ===== FIX: Night Mode Text Color ===== */
+body.night, 
+body.night * {
+  color: #f2f2f2 !important;
+}
 
-        .portfolio-wrapper {
-            background: rgba(255, 255, 255, 0.6);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+/* Spesial untuk link */
+body.night a {
+  color: #ffb6c1 !important;
+}
 
-        .portfolio-wrapper h2 {
-            margin-bottom: 15px;
-            color: #333;
-            text-align: center;
-        }
+body.night a:hover {
+  color: #ffc9d4 !important;
+}
 
-        .portfolio-image {
-            width: 100%;
-            max-width: 800px;
-            border-radius: 10px;
-            margin: 0 auto;
-            display: block;
-        }
+/* Input dan textarea biar tetap kebaca */
+body.night input,
+body.night textarea {
+  background: #1e1e1e !important;
+  color: #f2f2f2 !important;
+  border-color: #555 !important;
+}
 
-        .description {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            color: #333;
-            line-height: 1.6;
-        }
+/* Tombol tetap kelihatan */
+body.night button {
+  color: #222 !important;
+  font-weight: 600;
+}
+  
+    /* ===== Buttons ===== */
+    .social-btn, .skills-btn {
+      background: linear-gradient(135deg, #0078d7, #005fa3);
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      margin-right: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      display: inline-block;
+      font-size: 1rem;
+    }
+    .social-btn:hover, .skills-btn:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #005fa3, #004f85);
+    }
 
-        .back-link {
-            display: inline-block;
-            margin: 20px;
-            color: #333;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s;
-        }
+    /* ===== Journey Button ===== */
+    .journey-btn {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: #333;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
+      display: block;
+      font-size: 1.1rem;
+    }
+    .journey-btn:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(135deg, #ff8ba0, #fac0c4);
+    }
 
-        .back-link:hover {
-            color: #ff9a9e;
-        }
+    /* ===== Modal Base ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 100px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+      animation: slideUp 0.4s ease;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover { color: #000; }
 
-        @media (max-width: 768px) {
-            .portfolio-container {
-                padding: 0 15px;
-            }
-        }
-    </style>
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+    .social-icons a {
+      width: 60px; height: 60px;
+      display: flex;
+      align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: #f9f9f9;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .social-icons a:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+    .social-icons img { width: 35px; height: 35px; }
+
+    /* ===== Skills Layout ===== */
+    .skills-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 25px;
+      justify-items: center;
+      margin-top: 25px;
+    }
+    .skill-box { width: 150px; text-align: center; }
+    .circle {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: conic-gradient(#ffb6c1 calc(var(--percent) * 1%), #ddd 0);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px auto; position: relative;
+    }
+    .circle::after {
+      content: attr(data-percent) "%";
+      position: absolute;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .skill-name { font-weight: 600; margin-bottom: 5px; color: #333; }
+    .bar { width: 100%; height: 8px; border-radius: 5px; background: #eee; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; background: #ffb6c1; border-radius: 5px; transition: width 1s ease; }
+
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    @keyframes slideUp { from {transform: translateY(25px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+
+    /* ===== NIGHT MODE ===== */
+    body.night { background: #0d0d0d; color: #f2f2f2; transition: .4s; }
+    body.night header { background: #121212; border-bottom: 1px solid #222; }
+    body.night footer { background: #141414; color: #eee; }
+    /* ===== NIGHT MODE (Extended) ===== */
+  body.night .intro,
+  body.night .two-column,
+  body.night .contact-section {
+  background: #2b2b2b !important;
+  color: #f2f2f2 !important;
+  border-radius: 12px;
+}
+
+body.night .intro h2,
+body.night .intro h3,
+body.night .intro p,
+body.night .two-column h2,
+body.night .two-column h3,
+body.night .two-column p,
+body.night .contact-section h2,
+body.night .contact-section p,
+body.night .contact-section label {
+  color: #f2f2f2 !important;
+}
+
+body.night .social-btn,
+body.night .skills-btn {
+  background: linear-gradient(135deg, #1976d2, #0d47a1);
+  color: #fff;
+}
+
+body.night .journey-btn {
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  color: #fff;
+}
+
+    /* === FIX: Keep AI Chatbot colors same in both modes === */
+.chatbot, 
+.chatbox, 
+.chatbot .msg.ai, 
+.chatbot .msg.user, 
+.chatbot input, 
+.chatbot button {
+  color: #222 !important;
+  background-color: inherit !important;
+}
+
+body.night .chatbot,
+body.night .chatbox,
+body.night .msg.ai,
+body.night .msg.user,
+body.night .chat-input input,
+body.night .chat-input button {
+  background: none !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+body.night .chatbox {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+body.night .msg.ai {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+body.night .msg.user {
+  background: #ffb6c1 !important;
+  color: #111 !important;
+}
+
+body.night .chat-input input {
+  background: #2a2a2a !important;
+  color: #eee !important;
+}
+
+body.night .chat-input button {
+  background: #ff9a9e !important;
+  color: #fff !important;
+}
+
+/* === Keep Airi's name readable on both themes === */
+.chatbot-header {
+  color: #222 !important; /* selalu teks gelap */
+}
+
+/* Kalau mau kasih sedikit shadow biar tetap terbaca di semua warna */
+.chatbot-header span {
+  color: #222 !important;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+}
+
+/* Pastikan dark mode tidak mengubah header */
+body.night .chatbot-header {
+  background: linear-gradient(90deg, #ff9a9e, #fad0c4) !important;
+  color: #222 !important;
+}
+  </style>
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
-        </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <div class="portfolio-container">
-        <a href="gallery.html" class="back-link">← Back to Gallery</a>
-        
-        <div class="portfolio-grid">
-            <div class="portfolio-wrapper">
-                <h2>2D Character Design</h2>
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiFU4EsX9uP2PPyYIWUfqxZxSiqSPv_syKTahThjDQZqt7eY0ava__3620DtUraRN06nce4ZsjLVRGaDSB1MXslXCVOGE_WeLLptwvh0bfW0CYvSNUDCKm7NZQWFDnbsaas2wA34ASFQRA1hZr1QY0gJsGpUEBZByxhVH6P6SmMroGeShpzxNm8cVya/s320/Tak%20berjudul23-1.png" alt="2D Character" class="portfolio-image">
-                <div class="description">
-                    <p>Created using Ibis Paint.</p>
-                </div>
-            </div>
+<body>
+  <header>
+    <div class="logo">
+      <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo" />
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="intro">
+    <h2>About this site</h2>
+    <p>This website is my personal space where I share my work, thoughts, and creative experiments. It’s intentionally simple and clean — just how I like things to be built.</p>
+  </section>
+
+  <section class="intro two-column">
+    <div class="content-column">
+      <h2>Who I am</h2>
+      <p>Hey, I'm <strong>Rayhan Khadafi</strong>, a game and UI developer passionate about crafting interactive designs and visuals. I love experimenting with layouts and creating things that just feel right.</p>
+      <p>Outside of development, I enjoy watching anime, reading comics, playing games, and listening to music. I also would love to go on a camping trip whenever I have enough money to do it.</p>
+
+      <div class="contact-info">
+        <h3>Contact</h3>
+        <p>You can reach me at <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a> or via the <a href="contact.html">Contact</a> page.</p>
+
+        <div class="btn-group">
+          <button id="socialBtn" class="social-btn">Connect with me</button>
+          <button id="skillsBtn" class="skills-btn">View my skills</button>
         </div>
+        <button class="journey-btn" onclick="window.location.href='journey.html'">🛣️ My Journey</button>
+      </div>
     </div>
 
-    <footer>
-        <p>© 2025 Parzival Takei. All rights reserved.</p>
-    </footer>
+    <div class="image-column">
+      <img src="https://i.pinimg.com/736x/2f/62/41/2f6241ea4f7b512b8e615fd96c5678da.jpg" alt="Profile illustration" />
+    </div>
+  </section>
+
+  <footer><p>© Parzival — All Rights Reserved.</p></footer>
+
+  <!-- ===== DEV MENU ===== -->
+  <div class="dev-menu" id="devMenu">
+    <button id="toggleNight">🌙 Night Mode</button>
+    <button id="toggleChat">💬 AI Chatbot</button>
+  </div>
+
+  <!-- ===== CHATBOT (AI v2.0) ===== -->
+  <div class="chatbot" id="chatbot">
+    <div class="chatbot-header">
+      <img src="img/Airi_default.png" alt="Airi">
+      <span>Airi — Assistant</span>
+    </div>
+    <div class="chatbox">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">Hai~ aku Airi! Mau jalan-jalan ke mana?</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Tulis sesuatu (misal: pergi ke gallery)">
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="activation-popup" id="activationPopup">Developer Mode Activated!</div>
+
+  <style>
+    /* Chatbot reused from index */
+    .dev-menu { position: fixed; top: 70px; left: 20px; background: rgba(255,255,255,0.95); border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 1000; }
+    .dev-menu button { background: linear-gradient(90deg,#ffb6c1,#b3e5fc); border: none; border-radius: 8px; color: #333; font-weight: 600; padding: 8px 12px; cursor: pointer; transition: transform .15s, background .2s; }
+    .dev-menu button:hover { transform: scale(1.05); background: linear-gradient(90deg,#fad0c4,#b3e5fc); }
+
+    .chatbot { position: fixed; bottom: 20px; right: 25px; width: 300px; display: none; flex-direction: column; z-index: 999; animation: fadeIn .4s ease forwards; font-family: "Poppins", sans-serif; }
+    .chatbot-header { background: linear-gradient(90deg,#ff9a9e,#fad0c4); padding: 8px 12px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 8px; color: #222; font-weight: 600; }
+    .chatbot-header img { width: 40px; border-radius: 10px; }
+    .chatbox { background: #fff; border-radius: 0 0 12px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 10px; }
+    .chat-messages { height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+    .msg { padding: 8px 12px; border-radius: 10px; font-size: 14px; max-width: 85%; }
+    .ai { background: #ffeef1; align-self: flex-start; }
+    .user { background: #b3e5fc; align-self: flex-end; }
+    .chat-input { display: flex; gap: 6px; margin-top: 6px; }
+    .chat-input input { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+    .chat-input button { background: linear-gradient(90deg,#ff9a9e,#fad0c4); border: none; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; }
+
+    .activation-popup { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 22px; border-radius: 30px; font-weight: 600; opacity: 0; transition: opacity .4s ease; z-index: 2000; }
+    .activation-popup.show { opacity: 1; }
+  </style>
+
+  <script>
+  // === Developer Mode System ===
+  const logo = document.querySelector('.site-logo');
+  const devMenu = document.getElementById('devMenu');
+  const chatbot = document.getElementById('chatbot');
+  const popup = document.getElementById('activationPopup');
+  const body = document.body;
+
+  let clicks = 0;
+  let devMode = sessionStorage.getItem('devMode') === 'true';
+  let nightMode = sessionStorage.getItem('nightMode') === 'true';
+  let chatEnabled = sessionStorage.getItem('chatEnabled') === 'true';
+
+  if (devMode) initDev();
+
+  logo.addEventListener('click', () => {
+    if (devMode) {
+      devMenu.style.display = devMenu.style.display === 'flex' ? 'none' : 'flex';
+      return;
+    }
+    clicks++;
+    if (clicks >= 5) activateDev();
+  });
+
+  function activateDev() {
+    devMode = true;
+    sessionStorage.setItem('devMode','true');
+    popup.classList.add('show');
+    setTimeout(()=>popup.classList.remove('show'),2000);
+    initDev();
+  }
+
+  function initDev() {
+    devMenu.style.display = 'none';
+    if (nightMode) body.classList.add('night');
+    if (chatEnabled) chatbot.style.display = 'flex';
+  }
+
+  document.getElementById('toggleNight').onclick = () => {
+    body.classList.toggle('night');
+    nightMode = body.classList.contains('night');
+    sessionStorage.setItem('nightMode',nightMode);
+  };
+
+  document.getElementById('toggleChat').onclick = () => {
+    const show = chatbot.style.display === 'none' || chatbot.style.display === '';
+    chatbot.style.display = show ? 'flex' : 'none';
+    chatEnabled = show;
+    sessionStorage.setItem('chatEnabled', chatEnabled);
+  };
+
+  // === Chatbot Logic (Airi v2.0) ===
+  const sendBtn = document.getElementById('sendBtn');
+  const input = document.getElementById('userInput');
+  const chatBox = document.getElementById('chatMessages');
+
+  function appendMsg(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function handleSend() {
+    const text = input.value.trim();
+    if (!text) return;
+    appendMsg(text, 'user');
+    input.value = '';
+    setTimeout(()=>processInput(text.toLowerCase()), 400);
+  }
+
+  function processInput(txt) {
+    const map = {
+        'home':['home','index','beranda'],
+        'about':['about','tentang'],
+        'gallery':['gallery','galeri', 'portofolio'],
+        'contact':['contact','kontak'],
+        'games':['games','permainan','game'],
+        'journey':['journey','perjalanan'],
+        'intro-youtube':['intro-youtube','intro youtube'],
+        '2d-character':['gambar 2d','gambar'],
+        '3d-character':['karakter 3d','model 3d'],
+        'lunar-veil':['lunar-veil','novel lunar veil', 'novel', 'lunar veil'],
+        'denah-interior':['denah-interior','interior rumah', 'interior', 'denah'],
+        '3d-bangunan':['3d-bangunan','model 3d bangunan', 'bangunan 3d', 'bangunan'],
+        '3d-vtuber':['3d-vtuber','vtuber']
+      };
+    let found = null;
+    for (const key in map) {
+      if (map[key].some(k=>txt.includes(k))) { found = key; break; }
+    }
+    if (found) {
+      appendMsg('Oke~ aku antar ke halaman ' + found + '!', 'ai');
+      setTimeout(()=>window.location.href = found+'.html', 1000);
+    } else {
+      appendMsg('Hmm... aku gak nemu halaman itu >< coba kata lain, misalnya "about" atau "gallery".', 'ai');
+    }
+  }
+
+  sendBtn.onclick = handleSend;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+  </script>
+
+  <!-- ===== SOCIAL MODAL ===== -->
+<div id="socialModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Find me online</h3>
+    <div class="social-icons">
+      <a href="https://x.com/ParzivalTakeii" target="_blank"><img src="icons/twitter.png" alt="Twitter"></a>
+      <a href="https://www.linkedin.com/in/rayhan-khadafi-402640262/" target="_blank"><img src="icons/linkedin.png" alt="LinkedIn"></a>
+      <a href="https://www.instagram.com/kichiku.desu/" target="_blank"><img src="icons/instagram.png" alt="Instagram"></a>
+      <a href="https://github.com/Parzival-Desu" target="_blank"><img src="icons/github.png" alt="GitHub"></a>
+      <a href="https://wa.me/6285314332610" target="_blank"><img src="icons/whatsapp.png" alt="WhatsApp"></a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SKILLS MODAL ===== -->
+<div id="skillsModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Software Skills</h3>
+    <div class="skills-wrapper">
+      <div class="skill-box"><div class="circle" data-percent="80" style="--percent:80;"></div><div class="skill-name">Blender 3D</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="80" style="--percent:80;"></div><div class="skill-name">Coohom</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="85" style="--percent:85;"></div><div class="skill-name">SketchUp</div><div class="bar"><div class="bar-fill" style="width:85%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="70" style="--percent:70;"></div><div class="skill-name">Minemator</div><div class="bar"><div class="bar-fill" style="width:70%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="80" style="--percent:80;"></div><div class="skill-name">Unity</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="70" style="--percent:70;"></div><div class="skill-name">Ibis Paint</div><div class="bar"><div class="bar-fill" style="width:70%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="78" style="--percent:78;"></div><div class="skill-name">VRoid Studio</div><div class="bar"><div class="bar-fill" style="width:78%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="60" style="--percent:60;"></div><div class="skill-name">Live2D</div><div class="bar"><div class="bar-fill" style="width:60%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="80" style="--percent:80;"></div><div class="skill-name">Figma</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="80" style="--percent:80;"></div><div class="skill-name">Web Dev</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div></div>
+      <div class="skill-box"><div class="circle" data-percent="70" style="--percent:70;"></div><div class="skill-name">Android Studio</div><div class="bar"><div class="bar-fill" style="width:70%"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // === MODAL FIX ===
+  const socialModal = document.getElementById('socialModal');
+  const skillsModal = document.getElementById('skillsModal');
+  const socialBtn = document.getElementById('socialBtn');
+  const skillsBtn = document.getElementById('skillsBtn');
+  const closes = document.querySelectorAll('.close');
+
+  socialBtn.onclick = () => socialModal.style.display = 'block';
+  skillsBtn.onclick = () => {
+    skillsModal.style.display = 'block';
+    animateSkills();
+  };
+  closes.forEach(c => c.onclick = () => c.parentElement.parentElement.style.display = 'none');
+  window.onclick = e => {
+    if (e.target === socialModal) socialModal.style.display = 'none';
+    if (e.target === skillsModal) skillsModal.style.display = 'none';
+  };
+
+  // === Animate Skills ===
+  function animateSkills() {
+    const circles = document.querySelectorAll('.circle');
+    const bars = document.querySelectorAll('.bar-fill');
+    circles.forEach((circle, i) => {
+      const percent = parseInt(circle.getAttribute('data-percent'));
+      let current = 0;
+      circle.style.background = 'conic-gradient(#ffb6c1 0%, #ddd 0)';
+      bars[i].style.width = '0%';
+      const update = setInterval(() => {
+        current++;
+        circle.style.background = `conic-gradient(#ffb6c1 ${current * 3.6}deg, #ddd 0)`;
+        bars[i].style.width = `${current}%`;
+        if (current >= percent) clearInterval(update);
+      }, 15);
+    });
+  }
+</script>
+
+<style>
+  /* Pastikan modal muncul di atas AI chatbot & dev menu */
+  .modal { z-index: 5000; }
+</style>
+
 </body>
 </html>
-        <script src="particles.js"></script>
