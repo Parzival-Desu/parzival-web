@@ -1,1 +1,19 @@
-jadi di website ini ada 2 easter egg yaitu "Dev Option" dan juga ada di game "Real Typing Code" di halaman games.html 
+jadi di website ini ada 2 easter egg yaitu
+1. "Dev Option"
+2. "Real Typing Code" di halaman games.html
+
+
+cara aktifin Dev Option:
+klik logo yg ada di pojok kiri atas sebanyak 5 kali, maka akan muncul text "Developer Mode Activated"
+dan jika klik logonya sekali lagi, maka akan muncul Dev Option nya
+    A. Dark Mode
+    B. Ai-Chatbot bernama Airi
+
+User bisa meminta kepada Airi untuk anterin mereka ke setiap page yg tersedia, jika user menginput
+hal yg salah, maka Airi akan bingung dan meminta user untuk memasukan nama page yg benar
+
+(Cara kerja Airi nih simpel, dia ngecheck kata kunci yg di ucapin user.
+klo dia nemu kata kunci nya maka dia bakal nganterin user ke tujuan page yg sudah sesuai dengan keyword nya.)
+
+Sedangkan untuk easter egg di "Real Typing Code", user harus memasukan "console.log('Airi is cute!');"
+Jika user memasukan command tersebut saat game dimulai, maka Airi akan muncul di layar dan memarahai player.
