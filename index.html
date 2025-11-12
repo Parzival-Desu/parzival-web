@@ -5,19 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home — Parzival Takei</title>
   <link rel="stylesheet" href="style.css" />
+
   <style>
+    /* ===== FIX: Night Mode Text Color ===== */
+body.night, 
+body.night * {
+  color: #f2f2f2 !important;
+}
+
+/* Spesial untuk link */
+body.night a {
+  color: #ffb6c1 !important;
+}
+
+body.night a:hover {
+  color: #ffc9d4 !important;
+}
+
+/* Input dan textarea biar tetap kebaca */
+body.night input,
+body.night textarea {
+  background: #1e1e1e !important;
+  color: #f2f2f2 !important;
+  border-color: #555 !important;
+}
+
+/* Tombol tetap kelihatan */
+body.night button {
+  color: #222 !important;
+  font-weight: 600;
+}
+
+    /* === MUSIC LIST === */
     .music-list {
       max-width: 800px;
       margin: 40px auto;
       padding: 0 20px;
     }
-
     .song-container {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
-
     .song-item {
       display: flex;
       align-items: center;
@@ -28,97 +57,279 @@
       color: inherit;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
     .song-item:hover {
       transform: translateX(10px);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
-
     .song-item img {
       width: 80px;
       height: 80px;
       border-radius: 8px;
       object-fit: cover;
     }
+    .song-info { margin-left: 20px; }
+    .song-info h3 { margin: 0; font-size: 1.2rem; color: #333; }
+    .song-info p { margin: 5px 0 0; color: #666; font-size: 0.9rem; }
 
-    .song-info {
-      margin-left: 20px;
+    .hidden-songs { display: none; opacity: 0; transition: opacity 0.3s ease; }
+    .hidden-songs.show { display: block; opacity: 1; }
+    .hidden-songs .song-item { margin-top: 15px; }
+
+    .toggle-button {
+      display: block;
+      width: fit-content;
+      margin: 20px auto 0;
+      padding: 10px 25px;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .toggle-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
-    .song-info h3 {
-      margin: 0;
-      font-size: 1.2rem;
+    /* === DRAW AREA === */
+    .draw-area {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    /* === DEV MENU === */
+    .dev-menu {
+      position: fixed;
+      top: 70px;
+      left: 20px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      padding: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+    }
+    .dev-menu button {
+      background: linear-gradient(90deg,#ffb6c1,#b3e5fc);
+      border: none;
+      border-radius: 8px;
       color: #333;
+      font-weight: 600;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: transform .15s, background .2s;
+    }
+    .dev-menu button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg,#fad0c4,#b3e5fc);
     }
 
-    .song-info p {
-      margin: 5px 0 0;
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    .hidden-songs {
+    /* === CHATBOT === */
+    .chatbot {
+      position: fixed;
+      bottom: 20px;
+      right: 25px;
+      width: 300px;
       display: none;
+      flex-direction: column;
+      z-index: 999;
+      animation: fadeIn .4s ease forwards;
+      font-family: "Poppins", sans-serif;
+    }
+    .chatbot-header {
+      background: linear-gradient(90deg,#ff9a9e,#fad0c4);
+      padding: 8px 12px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #222;
+      font-weight: 600;
+    }
+    .chatbot-header img {
+      width: 40px;
+      border-radius: 10px;
+    }
+    .chatbox {
+      background: #fff;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.12);
+      padding: 10px;
+    }
+    .chat-messages {
+      height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 8px;
+    }
+    .msg {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      max-width: 85%;
+    }
+    .ai { background: #ffeef1; align-self: flex-start; }
+    .user { background: #b3e5fc; align-self: flex-end; }
+
+    .chat-input {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+    .chat-input button {
+      background: linear-gradient(90deg,#ff9a9e,#fad0c4);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn { from {opacity:0;transform:translateY(10px);} to {opacity:1;transform:translateY(0);} }
+
+    /* === POPUP === */
+    .activation-popup {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 30px;
+      font-weight: 600;
       opacity: 0;
-      transition: opacity 0.3s ease;
-      margin-top: -15px; /* Compensate for the gap from the last visible item */
+      pointer-events: none;
+      transition: opacity .4s ease;
+      z-index: 2000;
     }
+    .activation-popup.show { opacity: 1; }
 
-    .hidden-songs.show {
-      display: block;
-      opacity: 1;
+    /* === NIGHT MODE === */
+    body.night {
+      background: #0d0d0d;
+      color: #f2f2f2;
+      transition: background .4s ease, color .4s ease;
     }
+    body.night header { background: #121212; border-bottom: 1px solid #222; }
+    body.night footer { background: #141414; color: #eee; }
+    body.night nav ul li a { color: #ddd; }
+    body.night .song-item { background: rgba(60,60,60,0.9); color: #f2f2f2; }
+    body.night .dev-menu { background: #1a1a1a; }
+    body.night .chatbox { background: #1e1e1e; color: #eee; }
+    /* ======== FIX NIGHT MODE BG ======== */
+body.night .intro,
+body.night .two-column,
+body.night .contact-section {
+  background: #2b2b2b !important;
+  color: #f2f2f2 !important;
+}
 
-    .hidden-songs .song-item {
-      margin-top: 15px; /* Consistent gap for hidden songs */
-    }
+body.night .intro h2,
+body.night .intro h3,
+body.night .intro p,
+body.night .two-column h2,
+body.night .two-column h3,
+body.night .two-column p,
+body.night .contact-section h2,
+body.night .contact-section p,
+body.night .contact-section label {
+  color: #f2f2f2 !important;
+}
 
-    .toggle-button {
-      display: block;
-      width: fit-content;
-      margin: 20px auto 0;
-      padding: 10px 25px;
-      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-      border: none;
-      border-radius: 25px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+/* biar tombol tetap enak dilihat di dark mode */
+body.night .social-btn,
+body.night .skills-btn {
+  background: linear-gradient(135deg, #1976d2, #0d47a1);
+  color: #fff;
+}
 
-    .toggle-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
+body.night .journey-btn {
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  color: #fff;
+}
 
-    .hidden-songs {
-      display: none;
-    }
 
-    .hidden-songs.show {
-      display: block;
-    }
+    /* === FIX: Keep AI Chatbot colors same in both modes === */
+.chatbot, 
+.chatbox, 
+.chatbot .msg.ai, 
+.chatbot .msg.user, 
+.chatbot input, 
+.chatbot button {
+  color: #222 !important;
+  background-color: inherit !important;
+}
 
-    .toggle-button {
-      display: block;
-      width: fit-content;
-      margin: 20px auto 0;
-      padding: 10px 25px;
-      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-      border: none;
-      border-radius: 25px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+body.night .chatbot,
+body.night .chatbox,
+body.night .msg.ai,
+body.night .msg.user,
+body.night .chat-input input,
+body.night .chat-input button {
+  background: none !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
 
-    .toggle-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
+body.night .chatbox {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+body.night .msg.ai {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+body.night .msg.user {
+  background: #ffb6c1 !important;
+  color: #111 !important;
+}
+
+body.night .chat-input input {
+  background: #2a2a2a !important;
+  color: #eee !important;
+}
+
+body.night .chat-input button {
+  background: #ff9a9e !important;
+  color: #fff !important;
+}
+
+/* === Keep Airi's name readable on both themes === */
+.chatbot-header {
+  color: #222 !important; /* selalu teks gelap */
+}
+
+/* Kalau mau kasih sedikit shadow biar tetap terbaca di semua warna */
+.chatbot-header span {
+  color: #222 !important;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+}
+
+/* Pastikan dark mode tidak mengubah header */
+body.night .chatbot-header {
+  background: linear-gradient(90deg, #ff9a9e, #fad0c4) !important;
+  color: #222 !important;
+}
+
   </style>
+
+  
 </head>
 <body>
   <header>
@@ -141,11 +352,8 @@
 
   <section class="intro">
     <h2>Welcome to My Colorful Page</h2>
-    <p>
-      Hello, I'm Rayhan Khadafi!
-      <p>I'm a Game & UI Developer from Bandung, passionate about crafting visuals that blend creativity and technology. I also enjoy designing 3D buildings, interiors, and characters that bring ideas to life.</p>
-      My favorite songs are listed below. Enjoy browsing!:
-    </p>
+    <p>Hello, I'm Rayhan Khadafi! I'm a Game & UI Developer from Bandung, passionate about crafting visuals that blend creativity and technology. I also enjoy designing 3D buildings, interiors, and characters that bring ideas to life.</p>
+    <p>My favorite songs are listed below. Enjoy browsing!</p>
   </section>
 
   <section class="music-list">
@@ -263,45 +471,155 @@
     </div>
   </div>
 
+  <footer><p>© Parzival — All Rights Reserved.</p></footer>
+
+  <!-- ===== DEV MENU ===== -->
+  <div class="dev-menu" id="devMenu">
+    <button id="toggleNight">🌙 Night Mode</button>
+    <button id="toggleChat">💬 AI Chatbot</button>
+  </div>
+
+  <!-- ===== CHATBOT (AI v2.0) ===== -->
+  <div class="chatbot" id="chatbot">
+    <div class="chatbot-header">
+      <img src="img/Airi_default.png" alt="Airi">
+      <span>Airi — Assistant</span>
+    </div>
+    <div class="chatbox">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">Hai~ aku Airi! Mau jalan-jalan ke mana?</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Tulis sesuatu (misal: pergi ke gallery)">
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP -->
+  <div class="activation-popup" id="activationPopup">Developer Mode Activated!</div>
+
   <script>
-    // Show/Hide songs functionality
+    // ===== SONGS =====
     function toggleSongs() {
-      const hiddenSongs = document.querySelector('.hidden-songs');
-      const button = document.querySelector('.toggle-button');
-      
-      hiddenSongs.classList.toggle('show');
-      if (hiddenSongs.classList.contains('show')) {
-        button.textContent = 'Show Less';
+      const hidden = document.querySelector('.hidden-songs');
+      const btn = document.querySelector('.toggle-button');
+      hidden.classList.toggle('show');
+      btn.textContent = hidden.classList.contains('show') ? 'Show Less' : 'Show More';
+    }
+
+    // ===== DRAW =====
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    let draw = false, color = document.getElementById('colorPicker').value;
+    canvas.onmousedown = () => draw = true;
+    canvas.onmouseup = () => draw = false;
+    canvas.onmouseout = () => draw = false;
+    canvas.onmousemove = e => { if (!draw) return; ctx.fillStyle = color; ctx.beginPath(); ctx.arc(e.offsetX,e.offsetY,3,0,Math.PI*2); ctx.fill(); };
+    document.getElementById('colorPicker').oninput = e => color = e.target.value;
+    document.getElementById('clearBtn').onclick = () => ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // ===== DEV MODE =====
+    const logo = document.querySelector('.site-logo');
+    const devMenu = document.getElementById('devMenu');
+    const chatbot = document.getElementById('chatbot');
+    const popup = document.getElementById('activationPopup');
+    const body = document.body;
+
+    let clicks = 0;
+    let devMode = sessionStorage.getItem('devMode') === 'true';
+    let nightMode = sessionStorage.getItem('nightMode') === 'true';
+    let chatEnabled = sessionStorage.getItem('chatEnabled') === 'true';
+
+    if (devMode) initDev();
+
+    logo.addEventListener('click', () => {
+      if (devMode) {
+        devMenu.style.display = devMenu.style.display === 'flex' ? 'none' : 'flex';
+        return;
+      }
+      clicks++;
+      if (clicks >= 5) activateDev();
+    });
+
+    function activateDev() {
+      devMode = true;
+      sessionStorage.setItem('devMode','true');
+      popup.classList.add('show');
+      setTimeout(()=>popup.classList.remove('show'),2000);
+      initDev();
+    }
+
+    function initDev() {
+      devMenu.style.display = 'none';
+      if (nightMode) body.classList.add('night');
+      if (chatEnabled) chatbot.style.display = 'flex';
+    }
+
+    document.getElementById('toggleNight').onclick = () => {
+      body.classList.toggle('night');
+      nightMode = body.classList.contains('night');
+      sessionStorage.setItem('nightMode',nightMode);
+    };
+
+    document.getElementById('toggleChat').onclick = () => {
+      const show = chatbot.style.display === 'none' || chatbot.style.display === '';
+      chatbot.style.display = show ? 'flex' : 'none';
+      chatEnabled = show;
+      sessionStorage.setItem('chatEnabled', chatEnabled);
+    };
+
+    // ===== CHATBOT (AI v2.0) =====
+    const sendBtn = document.getElementById('sendBtn');
+    const input = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatMessages');
+
+    function appendMsg(text, who) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleSend() {
+      const text = input.value.trim();
+      if (!text) return;
+      appendMsg(text, 'user');
+      input.value = '';
+      setTimeout(()=>processInput(text.toLowerCase()), 400);
+    }
+
+    function processInput(txt) {
+      const map = {
+        'home':['home','index','beranda'],
+        'about':['about','tentang'],
+        'gallery':['gallery','galeri', 'portofolio'],
+        'contact':['contact','kontak'],
+        'games':['games'],
+        'journey':['journey','perjalanan'],
+        'intro-youtube':['intro-youtube','intro youtube'],
+        '2d-character':['gambar 2d','gambar'],
+        '3d-character':['karakter 3d','model 3d'],
+        'lunar-veil':['lunar-veil','novel lunar veil', 'lunar veil', 'novel'],
+        'denah-interior':['denah-interior','interior rumah'],
+        '3d-bangunan':['3d-bangunan','model 3d bangunan'],
+        '3d-vtuber':['3d-vtuber','vtuber']
+      };
+      let found = null;
+      for (const key in map) {
+        if (map[key].some(k=>txt.includes(k))) { found = key; break; }
+      }
+      if (found) {
+        appendMsg('Oke~ aku antar ke halaman ' + found + '!', 'ai');
+        setTimeout(()=>window.location.href = found+'.html', 1000);
       } else {
-        button.textContent = 'Show More';
+        appendMsg('Hmm... aku gak nemu halaman itu >< coba kata lain, misalnya "about" atau "gallery".', 'ai');
       }
     }
 
-    // Simple drawing functionality
-    const canvas = document.getElementById('drawCanvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let color = document.getElementById('colorPicker').value;  canvas.addEventListener('mousedown', () => drawing = true);
-  canvas.addEventListener('mouseup', () => drawing = false);
-  canvas.addEventListener('mouseout', () => drawing = false);
-  canvas.addEventListener('mousemove', draw);
-  document.getElementById('colorPicker').addEventListener('input', e => color = e.target.value);
-  document.getElementById('clearBtn').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  });
-
-  function draw(e) {
-    if (!drawing) return;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(e.offsetX, e.offsetY, 3, 0, Math.PI * 2);
-    ctx.fill();
-  }
-</script>
-
-  <footer>
-    <p>© Parzival — All Rights Reserved</p>
-  </footer>
-  <script src="particles.js"></script>
+    sendBtn.onclick = handleSend;
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+  </script>
 </body>
 </html>

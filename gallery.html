@@ -6,6 +6,35 @@
   <title>Gallery — Parzival Takei</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+
+    /* ===== FIX: Night Mode Text Color ===== */
+body.night, 
+body.night * {
+  color: #f2f2f2 !important;
+}
+
+/* Spesial untuk link */
+body.night a {
+  color: #ffb6c1 !important;
+}
+
+body.night a:hover {
+  color: #ffc9d4 !important;
+}
+
+/* Input dan textarea biar tetap kebaca */
+body.night input,
+body.night textarea {
+  background: #1e1e1e !important;
+  color: #f2f2f2 !important;
+  border-color: #555 !important;
+}
+
+/* Tombol tetap kelihatan */
+body.night button {
+  color: #222 !important;
+  font-weight: 600;
+}
     .gallery-container {
       max-width: 1100px;
       margin: 50px auto;
@@ -48,6 +77,81 @@
       font-weight: 600;
       color: #444;
     }
+
+    /* ===== Night Mode ===== */
+    body.night {
+      background: #0d0d0d;
+      color: #f2f2f2;
+      transition: background .4s ease, color .4s ease;
+    }
+    body.night header { background: #121212; border-bottom: 1px solid #222; }
+    body.night footer { background: #141414; color: #eee; }
+    body.night nav ul li a { color: #ddd; }
+    body.night .gallery-card { background: rgba(30,30,30,0.8); color: #eee; }
+
+    /* === FIX: Keep AI Chatbot colors same in both modes === */
+.chatbot, 
+.chatbox, 
+.chatbot .msg.ai, 
+.chatbot .msg.user, 
+.chatbot input, 
+.chatbot button {
+  color: #222 !important;
+  background-color: inherit !important;
+}
+
+body.night .chatbot,
+body.night .chatbox,
+body.night .msg.ai,
+body.night .msg.user,
+body.night .chat-input input,
+body.night .chat-input button {
+  background: none !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+body.night .chatbox {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+body.night .msg.ai {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+body.night .msg.user {
+  background: #ffb6c1 !important;
+  color: #111 !important;
+}
+
+body.night .chat-input input {
+  background: #2a2a2a !important;
+  color: #eee !important;
+}
+
+body.night .chat-input button {
+  background: #ff9a9e !important;
+  color: #fff !important;
+}
+
+/* === Keep Airi's name readable on both themes === */
+.chatbot-header {
+  color: #222 !important; /* selalu teks gelap */
+}
+
+/* Kalau mau kasih sedikit shadow biar tetap terbaca di semua warna */
+.chatbot-header span {
+  color: #222 !important;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+}
+
+/* Pastikan dark mode tidak mengubah header */
+body.night .chatbot-header {
+  background: linear-gradient(90deg, #ff9a9e, #fad0c4) !important;
+  color: #222 !important;
+}
   </style>
 </head>
 <body>
@@ -69,7 +173,6 @@
 <h2 class="page-title">Portfolio Gallery</h2>
 
 <div class="gallery-container">
-
   <div class="gallery-card">
     <a href="3d-vtuber.html" style="text-decoration: none; color: inherit;">
       <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgnS4BskGphHAZtx_eBgpgo8XXtRTk6_sFlo2zXUAmWQlW3IkZMoZlz-UNCGaqZKXoXTs6XsrI2aHUvuy1hEptn9snfiJILoygnWYrQ4jkGkMV2PDqdW_WT0qOKTv3MkpaUkDR_H94opT043GvWzAdL50QObwetYQhvDjz8iLwvFNZt0t8b8rrxQGpGaVQ/w439-h247/Screenshot%20(329).png" alt="3D VTuber Avatar" />
@@ -125,13 +228,157 @@
       <p>Portofolio - Games</p>
     </a>
   </div>
-
 </div>
 
-<footer>
-  <p>© Parzival — All Rights Reserved</p>
-</footer>
+<footer><p>© Parzival — All Rights Reserved.</p></footer>
+
+<!-- ===== DEV MENU ===== -->
+<div class="dev-menu" id="devMenu">
+  <button id="toggleNight">🌙 Night Mode</button>
+  <button id="toggleChat">💬 AI Chatbot</button>
+</div>
+
+<!-- ===== CHATBOT (Airi) ===== -->
+<div class="chatbot" id="chatbot">
+  <div class="chatbot-header">
+    <img src="img/Airi_default.png" alt="Airi">
+    <span>Airi — Assistant</span>
+  </div>
+  <div class="chatbox">
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg ai">Hai~ aku Airi! Mau jalan-jalan ke mana?</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Tulis sesuatu (misal: pergi ke gallery)">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="activation-popup" id="activationPopup">Developer Mode Activated!</div>
+
+<style>
+  .dev-menu { position: fixed; top: 70px; left: 20px; background: rgba(255,255,255,0.95); border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 1000; }
+  .dev-menu button { background: linear-gradient(90deg,#ffb6c1,#b3e5fc); border: none; border-radius: 8px; color: #333; font-weight: 600; padding: 8px 12px; cursor: pointer; transition: transform .15s, background .2s; }
+  .dev-menu button:hover { transform: scale(1.05); background: linear-gradient(90deg,#fad0c4,#b3e5fc); }
+
+  .chatbot { position: fixed; bottom: 20px; right: 25px; width: 300px; display: none; flex-direction: column; z-index: 999; animation: fadeIn .4s ease forwards; font-family: "Poppins", sans-serif; }
+  .chatbot-header { background: linear-gradient(90deg,#ff9a9e,#fad0c4); padding: 8px 12px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 8px; color: #222; font-weight: 600; }
+  .chatbot-header img { width: 40px; border-radius: 10px; }
+  .chatbox { background: #fff; border-radius: 0 0 12px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 10px; }
+  .chat-messages { height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+  .msg { padding: 8px 12px; border-radius: 10px; font-size: 14px; max-width: 85%; }
+  .ai { background: #ffeef1; align-self: flex-start; }
+  .user { background: #b3e5fc; align-self: flex-end; }
+  .chat-input { display: flex; gap: 6px; margin-top: 6px; }
+  .chat-input input { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+  .chat-input button { background: linear-gradient(90deg,#ff9a9e,#fad0c4); border: none; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; }
+  .activation-popup { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 22px; border-radius: 30px; font-weight: 600; opacity: 0; transition: opacity .4s ease; z-index: 2000; }
+  .activation-popup.show { opacity: 1; }
+</style>
+
+<script>
+const logo = document.querySelector('.site-logo');
+const devMenu = document.getElementById('devMenu');
+const chatbot = document.getElementById('chatbot');
+const popup = document.getElementById('activationPopup');
+const body = document.body;
+
+let clicks = 0;
+let devMode = sessionStorage.getItem('devMode') === 'true';
+let nightMode = sessionStorage.getItem('nightMode') === 'true';
+let chatEnabled = sessionStorage.getItem('chatEnabled') === 'true';
+
+if (devMode) initDev();
+
+logo.addEventListener('click', () => {
+  if (devMode) {
+    devMenu.style.display = devMenu.style.display === 'flex' ? 'none' : 'flex';
+    return;
+  }
+  clicks++;
+  if (clicks >= 5) activateDev();
+});
+
+function activateDev() {
+  devMode = true;
+  sessionStorage.setItem('devMode','true');
+  popup.classList.add('show');
+  setTimeout(()=>popup.classList.remove('show'),2000);
+  initDev();
+}
+
+function initDev() {
+  devMenu.style.display = 'none';
+  if (nightMode) body.classList.add('night');
+  if (chatEnabled) chatbot.style.display = 'flex';
+}
+
+document.getElementById('toggleNight').onclick = () => {
+  body.classList.toggle('night');
+  nightMode = body.classList.contains('night');
+  sessionStorage.setItem('nightMode',nightMode);
+};
+
+document.getElementById('toggleChat').onclick = () => {
+  const show = chatbot.style.display === 'none' || chatbot.style.display === '';
+  chatbot.style.display = show ? 'flex' : 'none';
+  chatEnabled = show;
+  sessionStorage.setItem('chatEnabled', chatEnabled);
+};
+
+// === Chatbot ===
+const sendBtn = document.getElementById('sendBtn');
+const input = document.getElementById('userInput');
+const chatBox = document.getElementById('chatMessages');
+
+function appendMsg(text, who) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function handleSend() {
+  const text = input.value.trim();
+  if (!text) return;
+  appendMsg(text, 'user');
+  input.value = '';
+  setTimeout(()=>processInput(text.toLowerCase()), 400);
+}
+
+function processInput(txt) {
+  const map = {
+        'home':['home','index','beranda'],
+        'about':['about','tentang'],
+        'gallery':['gallery','galeri', 'portofolio'],
+        'contact':['contact','kontak'],
+        'games':['games','permainan','game'],
+        'journey':['journey','perjalanan'],
+        'intro-youtube':['intro-youtube','intro youtube'],
+        '2d-character':['gambar 2d','gambar'],
+        '3d-character':['karakter 3d','model 3d'],
+        'lunar-veil':['lunar-veil','novel lunar veil', 'novel', 'lunar veil'],
+        'denah-interior':['denah-interior','interior rumah', 'interior', 'denah'],
+        '3d-bangunan':['3d-bangunan','model 3d bangunan', 'bangunan 3d', 'bangunan'],
+        '3d-vtuber':['3d-vtuber','vtuber']
+      };
+  let found = null;
+  for (const key in map) {
+    if (map[key].some(k=>txt.includes(k))) { found = key; break; }
+  }
+  if (found) {
+    appendMsg('Oke~ aku antar ke halaman ' + found + '!', 'ai');
+    setTimeout(()=>window.location.href = found+'.html', 1000);
+  } else {
+    appendMsg('Hmm... aku gak nemu halaman itu >< coba kata lain, misalnya "about" atau "gallery".', 'ai');
+  }
+}
+
+sendBtn.onclick = handleSend;
+input.addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+</script>
 
 </body>
-  <script src="particles.js"></script>
 </html>

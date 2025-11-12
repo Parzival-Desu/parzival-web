@@ -1,203 +1,440 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Contact — Parzival Takei</title>
-    <style>
-        .contact-section {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.65);
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Contact — Parzival Takei</title>
+  <style>
 
-        .contact-description {
-            text-align: center;
-            margin: 20px 0 30px;
-            color: #555;
-            line-height: 1.6;
-        }
+    /* ===== FIX: Night Mode Text Color ===== */
+body.night, 
+body.night * {
+  color: #f2f2f2 !important;
+}
 
-        .contact-description a {
-            color: #ff9a9e;
-            text-decoration: none;
-            font-weight: 600;
-        }
+/* Spesial untuk link */
+body.night a {
+  color: #ffb6c1 !important;
+}
 
-        .contact-description a:hover {
-            text-decoration: underline;
-        }
+body.night a:hover {
+  color: #ffc9d4 !important;
+}
 
-        .contact-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+/* Input dan textarea biar tetap kebaca */
+body.night input,
+body.night textarea {
+  background: #1e1e1e !important;
+  color: #f2f2f2 !important;
+  border-color: #555 !important;
+}
 
-        .form-field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+/* Tombol tetap kelihatan */
+body.night button {
+  color: #222 !important;
+  font-weight: 600;
+}
+    .contact-section {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.65);
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-        .form-field label {
-            font-weight: 600;
-            color: #444;
-        }
+    .contact-description {
+      text-align: center;
+      margin: 20px 0 30px;
+      color: #555;
+      line-height: 1.6;
+    }
 
-        .form-field input,
-        .form-field textarea {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
+    .contact-description a {
+      color: #ff9a9e;
+      text-decoration: none;
+      font-weight: 600;
+    }
 
-        .form-field input:focus,
-        .form-field textarea:focus {
-            outline: none;
-            border-color: #ff9a9e;
-            box-shadow: 0 0 0 2px rgba(255, 154, 158, 0.2);
-        }
+    .contact-description a:hover {
+      text-decoration: underline;
+    }
 
-        .form-field textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
-        .send-button {
-            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-            color: #fff;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            align-self: flex-start;
-        }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-        .send-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    .form-field label {
+      font-weight: 600;
+      color: #444;
+    }
 
-        .form-note {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #666;
-        }
+    .form-field input,
+    .form-field textarea {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
 
-        .form-note a {
-            color: #ff9a9e;
-            text-decoration: none;
-            font-weight: 600;
-        }
+    .form-field input:focus,
+    .form-field textarea:focus {
+      outline: none;
+      border-color: #ff9a9e;
+      box-shadow: 0 0 0 2px rgba(255, 154, 158, 0.2);
+    }
 
-        .form-note a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    .form-field textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .send-button {
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      color: #fff;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      align-self: flex-start;
+    }
+
+    .send-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-note {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .form-note a {
+      color: #ff9a9e;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .form-note a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== NIGHT MODE ===== */
+    body.night {
+      background: #0d0d0d;
+      color: #f2f2f2;
+      transition: background .4s ease, color .4s ease;
+    }
+    body.night header { background: #121212; border-bottom: 1px solid #222; }
+    body.night footer { background: #141414; color: #eee; }
+    body.night nav ul li a { color: #ddd; }
+    body.night .contact-section {
+      background: rgba(30,30,30,0.85);
+      color: #f2f2f2;
+    }
+
+    /* === FIX: Keep AI Chatbot colors same in both modes === */
+.chatbot, 
+.chatbox, 
+.chatbot .msg.ai, 
+.chatbot .msg.user, 
+.chatbot input, 
+.chatbot button {
+  color: #222 !important;
+  background-color: inherit !important;
+}
+
+body.night .chatbot,
+body.night .chatbox,
+body.night .msg.ai,
+body.night .msg.user,
+body.night .chat-input input,
+body.night .chat-input button {
+  background: none !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+body.night .chatbox {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+body.night .msg.ai {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+body.night .msg.user {
+  background: #ffb6c1 !important;
+  color: #111 !important;
+}
+
+body.night .chat-input input {
+  background: #2a2a2a !important;
+  color: #eee !important;
+}
+
+body.night .chat-input button {
+  background: #ff9a9e !important;
+  color: #fff !important;
+}
+
+/* === Keep Airi's name readable on both themes === */
+.chatbot-header {
+  color: #222 !important; /* selalu teks gelap */
+}
+
+/* Kalau mau kasih sedikit shadow biar tetap terbaca di semua warna */
+.chatbot-header span {
+  color: #222 !important;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+}
+
+/* Pastikan dark mode tidak mengubah header */
+body.night .chatbot-header {
+  background: linear-gradient(90deg, #ff9a9e, #fad0c4) !important;
+  color: #222 !important;
+}
+  </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
-        </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
-                <li><a href="contact.html" class="active">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <div class="logo">
+      <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <section class="intro contact-section">
-        <h2>Get in touch</h2>
-        <p class="contact-description">
-            You can email directly at <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a> or use the form below to open your
-            mail client with a prefilled message.
-        </p>
+  <section class="intro contact-section">
+    <h2>Get in touch</h2>
+    <p class="contact-description">
+      You can email directly at <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a> or use the form below to open your
+      mail client with a prefilled message.
+    </p>
 
-        <form id="contactForm" class="contact-form" novalidate>
-            <div class="form-field">
-                <label for="name">Your name</label>
-                <input type="text" id="name" name="name" placeholder="Jane Doe" required>
-            </div>
+    <form id="contactForm" class="contact-form" novalidate>
+      <div class="form-field">
+        <label for="name">Your name</label>
+        <input type="text" id="name" name="name" placeholder="Jane Doe" required>
+      </div>
 
-            <div class="form-field">
-                <label for="email">Your email</label>
-                <input type="email" id="email" name="email" placeholder="you@example.com" required>
-            </div>
+      <div class="form-field">
+        <label for="email">Your email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      </div>
 
-            <div class="form-field">
-                <label for="subject">Subject</label>
-                <input type="text" id="subject" name="subject" placeholder="Subject" required>
-            </div>
+      <div class="form-field">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" placeholder="Subject" required>
+      </div>
 
-            <div class="form-field">
-                <label for="message">Message</label>
-                <textarea id="message" name="message" placeholder="Write your message..." required></textarea>
-            </div>
+      <div class="form-field">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Write your message..." required></textarea>
+      </div>
 
-            <button type="submit" class="send-button">Send via Email</button>
+      <button type="submit" class="send-button">Send via Email</button>
 
-            <p class="form-note">
-                This will open your email client with a prefilled message. You may also email directly:
-                <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a>
-            </p>
-        </form>
-    </section>
+      <p class="form-note">
+        This will open your email client with a prefilled message. You may also email directly:
+        <a href="mailto:rayhancombet@gmail.com">rayhancombet@gmail.com</a>
+      </p>
+    </form>
+  </section>
 
-    <footer>
-        <p>© Parzival — All Rights Reserved</p>
-    </footer>
+  <footer>
+    <p>© Parzival — All Rights Reserved.</p>
+  </footer>
 
-    <script src="particles.js"></script>
-    <script>
-        (function () {
-            const form = document.getElementById('contactForm');
-            const status = document.getElementById('status');
-            const recipient = 'rayhancombet@gmail.com';
+  <!-- ===== DEV MENU ===== -->
+  <div class="dev-menu" id="devMenu">
+    <button id="toggleNight">🌙 Night Mode</button>
+    <button id="toggleChat">💬 AI Chatbot</button>
+  </div>
 
-            function encode(s) { return encodeURIComponent(s || ''); }
+  <!-- ===== CHATBOT ===== -->
+  <div class="chatbot" id="chatbot">
+    <div class="chatbot-header">
+      <img src="img/Airi_default.png" alt="Airi">
+      <span>Airi — Assistant</span>
+    </div>
+    <div class="chatbox">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">Hai~ aku Airi! Mau jalan-jalan ke mana?</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Tulis sesuatu (misal: pergi ke gallery)">
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                if (!form.checkValidity()) { form.reportValidity(); return; }
+  <div class="activation-popup" id="activationPopup">Developer Mode Activated!</div>
 
-                const name = document.getElementById('name').value.trim();
-                const fromEmail = document.getElementById('email').value.trim();
-                const subject = document.getElementById('subject').value.trim();
-                const message = document.getElementById('message').value.trim();
+  <style>
+    .dev-menu { position: fixed; top: 70px; left: 20px; background: rgba(255,255,255,0.95); border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 1000; }
+    .dev-menu button { background: linear-gradient(90deg,#ffb6c1,#b3e5fc); border: none; border-radius: 8px; color: #333; font-weight: 600; padding: 8px 12px; cursor: pointer; transition: transform .15s, background .2s; }
+    .dev-menu button:hover { transform: scale(1.05); background: linear-gradient(90deg,#fad0c4,#b3e5fc); }
 
-                const fullSubject = subject || 'Contact from website';
-                const bodyLines = [
-                    'Name: ' + name,
-                    'From: ' + fromEmail,
-                    '',
-                    message
-                ].join('\n');
+    .chatbot { position: fixed; bottom: 20px; right: 25px; width: 300px; display: none; flex-direction: column; z-index: 999; animation: fadeIn .4s ease forwards; font-family: "Poppins", sans-serif; }
+    .chatbot-header { background: linear-gradient(90deg,#ff9a9e,#fad0c4); padding: 8px 12px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 8px; color: #222; font-weight: 600; }
+    .chatbot-header img { width: 40px; border-radius: 10px; }
+    .chatbox { background: #fff; border-radius: 0 0 12px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 10px; }
+    .chat-messages { height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+    .msg { padding: 8px 12px; border-radius: 10px; font-size: 14px; max-width: 85%; }
+    .ai { background: #ffeef1; align-self: flex-start; }
+    .user { background: #b3e5fc; align-self: flex-end; }
+    .chat-input { display: flex; gap: 6px; margin-top: 6px; }
+    .chat-input input { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+    .chat-input button { background: linear-gradient(90deg,#ff9a9e,#fad0c4); border: none; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; }
 
-                const mailto = 'mailto:' + recipient + '?subject=' + encode(fullSubject) + '&body=' + encode(bodyLines);
+    .activation-popup { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 22px; border-radius: 30px; font-weight: 600; opacity: 0; transition: opacity .4s ease; z-index: 2000; }
+    .activation-popup.show { opacity: 1; }
+  </style>
 
-                status.style.display = 'inline-block';
-                window.location.href = mailto;
+  <script>
+    // === Contact form mailto ===
+    (function () {
+      const form = document.getElementById('contactForm');
+      const recipient = 'rayhancombet@gmail.com';
+      function encode(s) { return encodeURIComponent(s || ''); }
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        const name = document.getElementById('name').value.trim();
+        const fromEmail = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject').value.trim();
+        const message = document.getElementById('message').value.trim();
+        const fullSubject = subject || 'Contact from website';
+        const bodyLines = [
+          'Name: ' + name,
+          'From: ' + fromEmail,
+          '',
+          message
+        ].join('\n');
+        window.location.href = 'mailto:' + recipient + '?subject=' + encode(fullSubject) + '&body=' + encode(bodyLines);
+      });
+    })();
 
-                setTimeout(() => { status.style.display = 'none'; }, 3000);
-            });
-        })();
-    </script>
+    // === Developer Mode System ===
+    const logo = document.querySelector('.site-logo');
+    const devMenu = document.getElementById('devMenu');
+    const chatbot = document.getElementById('chatbot');
+    const popup = document.getElementById('activationPopup');
+    const body = document.body;
+
+    let clicks = 0;
+    let devMode = sessionStorage.getItem('devMode') === 'true';
+    let nightMode = sessionStorage.getItem('nightMode') === 'true';
+    let chatEnabled = sessionStorage.getItem('chatEnabled') === 'true';
+
+    if (devMode) initDev();
+
+    logo.addEventListener('click', () => {
+      if (devMode) {
+        devMenu.style.display = devMenu.style.display === 'flex' ? 'none' : 'flex';
+        return;
+      }
+      clicks++;
+      if (clicks >= 5) activateDev();
+    });
+
+    function activateDev() {
+      devMode = true;
+      sessionStorage.setItem('devMode','true');
+      popup.classList.add('show');
+      setTimeout(()=>popup.classList.remove('show'),2000);
+      initDev();
+    }
+
+    function initDev() {
+      devMenu.style.display = 'none';
+      if (nightMode) body.classList.add('night');
+      if (chatEnabled) chatbot.style.display = 'flex';
+    }
+
+    document.getElementById('toggleNight').onclick = () => {
+      body.classList.toggle('night');
+      nightMode = body.classList.contains('night');
+      sessionStorage.setItem('nightMode',nightMode);
+    };
+
+    document.getElementById('toggleChat').onclick = () => {
+      const show = chatbot.style.display === 'none' || chatbot.style.display === '';
+      chatbot.style.display = show ? 'flex' : 'none';
+      chatEnabled = show;
+      sessionStorage.setItem('chatEnabled', chatEnabled);
+    };
+
+    // === Chatbot Logic ===
+    const sendBtn = document.getElementById('sendBtn');
+    const input = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatMessages');
+
+    function appendMsg(text, who) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleSend() {
+      const text = input.value.trim();
+      if (!text) return;
+      appendMsg(text, 'user');
+      input.value = '';
+      setTimeout(()=>processInput(text.toLowerCase()), 400);
+    }
+
+    function processInput(txt) {
+      const map = {
+        'home':['home','index','beranda'],
+        'about':['about','tentang'],
+        'gallery':['gallery','galeri'],
+        'contact':['contact','kontak'],
+        'games':['games','game'],
+        'journey':['journey','perjalanan']
+      };
+      let found = null;
+      for (const key in map) {
+        if (map[key].some(k=>txt.includes(k))) { found = key; break; }
+      }
+      if (found) {
+        appendMsg('Oke~ aku antar ke halaman ' + found + '!', 'ai');
+        setTimeout(()=>window.location.href = found+'.html', 1000);
+      } else {
+        appendMsg('Hmm... aku gak nemu halaman itu >< coba kata lain, misalnya "about" atau "gallery".', 'ai');
+      }
+    }
+
+    sendBtn.onclick = handleSend;
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+  </script>
 </body>
 </html>

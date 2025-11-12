@@ -1,303 +1,456 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games - Parzival Takei</title>
-    <link rel="stylesheet" href="style.css" />
-    <style>
-        :root {
-            --primary: #ff9a9e;
-            --secondary: #fad0c4;
-            --dark: #333;
-            --light: #fff;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games — Parzival Takei</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root {
+      --primary: #ff9a9e;
+      --secondary: #fad0c4;
+      --dark: #333;
+      --light: #fff;
+    }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
+    html, body { height: 100%; margin: 0; display: flex; flex-direction: column; }
+    main { flex: 1; }
 
-        main {
-            flex: 1;
-        }
+    header {
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: var(--dark);
-            font-weight: 500;
-            margin-top: auto;
-            box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
-        }
+    header nav ul li a {
+      color: var(--dark);
+      transition: color 0.3s;
+    }
+    header nav ul li a:hover {
+      color: var(--primary);
+    }
 
-        .games-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 1;
-        }
+    footer {
+      text-align: center;
+      padding: 15px 0;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      color: #333;
+      font-size: 14px;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      margin-top: auto;
+    }
 
-        .back-link {
-            display: inline-block;
-            margin: 20px 0;
-            color: var(--dark);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
+    .games-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
 
-        .back-link:hover { color: var(--primary); }
+    .back-link {
+      display: inline-block;
+      margin: 20px 0;
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s, opacity 0.3s;
+    }
+    .back-link:hover { opacity: 0.7; color: var(--primary); }
 
-        #mainMenu {
-            text-align: center;
-            padding: 60px 20px;
-            animation: fadeIn 1s ease;
-        }
+    #mainMenu { text-align: center; padding: 40px 20px; }
+    #mainMenu h1 { font-size: 2.6rem; color: var(--dark); margin-bottom: 30px; }
 
-        #mainMenu h1 {
-            font-size: 3rem;
-            color: var(--dark);
-            margin-bottom: 20px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+    .game-selector {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+    }
 
-        .game-selector {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-            margin-top: 40px;
-        }
+    .game-card {
+      width: 260px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      padding: 20px;
+      transition: all 0.3s;
+    }
 
-        .game-card {
-            background: rgba(255,255,255,0.9);
-            border-radius: 20px;
-            padding: 20px;
-            width: 280px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
+    .game-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+    }
 
-        .game-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
+    .game-card h3 { margin-top: 0; color: #333; }
+    .game-card p { color: #555; font-size: 0.9rem; }
 
-        .game-card h3 {
-            margin: 0 0 10px;
-            font-size: 1.5rem;
-            color: var(--dark);
-        }
+    .play-btn {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      border: none;
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+    .play-btn:hover { transform: scale(1.05); }
 
-        .game-card p {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
+    .game-wrapper {
+      display: none;
+      background: rgba(255,255,255,0.95);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    .game-wrapper.active { display: block; animation: fadeIn 0.4s ease; }
 
-        .play-btn {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.3s;
-        }
+    .game-header { display: flex; justify-content: space-between; align-items: center; }
+    .game-header h2 { margin: 0; }
+    .close-game {
+      background: #ff4757;
+      color: #fff;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
 
-        .play-btn:hover { transform: scale(1.05); }
+    .game-canvas {
+      display: block;
+      margin: 20px auto;
+      border: 4px solid var(--primary);
+      border-radius: 12px;
+      background: #87ceeb;
+    }
 
-        .game-wrapper {
-            display: none;
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 900px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            position: relative;
-        }
+    .game-info {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #444;
+    }
 
-        .game-wrapper.active {
-            display: block;
-            animation: slideUp 0.6s ease;
-        }
+    .score-display {
+      font-weight: bold;
+      color: var(--primary);
+      margin: 10px 0;
+    }
 
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    .btn {
+      display: inline-block;
+      margin-top: 8px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s, opacity 0.3s;
+    }
+    .btn:hover { transform: scale(1.05); opacity: 0.9; }
 
-        .game-header h2 {
-            margin: 0;
-            color: var(--dark);
-        }
+     /* ===== NIGHT MODE ===== */
+    body.night {
+      background: #0d0d0d;
+      color: #f2f2f2;
+      transition: background 0.4s, color 0.4s;
+    }
+    body.night header { background: #121212; border-bottom: 1px solid #222; }
+    body.night footer { background: #141414; color: #eee; }
+    body.night nav ul li a { color: #ffb6c1; }
 
-        .close-game {
-            background: #ff4757;
-            color: white;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
+    body.night .portfolio-wrapper { background: rgba(30,30,30,0.9); color: #f2f2f2; }
+    body.night .description { background: rgba(45,45,45,0.9); color: #f2f2f2; }
 
-        .game-canvas {
-            display: block;
-            margin: 0 auto 15px;
-            border: 4px solid var(--primary);
-            border-radius: 15px;
-            image-rendering: pixelated;
-            background: #87CEEB;
-        }
+    /* FIXED COLORS */
+    body.night .portfolio-wrapper h2 { color: #ffb6c1; } /* pink title */
+    body.night .back-link { color: #ffb6c1; } /* pink link text */
 
-        .game-info {
-            text-align: center;
-            color: #555;
-        }
+    @media (max-width: 768px) {
+      .portfolio-container { padding: 0 15px; }
+    }
 
-        .score-display {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin: 10px 0;
-        }
+    /* === FIX: Keep AI Chatbot colors same in both modes === */
+.chatbot, 
+.chatbox, 
+.chatbot .msg.ai, 
+.chatbot .msg.user, 
+.chatbot input, 
+.chatbot button {
+  color: #222 !important;
+  background-color: inherit !important;
+}
 
-        .game-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-        }
+body.night .chatbot,
+body.night .chatbox,
+body.night .msg.ai,
+body.night .msg.user,
+body.night .chat-input input,
+body.night .chat-input button {
+  background: none !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
 
-        .btn {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+body.night .chatbox {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+body.night .msg.ai {
+  background: #333 !important;
+  color: #fff !important;
+}
 
-        @media (max-width: 768px) {
-            .game-selector { flex-direction: column; align-items: center; }
-            .game-card { width: 90%; }
-            #mainMenu h1 { font-size: 2.2rem; }
-            .game-canvas { width: 100%; height: auto; }
-        }
-    </style>
+body.night .msg.user {
+  background: #ffb6c1 !important;
+  color: #111 !important;
+}
+
+body.night .chat-input input {
+  background: #2a2a2a !important;
+  color: #eee !important;
+}
+
+body.night .chat-input button {
+  background: #ff9a9e !important;
+  color: #fff !important;
+}
+/* ===== FIX CHATBOT SEND BUTTON TEXT ===== */
+body.night .chat-input button {
+  color: #222 !important; /* teks tetap hitam di dark mode */
+}
+/* Tambahan biar teks tetap terlihat di night mode */
+body.night #mainMenu h1 {
+  color: #ffb6c1;
+  text-shadow: 0 0 8px rgba(255, 182, 193, 0.5);
+}
+
+  </style>
 </head>
 <body>
+  <header>
+    <div class="logo">
+      <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo" />
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <header>
-        <div class="logo">
-            <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
+  <main class="games-container">
+    <a href="gallery.html" class="back-link">← Back to Gallery</a>
+
+    <div id="mainMenu">
+      <h1>Choose Your Game</h1>
+      <div class="game-selector">
+        <div class="game-card" onclick="startGame('flappy')">
+          <h3>Flappy Bird</h3>
+          <p>Fly through pipes! Click or Space to flap.</p>
+          <button class="play-btn">PLAY</button>
         </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main class="games-container">
-        <a href="gallery.html" class="back-link">← Back to Gallery</a>
-
-        <div id="mainMenu">
-            <h1>Choose Your Game</h1>
-            <div class="game-selector">
-                <div class="game-card" onclick="startGame('flappy')">
-                    <h3>Flappy Bird</h3>
-                    <p>Fly through pipes! Click or Space to flap.</p>
-                    <button class="play-btn">PLAY</button>
-                </div>
-                <div class="game-card" onclick="startGame('fps')">
-                    <h3>FPS: Maze Hunter</h3>
-                    <p>Shoot enemies in 3D maze. WASD + Mouse.</p>
-                    <button class="play-btn">PLAY</button>
-                </div>
-                <div class="game-card" onclick="openVN()">
-                    <h3>Afterlight Days</h3>
-                    <p>A short visual novel experience.</p>
-                    <button class="play-btn">PLAY</button>
-                </div>
-                <div class="game-card" onclick="openGame()">
-                    <h3>Real Typing Code</h3>
-                    <p>Type the code accurately under the limit time.</p>
-                    <button class="play-btn">PLAY</button>
-                </div>
-            </div>
+        <div class="game-card" onclick="startGame('fps')">
+          <h3>FPS: Maze Hunter</h3>
+          <p>Shoot enemies in a 3D maze. WASD + Mouse.</p>
+          <button class="play-btn">PLAY</button>
         </div>
-
-        <!-- FLAPPY BIRD -->
-        <div id="flappyGame" class="game-wrapper">
-            <div class="game-header">
-                <h2>Flappy Bird</h2>
-                <button class="close-game" onclick="showMenu()">x</button>
-            </div>
-            <canvas id="flappyCanvas" width="400" height="500" class="game-canvas"></canvas>
-            <div class="game-info">
-                <p class="score-display">Score: <span id="flappyScore">0</span> | Best: <span id="flappyBest">0</span></p>
-                <p><strong>Controls:</strong> Click or Space to flap</p>
-                <div class="game-controls">
-                    <button class="btn" onclick="restartFlappy()">Restart</button>
-                </div>
-            </div>
+        <div class="game-card" onclick="openVN()">
+          <h3>Afterlight Days</h3>
+          <p>A short visual novel experience.</p>
+          <button class="play-btn">PLAY</button>
         </div>
-
-        <!-- FPS GAME -->
-        <div id="fpsGame" class="game-wrapper">
-            <div class="game-header">
-                <h2>FPS: Maze Hunter</h2>
-                <button class="close-game" onclick="showMenu()">x</button>
-            </div>
-            <canvas id="fpsCanvas" width="800" height="500" class="game-canvas"></canvas>
-            <div class="game-info">
-                <p class="score-display">Kills: <span id="fpsScore">0</span> | Health: <span id="fpsHealth">100</span> | Wave: <span id="fpsWave">1</span></p>
-                <p><strong>Controls:</strong> WASD = Move, Mouse = Look/Shoot</p>
-                <div class="game-controls">
-                    <button class="btn" onclick="restartFPS()">Restart</button>
-                </div>
-            </div>
+        <div class="game-card" onclick="openGame()">
+          <h3>Real Typing Code</h3>
+          <p>Type the code accurately before time runs out!</p>
+          <button class="play-btn">PLAY</button>
         </div>
-    </main>
+      </div>
+    </div>
 
-    <footer>
-        <p>© 2025 Parzival Takei. All rights reserved.</p>
-    </footer>
+    <!-- FLAPPY BIRD -->
+    <div id="flappyGame" class="game-wrapper">
+      <div class="game-header">
+        <h2>Flappy Bird</h2>
+        <button class="close-game" onclick="showMenu()">x</button>
+      </div>
+      <canvas id="flappyCanvas" width="400" height="500" class="game-canvas"></canvas>
+      <div class="game-info">
+        <p class="score-display">Score: <span id="flappyScore">0</span> | Best: <span id="flappyBest">0</span></p>
+        <p><strong>Controls:</strong> Click or Space to flap</p>
+        <button class="btn" onclick="restartFlappy()">Restart</button>
+      </div>
+    </div>
 
-    <script>
-        function openVN() {
-            window.location.href = "Afterlight Days.html";
-        }
-    </script>
-    <script>
-        function openGame() {
-            window.location.href = "intro.html";
-        }
-    </script>
+    <!-- FPS MAZE HUNTER -->
+    <div id="fpsGame" class="game-wrapper">
+      <div class="game-header">
+        <h2>FPS: Maze Hunter</h2>
+        <button class="close-game" onclick="showMenu()">x</button>
+      </div>
+      <canvas id="fpsCanvas" width="800" height="500" class="game-canvas"></canvas>
+      <div class="game-info">
+        <p class="score-display">Kills: <span id="fpsScore">0</span> | Health: <span id="fpsHealth">100</span> | Wave: <span id="fpsWave">1</span></p>
+        <p><strong>Controls:</strong> WASD = Move, Mouse = Look/Shoot</p>
+        <button class="btn" onclick="restartFPS()">Restart</button>
+      </div>
+    </div>
+  </main>
 
-    <script src="games.js"></script>
+  <footer><p>© 2025 Parzival Takei — All Rights Reserved.</p></footer>
+
+  <script src="games.js"></script>
+  
+  <!-- ===== DEV MENU ===== -->
+  <div class="dev-menu" id="devMenu">
+    <button id="toggleNight">🌙 Night Mode</button>
+    <button id="toggleChat">💬 AI Chatbot</button>
+  </div>
+
+  <!-- ===== CHATBOT (Airi v2.0) ===== -->
+  <div class="chatbot" id="chatbot">
+    <div class="chatbot-header">
+      <img src="img/Airi_default.png" alt="Airi">
+      <span class="chatbot-name">Airi-chan — Assistant</span>
+    </div>
+    <div class="chatbox">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">Hai~ aku Airi! Mau jalan-jalan ke mana?</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Tulis sesuatu (misal: pergi ke gallery)">
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="activation-popup" id="activationPopup">Developer Mode Activated!</div>
+
+  <style>
+    /* ===== DEV MENU ===== */
+    .dev-menu { position: fixed; top: 70px; left: 20px; background: rgba(255,255,255,0.95); border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 1000; }
+    .dev-menu button { background: linear-gradient(90deg,#ffb6c1,#b3e5fc); border: none; border-radius: 8px; color: #333; font-weight: 600; padding: 8px 12px; cursor: pointer; transition: transform .15s, background .2s; }
+    .dev-menu button:hover { transform: scale(1.05); background: linear-gradient(90deg,#fad0c4,#b3e5fc); }
+
+    /* ===== CHATBOT ===== */
+    .chatbot { position: fixed; bottom: 20px; right: 25px; width: 300px; display: none; flex-direction: column; z-index: 999; animation: fadeIn .4s ease forwards; font-family: "Poppins", sans-serif; }
+    .chatbot-header { background: linear-gradient(90deg,#ff9a9e,#fad0c4); padding: 8px 12px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 8px; color: #222; font-weight: 600; }
+    .chatbot-header img { width: 40px; border-radius: 10px; }
+    .chatbot-name { color: #222 !important; }
+    .chatbox { background: #fff; border-radius: 0 0 12px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 10px; }
+    .chat-messages { height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+    .msg { padding: 8px 12px; border-radius: 10px; font-size: 14px; max-width: 85%; }
+    .ai { background: #ffeef1; align-self: flex-start; }
+    .user { background: #b3e5fc; align-self: flex-end; }
+    .chat-input { display: flex; gap: 6px; margin-top: 6px; }
+    .chat-input input { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+    .chat-input button { background: linear-gradient(90deg,#ff9a9e,#fad0c4); border: none; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; }
+
+    .activation-popup { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 22px; border-radius: 30px; font-weight: 600; opacity: 0; transition: opacity .4s ease; z-index: 2000; }
+    .activation-popup.show { opacity: 1; }
+  </style>
+
+  <script>
+  const logo = document.querySelector('.site-logo');
+  const devMenu = document.getElementById('devMenu');
+  const chatbot = document.getElementById('chatbot');
+  const popup = document.getElementById('activationPopup');
+  const body = document.body;
+
+  let clicks = 0;
+  let devMode = sessionStorage.getItem('devMode') === 'true';
+  let nightMode = sessionStorage.getItem('nightMode') === 'true';
+  let chatEnabled = sessionStorage.getItem('chatEnabled') === 'true';
+
+  if (devMode) initDev();
+
+  logo.addEventListener('click', () => {
+    if (devMode) {
+      devMenu.style.display = devMenu.style.display === 'flex' ? 'none' : 'flex';
+      return;
+    }
+    clicks++;
+    if (clicks >= 5) activateDev();
+  });
+
+  function activateDev() {
+    devMode = true;
+    sessionStorage.setItem('devMode','true');
+    popup.classList.add('show');
+    setTimeout(()=>popup.classList.remove('show'),2000);
+    initDev();
+  }
+
+  function initDev() {
+    devMenu.style.display = 'none';
+    if (nightMode) body.classList.add('night');
+    if (chatEnabled) chatbot.style.display = 'flex';
+  }
+
+  document.getElementById('toggleNight').onclick = () => {
+    body.classList.toggle('night');
+    nightMode = body.classList.contains('night');
+    sessionStorage.setItem('nightMode',nightMode);
+  };
+
+  document.getElementById('toggleChat').onclick = () => {
+    const show = chatbot.style.display === 'none' || chatbot.style.display === '';
+    chatbot.style.display = show ? 'flex' : 'none';
+    chatEnabled = show;
+    sessionStorage.setItem('chatEnabled', chatEnabled);
+  };
+
+  const sendBtn = document.getElementById('sendBtn');
+  const input = document.getElementById('userInput');
+  const chatBox = document.getElementById('chatMessages');
+
+  function appendMsg(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function handleSend() {
+    const text = input.value.trim();
+    if (!text) return;
+    appendMsg(text, 'user');
+    input.value = '';
+    setTimeout(()=>processInput(text.toLowerCase()), 400);
+  }
+
+  function processInput(txt) {
+    const map = {
+      'home':['home','index','beranda'],
+      'about':['about','tentang'],
+      'gallery':['gallery','galeri'],
+      'contact':['contact','kontak'],
+      'games':['games','game'],
+      'journey':['journey','perjalanan']
+    };
+    let found = null;
+    for (const key in map) {
+      if (map[key].some(k=>txt.includes(k))) { found = key; break; }
+    }
+    if (found) {
+      appendMsg('Oke~ aku antar ke halaman ' + found + '!', 'ai');
+      setTimeout(()=>window.location.href = found+'.html', 1000);
+    } else {
+      appendMsg('Hmm... aku gak nemu halaman itu >< coba kata lain, misalnya "about" atau "gallery".', 'ai');
+    }
+  }
+
+  sendBtn.onclick = handleSend;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+  </script>
 </body>
 </html>

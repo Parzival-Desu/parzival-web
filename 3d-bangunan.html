@@ -3,23 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Bangunan - Parzival Takei</title>
+  <title>3D Bangunan — Parzival Takei</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* === Sticky Footer Layout === */
-    html, body {
-      height: 100%;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    main {
-      flex: 1;
-    }
+    /* ===== Base Layout ===== */
+    html, body { height: 100%; margin: 0; display: flex; flex-direction: column; }
+    main { flex: 1; }
 
     footer {
-      margin-top: auto;
       text-align: center;
       padding: 15px 0;
       background: linear-gradient(90deg, #fad0c4, #ffd1ff);
@@ -28,7 +19,6 @@
       border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    /* === Page Styling === */
     .portfolio-container {
       max-width: 1000px;
       margin: 40px auto;
@@ -43,16 +33,17 @@
     }
 
     .portfolio-wrapper {
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.65);
       padding: 20px;
       border-radius: 15px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
 
     .portfolio-wrapper h2 {
       margin-bottom: 15px;
       color: #333;
-      text-align: center;
+      transition: color 0.4s;
     }
 
     .portfolio-image {
@@ -70,6 +61,7 @@
       border-radius: 8px;
       color: #333;
       line-height: 1.6;
+      transition: color 0.4s, background 0.4s;
     }
 
     .back-link {
@@ -78,18 +70,34 @@
       color: #333;
       text-decoration: none;
       font-weight: 600;
-      transition: color 0.3s;
+      transition: color 0.3s, opacity 0.3s;
     }
 
     .back-link:hover {
+      opacity: 0.7;
       color: #ff9a9e;
     }
 
-    @media (max-width: 768px) {
-      .portfolio-container {
-        padding: 0 15px;
-      }
-    }
+    /* ===== NIGHT MODE ===== */
+    body.night { background: #0d0d0d; color: #f2f2f2; transition: background 0.4s, color 0.4s; }
+    body.night header { background: #121212; border-bottom: 1px solid #222; }
+    body.night footer { background: #141414; color: #eee; }
+    body.night nav ul li a { color: #ffb6c1; }
+
+    body.night .portfolio-wrapper { background: rgba(30,30,30,0.9); color: #f2f2f2; }
+    body.night .description { background: rgba(45,45,45,0.9); color: #f2f2f2; }
+
+    body.night .portfolio-wrapper h2 { color: #ffb6c1; }
+    body.night .back-link { color: #ffb6c1; }
+
+    @media (max-width: 768px) { .portfolio-container { padding: 0 15px; } }
+
+    /* === FIX: Keep AI Chatbot colors same in both modes === */
+    body.night .chatbox { background: #1a1a1a !important; color: #fff !important; }
+    body.night .msg.ai { background: #333 !important; color: #fff !important; }
+    body.night .msg.user { background: #ffb6c1 !important; color: #111 !important; }
+    body.night .chat-input input { background: #2a2a2a !important; color: #eee !important; }
+    body.night .chat-input button { background: #ff9a9e !important; color: #222 !important; }
   </style>
 </head>
 
@@ -102,7 +110,7 @@
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About</a></li>
-        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="gallery.html" class="active">Gallery</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
@@ -111,27 +119,164 @@
   <main>
     <div class="portfolio-container">
       <a href="gallery.html" class="back-link">← Back to Gallery</a>
-
       <div class="portfolio-grid">
         <div class="portfolio-wrapper">
           <h2>3D Bangunan</h2>
           <img 
             src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhzgDd_HwPB-k-ZZ6fQQYvwDwGTfsSp9SaujPgCCwy6TYqtG-YeeBrfSld5d78JyMJqEmfL8yayWqkRf6gqqmrDsvIngXE-zq8TnAnc9AB0nhktTHKh68y-8MWCnZ-fFvmhqX4llkxXcDbl2XpxaVk9UX3HDq4c3HWOd3xfsacXxQNJmu7RM21TE3Pn/s320/3d%20rumah.jpg" 
-            alt="3D Building" 
-            class="portfolio-image" 
-          />
+            alt="3D Building" class="portfolio-image" />
           <div class="description">
-            <p>Created using SketchUp</p>
+            <p>Created using SketchUp.</p>
           </div>
         </div>
       </div>
     </div>
   </main>
 
-  <footer>
-    <p>© 2025 Parzival Takei — All Rights Reserved.</p>
-  </footer>
+  <footer><p>© Parzival — All Rights Reserved.</p></footer>
 
-  <script src="particles.js"></script>
+  <!-- ===== DEV MENU ===== -->
+  <div class="dev-menu" id="devMenu">
+    <button id="toggleNight">🌙 Night Mode</button>
+    <button id="toggleChat">💬 AI Chatbot</button>
+  </div>
+
+  <!-- ===== CHATBOT (Airi v2.0) ===== -->
+  <div class="chatbot" id="chatbot">
+    <div class="chatbot-header">
+      <img src="img/Airi_default.png" alt="Airi">
+      <span class="chatbot-name">Airi-chan — Assistant</span>
+    </div>
+    <div class="chatbox">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">Hai~ aku Airi! Mau jalan-jalan ke mana?</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Tulis sesuatu (misal: pergi ke gallery)">
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="activation-popup" id="activationPopup">Developer Mode Activated!</div>
+
+  <style>
+    /* ===== DEV MENU ===== */
+    .dev-menu { position: fixed; top: 70px; left: 20px; background: rgba(255,255,255,0.95); border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 1000; }
+    .dev-menu button { background: linear-gradient(90deg,#ffb6c1,#b3e5fc); border: none; border-radius: 8px; color: #333; font-weight: 600; padding: 8px 12px; cursor: pointer; transition: transform .15s, background .2s; }
+    .dev-menu button:hover { transform: scale(1.05); background: linear-gradient(90deg,#fad0c4,#b3e5fc); }
+
+    /* ===== CHATBOT ===== */
+    .chatbot { position: fixed; bottom: 20px; right: 25px; width: 300px; display: none; flex-direction: column; z-index: 999; animation: fadeIn .4s ease forwards; font-family: "Poppins", sans-serif; }
+    .chatbot-header { background: linear-gradient(90deg,#ff9a9e,#fad0c4); padding: 8px 12px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 8px; color: #222; font-weight: 600; }
+    .chatbot-header img { width: 40px; border-radius: 10px; }
+    .chatbot-name { color: #222 !important; }
+    .chatbox { background: #fff; border-radius: 0 0 12px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 10px; }
+    .chat-messages { height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+    .msg { padding: 8px 12px; border-radius: 10px; font-size: 14px; max-width: 85%; }
+    .ai { background: #ffeef1; align-self: flex-start; }
+    .user { background: #b3e5fc; align-self: flex-end; }
+    .chat-input { display: flex; gap: 6px; margin-top: 6px; }
+    .chat-input input { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+    .chat-input button { background: linear-gradient(90deg,#ff9a9e,#fad0c4); border: none; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; }
+
+    .activation-popup { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 22px; border-radius: 30px; font-weight: 600; opacity: 0; transition: opacity .4s ease; z-index: 2000; }
+    .activation-popup.show { opacity: 1; }
+  </style>
+
+  <script>
+  const logo = document.querySelector('.site-logo');
+  const devMenu = document.getElementById('devMenu');
+  const chatbot = document.getElementById('chatbot');
+  const popup = document.getElementById('activationPopup');
+  const body = document.body;
+
+  let clicks = 0;
+  let devMode = sessionStorage.getItem('devMode') === 'true';
+  let nightMode = sessionStorage.getItem('nightMode') === 'true';
+  let chatEnabled = sessionStorage.getItem('chatEnabled') === 'true';
+
+  if (devMode) initDev();
+
+  logo.addEventListener('click', () => {
+    if (devMode) {
+      devMenu.style.display = devMenu.style.display === 'flex' ? 'none' : 'flex';
+      return;
+    }
+    clicks++;
+    if (clicks >= 5) activateDev();
+  });
+
+  function activateDev() {
+    devMode = true;
+    sessionStorage.setItem('devMode','true');
+    popup.classList.add('show');
+    setTimeout(()=>popup.classList.remove('show'),2000);
+    initDev();
+  }
+
+  function initDev() {
+    devMenu.style.display = 'none';
+    if (nightMode) body.classList.add('night');
+    if (chatEnabled) chatbot.style.display = 'flex';
+  }
+
+  document.getElementById('toggleNight').onclick = () => {
+    body.classList.toggle('night');
+    nightMode = body.classList.contains('night');
+    sessionStorage.setItem('nightMode',nightMode);
+  };
+
+  document.getElementById('toggleChat').onclick = () => {
+    const show = chatbot.style.display === 'none' || chatbot.style.display === '';
+    chatbot.style.display = show ? 'flex' : 'none';
+    chatEnabled = show;
+    sessionStorage.setItem('chatEnabled', chatEnabled);
+  };
+
+  const sendBtn = document.getElementById('sendBtn');
+  const input = document.getElementById('userInput');
+  const chatBox = document.getElementById('chatMessages');
+
+  function appendMsg(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function handleSend() {
+    const text = input.value.trim();
+    if (!text) return;
+    appendMsg(text, 'user');
+    input.value = '';
+    setTimeout(()=>processInput(text.toLowerCase()), 400);
+  }
+
+  function processInput(txt) {
+    const map = {
+      'home':['home','index','beranda'],
+      'about':['about','tentang'],
+      'gallery':['gallery','galeri'],
+      'contact':['contact','kontak'],
+      'games':['games','game'],
+      'journey':['journey','perjalanan']
+    };
+    let found = null;
+    for (const key in map) {
+      if (map[key].some(k=>txt.includes(k))) { found = key; break; }
+    }
+    if (found) {
+      appendMsg('Oke~ aku antar ke halaman ' + found + '!', 'ai');
+      setTimeout(()=>window.location.href = found+'.html', 1000);
+    } else {
+      appendMsg('Hmm... aku gak nemu halaman itu >< coba kata lain, misalnya "about" atau "gallery".', 'ai');
+    }
+  }
+
+  sendBtn.onclick = handleSend;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+  </script>
 </body>
 </html>

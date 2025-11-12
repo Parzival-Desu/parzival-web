@@ -1,213 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Denah + Interior Rumah - Parzival Takei</title>
-    <link rel="stylesheet" href="style.css" />
-    <style>
-        .portfolio-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Denah + Interior Rumah — Parzival Takei</title>
+<link rel="stylesheet" href="style.css" />
+<style>
+html, body { height:100%; margin:0; display:flex; flex-direction:column; font-family:"Poppins",sans-serif; }
+main { flex:1; }
+footer { text-align:center; padding:15px 0; background:linear-gradient(90deg,#fad0c4,#ffd1ff); color:#333; font-size:14px; border-top:1px solid rgba(0,0,0,0.1); }
 
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            margin-top: 30px;
-        }
+/* ===== CONTENT ===== */
+.portfolio-container{max-width:1000px;margin:40px auto;padding:0 20px;}
+.portfolio-wrapper{background:rgba(255,255,255,0.65);padding:20px;border-radius:15px;box-shadow:0 4px 10px rgba(0,0,0,0.1);text-align:center;}
+.portfolio-image{width:100%;max-width:800px;border-radius:10px;margin:0 auto 20px;display:block;}
+.video-wrapper{background:rgba(255,255,255,0.6);padding:20px;border-radius:15px;margin-top:20px;}
+.video-player{width:100%;max-width:800px;border-radius:10px;margin:0 auto;display:block;background:#000;}
+.custom-video-controls{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px;background:rgba(255,255,255,0.8);border-radius:8px;max-width:800px;margin:10px auto 0;}
+.play-pause-btn{background:linear-gradient(90deg,#ff9a9e,#fad0c4);border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;color:#111;transition:transform .2s;}
+.play-pause-btn:hover{transform:scale(1.05);}
+.time-display{font-size:.9rem;color:#333;}
+.back-link{display:inline-block;margin:20px;color:#111;text-decoration:none;font-weight:600;transition:color .3s,opacity .3s;}
+.back-link:hover{opacity:.7;color:#ff9a9e;}
+.section-title{color:#333;margin:30px 0 15px;font-size:1.4rem;transition:color .4s;}
+.description{margin-top:20px;padding:15px;background:rgba(255,255,255,0.8);border-radius:8px;color:#333;line-height:1.6;transition:color .4s,background .4s;}
 
-        .portfolio-wrapper {
-            background: rgba(255, 255, 255, 0.6);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+/* ===== NIGHT MODE ===== */
+body.night{background:#0d0d0d;color:#f2f2f2;transition:background .4s,color .4s;}
+body.night header{background:#121212;border-bottom:1px solid #222;}
+body.night footer{background:#141414;color:#eee;}
+body.night nav ul li a{color:#ffb6c1;}
+body.night .portfolio-wrapper{background:rgba(30,30,30,0.9);color:#f2f2f2;}
+body.night .description{background:rgba(45,45,45,0.9);color:#f2f2f2;}
+body.night .section-title,body.night .portfolio-wrapper h2{color:#ffb6c1;}
+body.night .back-link{color:#ffb6c1;}
+body.night .custom-video-controls{background:rgba(35,35,35,0.9);}
+body.night .time-display{color:#f2f2f2;}
 
-        .portfolio-wrapper h2 {
-            margin-bottom: 15px;
-            color: #333;
-            text-align: center;
-        }
+/* ===== CHATBOT ===== */
+.chatbot{position:fixed;bottom:25px;right:25px;width:320px;height:420px;background:rgba(255,255,255,0.95);border-radius:15px;box-shadow:0 5px 25px rgba(0,0,0,0.2);display:none;flex-direction:column;overflow:hidden;z-index:9999;}
+.chatbot-header{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#ff9a9e,#fad0c4);padding:10px;color:#222;font-weight:600;}
+.chatbot-header img{width:32px;height:32px;border-radius:50%;}
+.chatbox{flex:1;display:flex;flex-direction:column;padding:10px;background:#fff;}
+.chat-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.msg{padding:8px 12px;border-radius:10px;max-width:80%;font-size:.9rem;}
+.msg.ai{align-self:flex-start;background:#f1f1f1;color:#333;}
+.msg.user{align-self:flex-end;background:#b3e5fc;color:#111;}
+.chat-input{display:flex;gap:8px;margin-top:6px;}
+.chat-input input{flex:1;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:.9rem;}
+.chat-input button{background:linear-gradient(90deg,#ff9a9e,#fad0c4);border:none;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer;color:#111;}
+body.night .chatbot{background:#1a1a1a!important;}
+body.night .chatbot-header{background:linear-gradient(90deg,#ffb6c1,#ff9a9e);color:#111;}
+body.night .chatbox{background:#1a1a1a!important;}
+body.night .msg.ai{background:#333;color:#fff;}
+body.night .msg.user{background:#ff9a9e;color:#111;}
+body.night .chat-input input{background:#2a2a2a;border:1px solid #444;color:#eee;}
+body.night .chat-input button{background:#ff9a9e;color:#111;}
 
-        .portfolio-image {
-            width: 100%;
-            max-width: 800px;
-            border-radius: 10px;
-            margin: 0 auto 20px;
-            display: block;
-        }
+/* ===== DEV MENU ===== */
+.dev-menu{position:fixed;top:70px;left:20px;background:rgba(255,255,255,0.95);border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.15);padding:10px;display:none;flex-direction:column;gap:8px;z-index:2000;}
+.dev-menu button{background:linear-gradient(90deg,#ffb6c1,#b3e5fc);border:none;border-radius:8px;color:#333;font-weight:600;padding:8px 12px;cursor:pointer;transition:transform .15s,background .2s;}
+.dev-menu button:hover{transform:scale(1.05);background:linear-gradient(90deg,#fad0c4,#b3e5fc);}
 
-        .video-wrapper {
-            margin-top: 30px;
-            background: rgba(255, 255, 255, 0.6);
-            padding: 20px;
-            border-radius: 15px;
-        }
+/* ===== POPUP ===== */
+.activation-popup{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 22px;border-radius:30px;font-weight:600;opacity:0;transition:opacity .4s ease;z-index:3000;}
+.activation-popup.show{opacity:1;}
 
-        .video-player {
-            width: 100%;
-            max-width: 800px;
-            border-radius: 10px;
-            margin: 0 auto;
-            display: block;
-            background: #000;
-        }
-
-        .custom-video-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            max-width: 800px;
-            margin: 10px auto 0;
-        }
-
-        .play-pause-btn {
-            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s;
-        }
-
-        .play-pause-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .time-display {
-            font-size: 0.9rem;
-            color: #333;
-        }
-
-        .description {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin: 20px;
-            color: #333;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s;
-        }
-
-        .back-link:hover {
-            color: #ff9a9e;
-        }
-
-        .section-title {
-            color: #333;
-            margin: 30px 0 15px;
-            text-align: center;
-            font-size: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .portfolio-container {
-                padding: 0 15px;
-            }
-        }
-    </style>
+@media(max-width:768px){.portfolio-container{padding:0 15px;}}
+</style>
 </head>
+
 <body>
-    <header>
-        <div class="logo">
-            <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo">
-        </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+<header>
+  <div class="logo">
+    <img src="logo/parzival-high-resolution-logo-transparent.png" alt="Logo" class="site-logo" />
+  </div>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="gallery.html" class="active">Gallery</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
 
-    <div class="portfolio-container">
-        <a href="gallery.html" class="back-link">← Back to Gallery</a>
-        
-        <div class="portfolio-grid">
-            <div class="portfolio-wrapper">
-                <h2>Denah + Interior Rumah</h2>
-                
-                <h3 class="section-title">Floor Plan & Interior Preview</h3>
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhTRMjvSAe8TRoCb6ZLhfCFrFTOCn9UE4l2R_a3vKc0uWX1kl-7wz7lgLTNrTJDQHpe1E0-89LaLlQ67XXU-HjE5vCdSL5uEZ1vaVPIuJLBojHf5h_jjdVyMzbheUx1zSDMMwGqOpiN-VPR3bxBrc-ak6wIIZUaBQ-cx4WOtX2zuweo5F1o6YhwTSh9/s320/L3D559S14ENDP2QILIQUWJIUELUF3P3XS888_1024x576.jpg" alt="Interior Design" class="portfolio-image">
-                
-                <h3 class="section-title">3D Walkthrough</h3>
-                <div class="video-wrapper">
-                    <video class="video-player" id="video1">
-                        <source src="videos/Denah-Rumah.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="custom-video-controls">
-                        <button class="play-pause-btn" onclick="togglePlay('video1')">Play</button>
-                        <span class="time-display" id="time1">0:00 / 0:00</span>
-                    </div>
-                </div>
+<main>
+  <div class="portfolio-container">
+    <a href="gallery.html" class="back-link">← Back to Gallery</a>
+    <div class="portfolio-wrapper">
+      <h2>Denah + Interior Rumah</h2>
+      <h3 class="section-title">Floor Plan & Interior Preview</h3>
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhTRMjvSAe8TRoCb6ZLhfCFrFTOCn9UE4l2R_a3vKc0uWX1kl-7wz7lgLTNrTJDQHpe1E0-89LaLlQ67XXU-HjE5vCdSL5uEZ1vaVPIuJLBojHf5h_jjdVyMzbheUx1zSDMMwGqOpiN-VPR3bxBrc-ak6wIIZUaBQ-cx4WOtX2zuweo5F1o6YhwTSh9/s320/L3D559S14ENDP2QILIQUWJIUELUF3P3XS888_1024x576.jpg" alt="Interior Design" class="portfolio-image">
 
-                <div class="description">
-                    <p>Created using Coohom.com</p>
-                </div>
-            </div>
+      <h3 class="section-title">3D Walkthrough</h3>
+      <div class="video-wrapper">
+        <video class="video-player" id="video1">
+          <source src="videos/Denah-Rumah.mp4" type="video/mp4">
+        </video>
+        <div class="custom-video-controls">
+          <button class="play-pause-btn" onclick="togglePlay('video1')">Play</button>
+          <span class="time-display" id="time1">0:00 / 0:00</span>
         </div>
+      </div>
+
+      <div class="description"><p>Created using Coohom.com.</p></div>
     </div>
+  </div>
+</main>
 
-    <footer>
-        <p>© 2025 Parzival Takei. All rights reserved.</p>
-    </footer>
+<footer><p>© Parzival — All Rights Reserved.</p></footer>
 
-    <script src="particles.js"></script>
-    <script>
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            seconds = Math.floor(seconds % 60);
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
+<!-- DEV MENU -->
+<div class="dev-menu" id="devMenu">
+  <button id="toggleNight">🌙 Night Mode</button>
+  <button id="toggleChat">💬 AI Chatbot</button>
+</div>
 
-        function updateTimeDisplay(videoId) {
-            const video = document.getElementById(videoId);
-            const timeDisplay = document.getElementById('time' + videoId.slice(-1));
-            const currentTime = formatTime(video.currentTime);
-            const duration = formatTime(video.duration || 0);
-            timeDisplay.textContent = `${currentTime} / ${duration}`;
-        }
+<!-- CHATBOT -->
+<div class="chatbot" id="chatbot">
+  <div class="chatbot-header">
+    <img src="img/Airi_default.png" alt="Airi">
+    <span>Airi — Assistant</span>
+  </div>
+  <div class="chatbox">
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg ai">Hai~ aku Airi! Mau jalan-jalan ke mana?</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Tulis sesuatu (misal: pergi ke gallery)">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+</div>
 
-        function togglePlay(videoId) {
-            const video = document.getElementById(videoId);
-            const btn = video.parentElement.querySelector('.play-pause-btn');
-            
-            if (video.paused) {
-                video.play();
-                btn.textContent = 'Pause';
-            } else {
-                video.pause();
-                btn.textContent = 'Play';
-            }
-        }
+<div class="activation-popup" id="activationPopup">Developer Mode Activated!</div>
 
-        // Set up event listeners for video
-        const video = document.getElementById('video1');
-        video.addEventListener('timeupdate', () => updateTimeDisplay('video1'));
-        video.addEventListener('loadedmetadata', () => updateTimeDisplay('video1'));
-        video.addEventListener('ended', () => {
-            const btn = video.parentElement.querySelector('.play-pause-btn');
-            btn.textContent = 'Play';
-        });
-    </script>
+<script>
+const logo=document.querySelector('.site-logo');
+const devMenu=document.getElementById('devMenu');
+const chatbot=document.getElementById('chatbot');
+const popup=document.getElementById('activationPopup');
+const body=document.body;
+let clicks=0;
+let devMode=sessionStorage.getItem('devMode')==='true';
+let nightMode=sessionStorage.getItem('nightMode')==='true';
+let chatEnabled=sessionStorage.getItem('chatEnabled')==='true';
+if(devMode)initDev();
+
+logo.addEventListener('click',()=>{
+  if(devMode){devMenu.style.display=devMenu.style.display==='flex'?'none':'flex';return;}
+  clicks++;if(clicks>=5)activateDev();
+});
+function activateDev(){
+  devMode=true;sessionStorage.setItem('devMode','true');
+  popup.classList.add('show');
+  setTimeout(()=>popup.classList.remove('show'),2000);
+  initDev();
+}
+function initDev(){
+  devMenu.style.display='none';
+  if(nightMode)body.classList.add('night');
+  if(chatEnabled)chatbot.style.display='flex';
+}
+document.getElementById('toggleNight').onclick=()=>{
+  body.classList.toggle('night');
+  nightMode=body.classList.contains('night');
+  sessionStorage.setItem('nightMode',nightMode);
+};
+document.getElementById('toggleChat').onclick=()=>{
+  const show=chatbot.style.display==='none'||chatbot.style.display==='';chatbot.style.display=show?'flex':'none';
+  chatEnabled=show;sessionStorage.setItem('chatEnabled',chatEnabled);
+};
+
+/* === Chatbot === */
+const sendBtn=document.getElementById('sendBtn');
+const input=document.getElementById('userInput');
+const chatBox=document.getElementById('chatMessages');
+function appendMsg(t,w){const d=document.createElement('div');d.className='msg '+w;d.textContent=t;chatBox.appendChild(d);chatBox.scrollTop=chatBox.scrollHeight;}
+function handleSend(){const t=input.value.trim();if(!t)return;appendMsg(t,'user');input.value='';setTimeout(()=>processInput(t.toLowerCase()),400);}
+function processInput(txt){
+  const map={'home':['home','index','beranda'],'about':['about','tentang'],'gallery':['gallery','galeri'],'contact':['contact','kontak'],'games':['games','game'],'journey':['journey','perjalanan']};
+  let found=null;for(const k in map){if(map[k].some(v=>txt.includes(v))){found=k;break;}}
+  if(found){appendMsg('Oke~ aku antar ke halaman '+found+'!','ai');setTimeout(()=>window.location.href=found+'.html',1000);}
+  else{appendMsg('Hmm... aku gak nemu halaman itu >< coba kata lain, misalnya "about" atau "gallery".','ai');}
+}
+sendBtn.onclick=handleSend;input.addEventListener('keydown',e=>{if(e.key==='Enter')handleSend();});
+
+/* === Video Controls === */
+const v=document.getElementById('video1');
+const btn=v.parentElement.querySelector('.play-pause-btn');
+const timeDisplay=document.getElementById('time1');
+function formatTime(s){const m=Math.floor(s/60);s=Math.floor(s%60);return`${m}:${s.toString().padStart(2,'0')}`;}
+function updateTime(){timeDisplay.textContent=`${formatTime(v.currentTime)} / ${formatTime(v.duration||0)}`;}
+function togglePlay(){if(v.paused){v.play();btn.textContent='Pause';}else{v.pause();btn.textContent='Play';}}
+v.addEventListener('timeupdate',updateTime);v.addEventListener('loadedmetadata',updateTime);v.addEventListener('ended',()=>btn.textContent='Play');
+</script>
 </body>
 </html>
