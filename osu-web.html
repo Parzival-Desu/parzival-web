@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>osu!web - Rhythm Game</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="m-0 p-0">
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useRef, useEffect, useCallback } = React;
+
+        // Lucide Icons Components
+        const Upload = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        );
+
+        const Play = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+        );
+
+        const Pause = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+        );
+
+        const RotateCcw = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+        );
+
+        const Book = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+        );
+
+        const LogOut = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        );
+
+        const ArrowLeft = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        );
+
+        const Music = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+        );
+
+        const Heart = ({ filled }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+        );
+
+        const Palette = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="13.5" cy="6.5" r=".5"></circle>
+                <circle cx="17.5" cy="10.5" r=".5"></circle>
+                <circle cx="8.5" cy="7.5" r=".5"></circle>
+                <circle cx="6.5" cy="12.5" r=".5"></circle>
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+            </svg>
+        );
+
+        // Mock storage with size limit check
+        if (!window.storage) {
+            window.storage = {
+                async get(key) {
+                    try {
+                        const value = localStorage.getItem(key);
+                        return value ? { key, value, shared: false } : null;
+                    } catch (e) {
+                        return null;
+                    }
+                },
+                async set(key, value) {
+                    try {
+                        // Check if value is too large (5MB limit)
+                        if (value.length > 5 * 1024 * 1024) {
+                            throw new Error('Data too large. Maximum size is 5MB.');
+                        }
+                        localStorage.setItem(key, value);
+                        return { key, value, shared: false };
+                    } catch (e) {
+                        if (e.name === 'QuotaExceededError' || e.message.includes('quota')) {
+                            throw new Error('Storage quota exceeded. Try deleting some beatmaps.');
+                        }
+                        throw e;
+                    }
+                },
+                async delete(key) {
+                    localStorage.removeItem(key);
+                    return { key, deleted: true, shared: false };
+                },
+                async list(prefix) {
+                    const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix || ''));
+                    return { keys, prefix, shared: false };
+                }
+            };
+        }
+
+        const SKINS = {
+            default: {
+                name: 'Default',
+                circleColor: '#FF1493',
+                approachColor: '#FFFFFF',
+                hit300Color: '#64C8FF',
+                hit100Color: '#64FF64',
+                hit50Color: '#FFC864',
+                missColor: '#FF6464',
+                bgGradient: 'from-pink-500 via-purple-500 to-blue-500'
+            },
+            blue: {
+                name: 'Ocean Blue',
+                circleColor: '#00BFFF',
+                approachColor: '#FFFFFF',
+                hit300Color: '#00FFFF',
+                hit100Color: '#7FFF00',
+                hit50Color: '#FFD700',
+                missColor: '#FF4500',
+                bgGradient: 'from-blue-600 via-cyan-500 to-teal-500'
+            },
+            red: {
+                name: 'Crimson Fire',
+                circleColor: '#DC143C',
+                approachColor: '#FFD700',
+                hit300Color: '#FFD700',
+                hit100Color: '#FFA500',
+                hit50Color: '#FF6347',
+                missColor: '#8B0000',
+                bgGradient: 'from-red-600 via-orange-500 to-yellow-500'
+            },
+            green: {
+                name: 'Nature',
+                circleColor: '#32CD32',
+                approachColor: '#FFFFFF',
+                hit300Color: '#00FF7F',
+                hit100Color: '#ADFF2F',
+                hit50Color: '#FFD700',
+                missColor: '#8B4513',
+                bgGradient: 'from-green-600 via-emerald-500 to-teal-500'
+            },
+            purple: {
+                name: 'Dark Purple',
+                circleColor: '#9370DB',
+                approachColor: '#FF00FF',
+                hit300Color: '#FF00FF',
+                hit100Color: '#DA70D6',
+                hit50Color: '#DDA0DD',
+                missColor: '#8B008B',
+                bgGradient: 'from-purple-900 via-purple-600 to-pink-600'
+            }
+        };
+
+        const OsuWebGame = () => {
+            const [screen, setScreen] = useState('home');
+            const [beatmaps, setBeatmaps] = useState([]);
+            const [selectedBeatmap, setSelectedBeatmap] = useState(null);
+            const [showUploadSuccess, setShowUploadSuccess] = useState(false);
+            const [instructionTab, setInstructionTab] = useState('upload');
+            const [showResults, setShowResults] = useState(false);
+            const [currentSkin, setCurrentSkin] = useState('default');
+            const [showSkinSelector, setShowSkinSelector] = useState(false);
+            
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [isPaused, setIsPaused] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            const [score, setScore] = useState(0);
+            const [combo, setCombo] = useState(0);
+            const [maxCombo, setMaxCombo] = useState(0);
+            const [accuracy, setAccuracy] = useState(100);
+            const [hitResults, setHitResults] = useState({ c300: 0, c100: 0, c50: 0, miss: 0 });
+            const [activeObjects, setActiveObjects] = useState([]);
+            const [hitFeedback, setHitFeedback] = useState([]);
+            const [health, setHealth] = useState(100);
+            const [pausedTime, setPausedTime] = useState(0);
+            
+            const canvasRef = useRef(null);
+            const audioRef = useRef(null);
+            const animationRef = useRef(null);
+            const gameStateRef = useRef({
+                startTime: 0,
+                pausedAt: 0,
+                totalPausedTime: 0,
+                hitObjects: [],
+                clickedObjects: new Set()
+            });
+
+            const skin = SKINS[currentSkin];
+
+            useEffect(() => {
+                loadBeatmaps();
+                const savedSkin = localStorage.getItem('osu_skin');
+                if (savedSkin && SKINS[savedSkin]) {
+                    setCurrentSkin(savedSkin);
+                }
+            }, []);
+
+            const loadBeatmaps = async () => {
+                try {
+                    const keys = await window.storage.list('beatmap:');
+                    if (keys && keys.keys) {
+                        const maps = [];
+                        for (const key of keys.keys) {
+                            try {
+                                const result = await window.storage.get(key);
+                                if (result && result.value) {
+                                    maps.push(JSON.parse(result.value));
+                                }
+                            } catch (err) {
+                                console.log('Beatmap not found:', key);
+                            }
+                        }
+                        setBeatmaps(maps);
+                    }
+                } catch (error) {
+                    console.log('No beatmaps yet');
+                    setBeatmaps([]);
+                }
+            };
+
+            const changeSkin = (skinKey) => {
+                setCurrentSkin(skinKey);
+                localStorage.setItem('osu_skin', skinKey);
+                setShowSkinSelector(false);
+            };
+
+            const CS = 4;
+            const AR = 9;
+            const OD = 8;
+            const circleRadius = 54.4 - 4.48 * CS;
+            const approachTime = AR < 5 ? 1800 - 120 * AR : 1200 - 150 * (AR - 5);
+            const hit50Window = 150 + 50 * (5 - OD) / 5;
+            const hit100Window = 100 + 40 * (5 - OD) / 5;
+            const hit300Window = 50 + 30 * (5 - OD) / 5;
+
+            const parseBeatmap = (content) => {
+                const lines = content.split('\n');
+                let section = '';
+                const data = { hitObjects: [], timing: [], metadata: {} };
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line || line.startsWith('//')) continue;
+                    
+                    if (line.startsWith('[') && line.endsWith(']')) {
+                        section = line.slice(1, -1);
+                        continue;
+                    }
+                    
+                    if (section === 'Metadata') {
+                        const [key, ...valueParts] = line.split(':');
+                        if (key) data.metadata[key] = valueParts.join(':').trim();
+                    }
+                    
+                    if (section === 'TimingPoints') {
+                        const parts = line.split(',');
+                        if (parts.length >= 2) {
+                            data.timing.push({
+                                time: parseFloat(parts[0]),
+                                beatLength: parseFloat(parts[1])
+                            });
+                        }
+                    }
+                    
+                    if (section === 'HitObjects') {
+                        const parts = line.split(',');
+                        if (parts.length >= 5) {
+                            const type = parseInt(parts[3]);
+                            const isCircle = (type & 1) === 1;
+                            const isSlider = (type & 2) === 2;
+                            const isSpinner = (type & 8) === 8;
+                            
+                            data.hitObjects.push({
+                                x: parseInt(parts[0]),
+                                y: parseInt(parts[1]),
+                                time: parseInt(parts[2]),
+                                type: isCircle ? 'circle' : isSlider ? 'slider' : isSpinner ? 'spinner' : 'unknown',
+                                id: Math.random()
+                            });
+                        }
+                    }
+                }
+                
+                return data;
+            };
+
+            const handleFileUpload = async (e) => {
+                const files = Array.from(e.target.files);
+                let osuData = null;
+                let audioData = null;
+                
+                try {
+                    for (const file of files) {
+                        if (file.name.endsWith('.osu')) {
+                            const text = await file.text();
+                            osuData = parseBeatmap(text);
+                        } else if (file.name.endsWith('.mp3') || file.name.endsWith('.ogg')) {
+                            // Check file size (max 4MB for audio to leave room for metadata)
+                            if (file.size > 4 * 1024 * 1024) {
+                                alert('Audio file too large! Maximum size is 4MB. Try a smaller/compressed audio file.');
+                                return;
+                            }
+                            
+                            const reader = new FileReader();
+                            audioData = await new Promise((resolve, reject) => {
+                                reader.onload = (e) => resolve(e.target.result);
+                                reader.onerror = () => reject(new Error('Failed to read audio file'));
+                                reader.readAsDataURL(file);
+                            });
+                        }
+                    }
+                    
+                    if (osuData && audioData) {
+                        const beatmapData = {
+                            id: Date.now(),
+                            metadata: osuData.metadata,
+                            hitObjects: osuData.hitObjects,
+                            timing: osuData.timing,
+                            audio: audioData
+                        };
+                        
+                        await window.storage.set(`beatmap:${beatmapData.id}`, JSON.stringify(beatmapData));
+                        await loadBeatmaps();
+                        setShowUploadSuccess(true);
+                        setTimeout(() => {
+                            setShowUploadSuccess(false);
+                            setScreen('songSelect');
+                        }, 1500);
+                    } else {
+                        alert('Please upload both .osu and audio file!');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert('Upload failed: ' + error.message);
+                }
+            };
+
+            const calculateHitResult = (timeDiff) => {
+                const diff = Math.abs(timeDiff);
+                if (diff <= hit300Window) return { result: '300', points: 300, accuracy: 1 };
+                if (diff <= hit100Window) return { result: '100', points: 100, accuracy: 0.33 };
+                if (diff <= hit50Window) return { result: '50', points: 50, accuracy: 0.17 };
+                return { result: 'miss', points: 0, accuracy: 0 };
+            };
+
+            const handleCanvasClick = useCallback((e) => {
+                if (!isPlaying || isPaused || !selectedBeatmap) return;
+                
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = 512 / rect.width;
+                const scaleY = 384 / rect.height;
+                const x = (e.clientX - rect.left) * scaleX;
+                const y = (e.clientY - rect.top) * scaleY;
+                
+                const currentGameTime = Date.now() - gameStateRef.current.startTime - gameStateRef.current.totalPausedTime;
+                
+                for (const obj of activeObjects) {
+                    if (gameStateRef.current.clickedObjects.has(obj.id)) continue;
+                    
+                    const dx = x - obj.x;
+                    const dy = y - obj.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance <= circleRadius) {
+                        const timeDiff = currentGameTime - obj.time;
+                        const hit = calculateHitResult(timeDiff);
+                        
+                        gameStateRef.current.clickedObjects.add(obj.id);
+                        
+                        setHitResults(prev => ({
+                            ...prev,
+                            [`c${hit.points}`]: prev[`c${hit.points}`] + 1
+                        }));
+                        
+                        if (hit.result === 'miss') {
+                            setCombo(0);
+                            setHealth(prev => Math.max(0, prev - 5));
+                        } else {
+                            const newCombo = combo + 1;
+                            setCombo(newCombo);
+                            setMaxCombo(prev => Math.max(prev, newCombo));
+                            setScore(prev => prev + hit.points * (1 + Math.floor(newCombo / 10) * 0.1));
+                            
+                            if (hit.result === '300') {
+                                setHealth(prev => Math.min(100, prev + 1));
+                            } else if (hit.result === '100') {
+                                setHealth(prev => Math.min(100, prev + 0.5));
+                            }
+                        }
+                        
+                        setHitFeedback(prev => [...prev, { 
+                            x: obj.x, 
+                            y: obj.y, 
+                            result: hit.result, 
+                            time: Date.now() 
+                        }]);
+                        
+                        setTimeout(() => {
+                            setHitFeedback(prev => prev.filter(f => Date.now() - f.time < 500));
+                        }, 500);
+                        
+                        const total = Object.values(hitResults).reduce((a, b) => a + b, 0) + 1;
+                        const weightedSum = (hitResults.c300 + (hit.result === '300' ? 1 : 0)) * 1 + 
+                                          (hitResults.c100 + (hit.result === '100' ? 1 : 0)) * 0.33 + 
+                                          (hitResults.c50 + (hit.result === '50' ? 1 : 0)) * 0.17;
+                        setAccuracy(Math.round((weightedSum / total) * 100));
+                        
+                        break;
+                    }
+                }
+            }, [isPlaying, isPaused, selectedBeatmap, activeObjects, combo, hitResults]);
+
+            const drawGame = useCallback(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 512, 384);
+                
+                if (!isPlaying || isPaused || !selectedBeatmap) return;
+                
+                const currentGameTime = Date.now() - gameStateRef.current.startTime - gameStateRef.current.totalPausedTime;
+                const visibleObjects = [];
+                
+                for (const obj of selectedBeatmap.hitObjects) {
+                    const timeUntilHit = obj.time - currentGameTime;
+                    
+                    if (timeUntilHit > approachTime) continue;
+                    if (gameStateRef.current.clickedObjects.has(obj.id)) continue;
+                    
+                    // AUTO MISS if past hit window
+                    if (timeUntilHit < -hit50Window) {
+                        gameStateRef.current.clickedObjects.add(obj.id);
+                        setHitResults(prev => ({ ...prev, miss: prev.miss + 1 }));
+                        setCombo(0);
+                        setHealth(prev => {
+                            const newHealth = Math.max(0, prev - 5);
+                            if (newHealth === 0) {
+                                setIsPlaying(false);
+                                setShowResults(true);
+                            }
+                            return newHealth;
+                        });
+                        
+                        const total = Object.values(hitResults).reduce((a, b) => a + b, 1);
+                        const weightedSum = hitResults.c300 * 1 + hitResults.c100 * 0.33 + hitResults.c50 * 0.17;
+                        setAccuracy(Math.round((weightedSum / total) * 100));
+                        continue;
+                    }
+                    
+                    if (timeUntilHit < -hit50Window) continue;
+                    
+                    visibleObjects.push(obj);
+                    
+                    const progress = Math.max(0, 1 - (timeUntilHit / approachTime));
+                    const approachRadius = circleRadius + (circleRadius * 2) * (1 - progress);
+                    
+                    // Approach circle
+                    ctx.strokeStyle = skin.approachColor;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(obj.x, obj.y, approachRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // Hit circle
+                    ctx.fillStyle = skin.circleColor;
+                    ctx.beginPath();
+                    ctx.arc(obj.x, obj.y, circleRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+                
+                setActiveObjects(visibleObjects);
+                
+                // Draw hit feedback
+                hitFeedback.forEach(f => {
+                    const alpha = Math.max(0, 1 - (Date.now() - f.time) / 500);
+                    const color = f.result === '300' ? skin.hit300Color :
+                                  f.result === '100' ? skin.hit100Color :
+                                  f.result === '50' ? skin.hit50Color :
+                                  skin.missColor;
+                    
+                    const r = parseInt(color.slice(1, 3), 16);
+                    const g = parseInt(color.slice(3, 5), 16);
+                    const b = parseInt(color.slice(5, 7), 16);
+                    
+                    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    ctx.font = 'bold 28px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
+                    ctx.lineWidth = 3;
+                    ctx.strokeText(f.result, f.x, f.y - 20);
+                    ctx.fillText(f.result, f.x, f.y - 20);
+                });
+                
+            }, [isPlaying, isPaused, selectedBeatmap, hitFeedback, approachTime, circleRadius, hit50Window, skin, hitResults]);
+
+            const gameLoop = useCallback(() => {
+                drawGame();
+                
+                if (audioRef.current && isPlaying && !isPaused) {
+                    setCurrentTime(audioRef.current.currentTime);
+                    
+                    if (audioRef.current.ended) {
+                        setIsPlaying(false);
+                        setShowResults(true);
+                    }
+                }
+                
+                animationRef.current = requestAnimationFrame(gameLoop);
+            }, [drawGame, isPlaying, isPaused]);
+
+            useEffect(() => {
+                if (isPlaying) {
+                    animationRef.current = requestAnimationFrame(gameLoop);
+                }
+                return () => {
+                    if (animationRef.current) {
+                        cancelAnimationFrame(animationRef.current);
+                    }
+                };
+            }, [isPlaying, gameLoop]);
+
+            const startGame = () => {
+                if (!selectedBeatmap) return;
+                
+                if (isPaused && pausedTime > 0) {
+                    const pauseDuration = Date.now() - gameStateRef.current.pausedAt;
+                    gameStateRef.current.totalPausedTime += pauseDuration;
+                    setIsPlaying(true);
+                    setIsPaused(false);
+                    if (audioRef.current) {
+                        audioRef.current.play();
+                    }
+                } else {
+                    gameStateRef.current = {
+                        startTime: Date.now(),
+                        pausedAt: 0,
+                        totalPausedTime: 0,
+                        hitObjects: selectedBeatmap.hitObjects,
+                        clickedObjects: new Set()
+                    };
+                    
+                    setIsPlaying(true);
+                    setIsPaused(false);
+                    setScore(0);
+                    setCombo(0);
+                    setMaxCombo(0);
+                    setAccuracy(100);
+                    setHitResults({ c300: 0, c100: 0, c50: 0, miss: 0 });
+                    setHitFeedback([]);
+                    setHealth(100);
+                    setShowResults(false);
+                    setPausedTime(0);
+                    
+                    if (audioRef.current) {
+                        audioRef.current.currentTime = 0;
+                        audioRef.current.play();
+                    }
+                }
+            };
+
+            const pauseGame = () => {
+                if (!isPlaying || isPaused) return;
+                
+                setIsPaused(true);
+                gameStateRef.current.pausedAt = Date.now();
+                setPausedTime(audioRef.current ? audioRef.current.currentTime : 0);
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                }
+            };
+
+            const resetGame = () => {
+                setIsPlaying(false);
+                setIsPaused(false);
+                setPausedTime(0);
+                setCurrentTime(0);
+                setScore(0);
+                setCombo(0);
+                setMaxCombo(0);
+                setAccuracy(100);
+                setHitResults({ c300: 0, c100: 0, c50: 0, miss: 0 });
+                setHealth(100);
+                setShowResults(false);
+                gameStateRef.current = {
+                    startTime: 0,
+                    pausedAt: 0,
+                    totalPausedTime: 0,
+                    hitObjects: selectedBeatmap?.hitObjects || [],
+                    clickedObjects: new Set()
+                };
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current.currentTime = 0;
+                }
+            };
+
+            const selectSong = (beatmap) => {
+                setSelectedBeatmap(beatmap);
+                setScreen('game');
+                resetGame();
+            };
+
+            const deleteBeatmap = async (beatmapId, e) => {
+                e.stopPropagation();
+                if (confirm('Delete this beatmap?')) {
+                    try {
+                        await window.storage.delete(`beatmap:${beatmapId}`);
+                        await loadBeatmaps();
+                    } catch (error) {
+                        alert('Failed to delete beatmap');
+                    }
+                }
+            };
+
+            const getRank = () => {
+                const acc = accuracy;
+                if (acc === 100) return 'SS';
+                if (acc >= 95) return 'S';
+                if (acc >= 90) return 'A';
+                if (acc >= 80) return 'B';
+                if (acc >= 70) return 'C';
+                return 'D';
+            };
+
+            if (screen === 'home') {
+                return (
+                    <div className={`w-full h-screen bg-gradient-to-br ${skin.bgGradient} flex items-center justify-center`}>
+                        <div className="text-center">
+                            <h1 className="text-8xl font-black text-white mb-4 drop-shadow-2xl">osu!web</h1>
+                            <p className="text-xl text-white/80 mb-12">rhythm is just a click away</p>
+                            
+                            <div className="space-y-4">
+                                <button
+                                    onClick={() => setScreen('songSelect')}
+                                    className="w-64 bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-8 rounded-full text-2xl transition transform hover:scale-105 shadow-xl"
+                                >
+                                    Play
+                                </button>
+                                
+                                <button
+                                    onClick={() => setScreen('instructions')}
+                                    className="w-64 bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-8 rounded-full text-2xl transition transform hover:scale-105 shadow-xl flex items-center justify-center gap-2 mx-auto"
+                                >
+                                    <Book />
+                                    Instructions
+                                </button>
+
+                                <button
+                                    onClick={() => setShowSkinSelector(true)}
+                                    className="w-64 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-8 rounded-full text-2xl transition transform hover:scale-105 shadow-xl flex items-center justify-center gap-2 mx-auto"
+                                >
+                                    <Palette />
+                                    Skins
+                                </button>
+                                
+                                <a
+                                    href="games.html"
+                                    className="w-64 bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-full text-2xl transition transform hover:scale-105 shadow-xl flex items-center justify-center gap-2 mx-auto"
+                                >
+                                    <LogOut />
+                                    Exit
+                                </a>
+                            </div>
+                        </div>
+
+                        {showSkinSelector && (
+                            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                                <div className="bg-gray-900 rounded-2xl p-8 max-w-2xl w-full">
+                                    <h2 className="text-4xl font-bold text-white mb-6 text-center">Choose Your Skin</h2>
+                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                        {Object.entries(SKINS).map(([key, skinData]) => (
+                                            <button
+                                                key={key}
+                                                onClick={() => changeSkin(key)}
+                                                className={`p-6 rounded-xl transition transform hover:scale-105 ${
+                                                    currentSkin === key 
+                                                        ? 'ring-4 ring-yellow-400' 
+                                                        : 'hover:ring-2 hover:ring-white'
+                                                }`}
+                                                style={{
+                                                    background: `linear-gradient(135deg, ${skinData.circleColor}, ${skinData.hit300Color})`
+                                                }}
+                                            >
+                                                <div className="text-white font-bold text-xl mb-2">{skinData.name}</div>
+                                                {currentSkin === key && (
+                                                    <div className="text-yellow-300 text-sm">✓ Active</div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => setShowSkinSelector(false)}
+                                        className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg transition"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            if (screen === 'instructions') {
+                return (
+                    <div className={`w-full h-screen bg-gradient-to-br ${skin.bgGradient} flex items-center justify-center p-4`}>
+                        <div className="bg-black/90 rounded-2xl shadow-2xl p-8 max-w-2xl w-full">
+                            <h2 className="text-4xl font-bold text-white mb-6 text-center">Instructions</h2>
+                            
+                            <div className="flex gap-2 mb-6">
+                                <button
+                                    onClick={() => setInstructionTab('upload')}
+                                    className={`flex-1 py-3 rounded-lg font-bold transition ${
+                                        instructionTab === 'upload'
+                                            ? 'bg-pink-500 text-white'
+                                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                    }`}
+                                >
+                                    How to Upload
+                                </button>
+                                <button
+                                    onClick={() => setInstructionTab('play')}
+                                    className={`flex-1 py-3 rounded-lg font-bold transition ${
+                                        instructionTab === 'play'
+                                            ? 'bg-pink-500 text-white'
+                                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                    }`}
+                                >
+                                    How to Play
+                                </button>
+                            </div>
+
+                            <div className="bg-gray-800 rounded-lg p-6 mb-6 text-white">
+                                {instructionTab === 'upload' ? (
+                                    <div className="space-y-4">
+                                        <h3 className="text-2xl font-bold text-pink-400 mb-4">Upload Beatmap</h3>
+                                        <div className="space-y-3 text-gray-300">
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-pink-400 font-bold">1.</span>
+                                                <span>Download beatmap dari <strong>osu.ppy.sh</strong> (format .osz)</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-pink-400 font-bold">2.</span>
+                                                <span>Extract file .osz menggunakan WinRAR/7zip</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-pink-400 font-bold">3.</span>
+                                                <span>Cari file <strong>.osu</strong> (beatmap) dan <strong>.mp3</strong> (audio max 4MB)</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-pink-400 font-bold">4.</span>
+                                                <span>Klik "Play" → "Upload" di pojok kanan bawah</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-pink-400 font-bold">5.</span>
+                                                <span>Upload <strong>kedua file sekaligus</strong> (.osu dan .mp3)</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <h3 className="text-2xl font-bold text-purple-400 mb-4">How to Play</h3>
+                                        <div className="space-y-3 text-gray-300">
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-purple-400 font-bold">🎯</span>
+                                                <span><strong>Click circles</strong> when the approach ring matches the circle</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-purple-400 font-bold">⏱️</span>
+                                                <span><strong>Timing matters!</strong> 300 (perfect), 100 (great), 50 (good)</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-purple-400 font-bold">❌</span>
+                                                <span><strong>Don't miss!</strong> Missing or not clicking = -5 HP</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-purple-400 font-bold">🔥</span>
+                                                <span><strong>Build combo</strong> for higher scores (resets on miss)</span>
+                                            </p>
+                                            <p className="flex items-start gap-2">
+                                                <span className="text-purple-400 font-bold">❤️</span>
+                                                <span><strong>Watch your HP!</strong> Game ends at 0 HP</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={() => setScreen('home')}
+                                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold py-4 rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-2"
+                            >
+                                <ArrowLeft />
+                                Back to Home
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (screen === 'songSelect') {
+                return (
+                    <div className={`w-full h-screen bg-gradient-to-br ${skin.bgGradient} flex items-center justify-center p-4`}>
+                        <div className="bg-black/90 rounded-2xl shadow-2xl p-8 max-w-4xl w-full h-[80vh] flex flex-col">
+                            <div className="flex items-center justify-between mb-6">
+                                <button
+                                    onClick={() => setScreen('home')}
+                                    className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center gap-2"
+                                >
+                                    <ArrowLeft />
+                                    Back
+                                </button>
+                                <h2 className="text-3xl font-bold text-white">Song Selection</h2>
+                                <div className="w-24"></div>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto mb-4">
+                                {beatmaps.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center h-full text-center">
+                                        <Music />
+                                        <p className="text-2xl text-gray-400 mb-2 mt-4">No songs/beatmaps</p>
+                                        <p className="text-gray-500">Try to upload one!</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {beatmaps.map((beatmap) => (
+                                            <div
+                                                key={beatmap.id}
+                                                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg p-4 cursor-pointer transition transform hover:scale-102 hover:shadow-xl relative group"
+                                            >
+                                                <div onClick={() => selectSong(beatmap)}>
+                                                    <h3 className="text-xl font-bold text-white">
+                                                        {beatmap.metadata.Title || 'Unknown Title'}
+                                                    </h3>
+                                                    <p className="text-gray-200">
+                                                        {beatmap.metadata.Artist || 'Unknown Artist'}
+                                                    </p>
+                                                    <p className="text-sm text-gray-300 mt-1">
+                                                        {beatmap.metadata.Version || 'Unknown Difficulty'} • {beatmap.hitObjects.length} objects
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={(e) => deleteBeatmap(beatmap.id, e)}
+                                                    className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition text-sm font-bold"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={() => setScreen('upload')}
+                                className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition transform hover:scale-105 shadow-xl flex items-center justify-center gap-2 ml-auto"
+                            >
+                                <Upload />
+                                Upload Beatmap
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (screen === 'upload') {
+                return (
+                    <div className={`w-full h-screen bg-gradient-to-br ${skin.bgGradient} flex items-center justify-center p-4`}>
+                        <div className="bg-black/90 rounded-2xl shadow-2xl p-8 max-w-2xl w-full">
+                            <button
+                                onClick={() => setScreen('songSelect')}
+                                className="mb-6 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center gap-2"
+                            >
+                                <ArrowLeft />
+                                Back
+                            </button>
+
+                            <h2 className="text-4xl font-bold text-white mb-6 text-center">Upload Beatmap</h2>
+                            
+                            <div className="border-4 border-dashed border-gray-600 rounded-xl p-12 text-center mb-6 hover:border-pink-500 transition">
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept=".osu,.mp3,.ogg"
+                                    onChange={handleFileUpload}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <label htmlFor="file-upload" className="cursor-pointer">
+                                    <Upload />
+                                    <p className="text-xl text-white font-bold mb-2 mt-4">Click to upload</p>
+                                    <p className="text-gray-400">Select .osu and audio file (.mp3)</p>
+                                    <p className="text-sm text-gray-500 mt-2">Upload both files at once</p>
+                                </label>
+                            </div>
+
+                            <div className="bg-gray-800 rounded-lg p-4 text-sm text-gray-300">
+                                <p className="font-bold text-white mb-2">📝 Tips:</p>
+                                <ul className="space-y-1 list-disc list-inside">
+                                    <li>Download .osz from osu.ppy.sh</li>
+                                    <li>Extract using WinRAR/7zip</li>
+                                    <li>Audio file max 4MB (compress if needed)</li>
+                                    <li>Upload .osu + .mp3 together</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {showUploadSuccess && (
+                            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                                <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-8 text-center shadow-2xl transform animate-bounce">
+                                    <h3 className="text-3xl font-bold text-white mb-2">✓ Upload Success!</h3>
+                                    <p className="text-white/90">Redirecting to song selection...</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            if (screen === 'game' && selectedBeatmap) {
+                return (
+                    <div className={`w-full h-screen bg-gradient-to-br ${skin.bgGradient} flex items-center justify-center p-4`}>
+                        <div className="bg-black/80 rounded-2xl shadow-2xl p-6 max-w-4xl w-full">
+                            <div className="flex items-center justify-between mb-4">
+                                <button
+                                    onClick={() => {
+                                        resetGame();
+                                        setScreen('songSelect');
+                                    }}
+                                    className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center gap-2"
+                                >
+                                    <ArrowLeft />
+                                    Back
+                                </button>
+                                <div className="text-center">
+                                    <h2 className="text-xl font-bold text-white">
+                                        {selectedBeatmap.metadata.Title || 'Unknown'}
+                                    </h2>
+                                    <p className="text-sm text-gray-400">
+                                        {selectedBeatmap.metadata.Artist || 'Unknown'} - {selectedBeatmap.metadata.Version || 'Unknown'}
+                                    </p>
+                                </div>
+                                <div className="w-24"></div>
+                            </div>
+
+                            <div className="grid grid-cols-5 gap-2 mb-4 text-center">
+                                <div className="bg-gray-900 rounded p-2">
+                                    <div className="text-2xl font-bold text-blue-400">{score.toLocaleString()}</div>
+                                    <div className="text-xs text-gray-400">Score</div>
+                                </div>
+                                <div className="bg-gray-900 rounded p-2">
+                                    <div className="text-2xl font-bold text-yellow-400">{combo}x</div>
+                                    <div className="text-xs text-gray-400">Combo</div>
+                                </div>
+                                <div className="bg-gray-900 rounded p-2">
+                                    <div className="text-2xl font-bold text-green-400">{accuracy}%</div>
+                                    <div className="text-xs text-gray-400">Accuracy</div>
+                                </div>
+                                <div className="bg-gray-900 rounded p-2">
+                                    <div className="text-xs text-gray-400">
+                                        300: {hitResults.c300} | 100: {hitResults.c100}
+                                    </div>
+                                    <div className="text-xs text-gray-400">
+                                        50: {hitResults.c50} | X: {hitResults.miss}
+                                    </div>
+                                </div>
+                                <div className="bg-gray-900 rounded p-2">
+                                    <div className="flex items-center justify-center gap-1 mb-1">
+                                        <div className={health > 80 ? 'text-red-500' : 'text-gray-600'}><Heart filled={health > 80} /></div>
+                                        <div className={health > 60 ? 'text-red-500' : 'text-gray-600'}><Heart filled={health > 60} /></div>
+                                        <div className={health > 40 ? 'text-red-500' : 'text-gray-600'}><Heart filled={health > 40} /></div>
+                                        <div className={health > 20 ? 'text-red-500' : 'text-gray-600'}><Heart filled={health > 20} /></div>
+                                        <div className={health > 0 ? 'text-red-500' : 'text-gray-600'}><Heart filled={health > 0} /></div>
+                                    </div>
+                                    <div className="text-xs text-gray-400">{Math.round(health)} HP</div>
+                                </div>
+                            </div>
+
+                            <div className="relative mb-4">
+                                <canvas
+                                    ref={canvasRef}
+                                    width={512}
+                                    height={384}
+                                    onClick={handleCanvasClick}
+                                    className="w-full border-4 border-gray-700 rounded-lg cursor-crosshair bg-black"
+                                />
+                                {isPaused && (
+                                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg">
+                                        <div className="text-white text-4xl font-bold">PAUSED</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex gap-2">
+                                {!isPlaying || isPaused ? (
+                                    <button
+                                        onClick={startGame}
+                                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"
+                                    >
+                                        <Play />
+                                        {isPaused ? 'Continue' : 'Start'}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={pauseGame}
+                                        className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"
+                                    >
+                                        <Pause />
+                                        Pause
+                                    </button>
+                                )}
+                                
+                                <button
+                                    onClick={resetGame}
+                                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"
+                                >
+                                    <RotateCcw />
+                                    Reset
+                                </button>
+                            </div>
+
+                            {selectedBeatmap.audio && (
+                                <audio ref={audioRef} src={selectedBeatmap.audio} />
+                            )}
+                        </div>
+
+                        {showResults && (
+                            <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+                                <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+                                    <h2 className="text-5xl font-black text-white mb-6">
+                                        {health > 0 ? 'Complete!' : 'Failed'}
+                                    </h2>
+                                    
+                                    <div className="text-8xl font-black text-yellow-400 mb-6">
+                                        {getRank()}
+                                    </div>
+
+                                    <div className="bg-black/30 rounded-lg p-6 mb-6 space-y-3">
+                                        <div className="flex justify-between text-white">
+                                            <span className="font-bold">Score:</span>
+                                            <span className="text-blue-400">{score.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-white">
+                                            <span className="font-bold">Accuracy:</span>
+                                            <span className="text-green-400">{accuracy}%</span>
+                                        </div>
+                                        <div className="flex justify-between text-white">
+                                            <span className="font-bold">Max Combo:</span>
+                                            <span className="text-yellow-400">{maxCombo}x</span>
+                                        </div>
+                                        <div className="border-t border-gray-600 pt-3 space-y-1">
+                                            <div className="flex justify-between text-sm text-gray-300">
+                                                <span>Perfect (300):</span>
+                                                <span className="text-blue-300">{hitResults.c300}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm text-gray-300">
+                                                <span>Great (100):</span>
+                                                <span className="text-green-300">{hitResults.c100}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm text-gray-300">
+                                                <span>Good (50):</span>
+                                                <span className="text-yellow-300">{hitResults.c50}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm text-gray-300">
+                                                <span>Miss:</span>
+                                                <span className="text-red-300">{hitResults.miss}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setShowResults(false);
+                                                resetGame();
+                                                startGame();
+                                            }}
+                                            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition"
+                                        >
+                                            Retry
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowResults(false);
+                                                resetGame();
+                                                setScreen('songSelect');
+                                            }}
+                                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition"
+                                        >
+                                            Song Select
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            return null;
+        };
+
+        ReactDOM.render(<OsuWebGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
