@@ -132,4 +132,4 @@ All Rights Reserved © 2025 Parzival Takei
 - Student: Rayhan Khadafi
 - NPM: 23552011002
 - University: Universitas Teknologi Bandung
-- Date Submission: [21-11-2025] [16:35]
+- Date Submission: [21-11-2025] [16:49]
