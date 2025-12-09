@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valorant Web Clone - Fixed AI</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        
+        /* UI Overlay */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        /* HUD Top */
+        .hud-top {
+            display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 10px;
+        }
+        
+        #game-info { display: flex; gap: 20px; align-items: center; }
+        .phase-timer {
+            background: rgba(0,0,0,0.6); color: white; padding: 10px 20px;
+            font-size: 28px; font-weight: bold; border-top: 4px solid white; border-radius: 4px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .timer-text { font-size: 32px; }
+        .round-info { font-size: 14px; margin-top: 5px; color: #ccc; }
+        
+        .team-count { font-size: 28px; font-weight: 900; text-shadow: 2px 2px 0px black; }
+        .count-ally { color: cyan; }
+        .count-enemy { color: #ff4655; }
+
+        .score-board-top {
+            background: rgba(0, 0, 0, 0.5); color: white; padding: 5px 15px;
+            font-size: 18px; border-radius: 5px; margin-top: 5px; display: flex;
+            gap: 10px; font-weight: bold;
+        }
+        .score-ally { color: cyan; }
+        .score-enemy { color: #ff4655; }
+        
+        #spectator-ui {
+            display: none; background: rgba(0, 0, 0, 0.7); color: cyan;
+            padding: 10px 20px; font-size: 24px; font-weight: bold;
+            border: 2px solid cyan; text-transform: uppercase; margin-top: 10px;
+        }
+        
+        #team-indicator {
+            background: rgba(0, 100, 150, 0.8); color: cyan;
+            padding: 10px 20px; font-size: 20px; font-weight: bold;
+            border: 2px solid cyan; text-transform: uppercase; margin-top: 5px;
+            text-shadow: 0 0 10px cyan;
+        }
+
+        /* Spike UI */
+        #spike-status { display: none; flex-direction: column; align-items: center; margin-top: 10px; }
+        .spike-icon {
+            width: 40px; height: 40px; background: #ff4655;
+            mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 20h-13L12 5.5z"/></svg>');
+            -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 20h-13L12 5.5z"/></svg>');
+            background-color: white; animation: pulse-red 1s infinite;
+        }
+        .spike-timer-bar {
+            width: 300px; height: 8px; background: rgba(0,0,0,0.6);
+            border: 1px solid white; margin-top: 5px; overflow: hidden;
+        }
+        .spike-timer-fill { width: 100%; height: 100%; background: #ff4655; transform-origin: left; }
+
+        /* Interaction Prompts */
+        #interaction-msg {
+            font-size: 20px; color: white; text-transform: uppercase; letter-spacing: 2px;
+            font-weight: bold; text-shadow: 0 0 5px black; margin-top: 10px; display: none;
+        }
+        
+        #action-bar-container {
+            display: none; width: 200px; height: 6px; background: rgba(0,0,0,0.5);
+            border: 1px solid white; margin-top: 5px;
+        }
+        #action-bar-fill { width: 0%; height: 100%; background: cyan; }
+
+        /* HUD Bottom */
+        .hud-bottom { display: flex; justify-content: space-between; align-items: flex-end; padding: 30px 50px; }
+
+        /* Health & Armor */
+        .stat-box { color: white; text-shadow: 1px 1px 2px black; }
+        .health-display { font-size: 48px; font-weight: bold; }
+        .health-bar-bg { width: 200px; height: 10px; background: #333; margin-top: 5px; }
+        .health-bar-fill { width: 100%; height: 100%; background: #ff4655; transition: width 0.2s; }
+        #shield-icon {
+            display: inline-block; margin-left: 5px; width: 20px; height: 20px; background-color: white;
+            mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16.5l-3.5-3.5 1.5-1.5L10 14.5l5.5-5.5 1.5 1.5-7 7z"/></svg>');
+            -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16.5l-3.5-3.5 1.5-1.5L10 14.5l5.5-5.5 1.5 1.5-7 7z"/></svg>');
+            vertical-align: top;
+        }
+
+        /* Abilities */
+        .abilities { display: flex; gap: 10px; }
+        .ability-box {
+            width: 60px; height: 60px; background: rgba(0,0,0,0.6); border: 2px solid #555;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; position: relative; transition: opacity 0.2s;
+        }
+        .ability-key { font-size: 12px; position: absolute; top: 2px; left: 4px; }
+        .ability-icon { font-size: 20px; font-weight: bold; }
+        .ability-charges { position: absolute; bottom: 2px; right: 4px; font-size: 14px; font-weight: bold; color: cyan; }
+        
+        .cooldown-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
+            background: rgba(255, 70, 85, 0.8); transition: height 0.1s;
+        }
+        .ability-box.empty { opacity: 0.3; }
+        .ability-box.active-ult { border-color: cyan; box-shadow: 0 0 10px cyan; }
+
+        /* Ammo */
+        .ammo-box { text-align: right; color: white; }
+        .ammo-count { font-size: 64px; font-weight: bold; }
+        .ammo-sub { font-size: 24px; color: #aaa; }
+        
+        /* Weapon/Creds Display */
+        #weapon-display {
+            font-size: 20px; color: white; text-align: center; font-weight: bold; margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        #creds-display {
+            font-size: 18px; color: #ffd700; text-align: center; font-weight: bold;
+        }
+
+        /* Crosshair */
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 4px; height: 4px; background-color: cyan; border: 1px solid black; box-shadow: 0 0 2px black;
+        }
+        #crosshair::before, #crosshair::after {
+            content: ''; position: absolute; background-color: rgba(0, 255, 255, 0.5);
+        }
+        #crosshair::before { top: -6px; left: 1px; width: 2px; height: 16px; }
+        #crosshair::after { top: 1px; left: -6px; width: 16px; height: 2px; }
+        
+        /* Ult Crosshair */
+        #crosshair.ult-active { background-color: red; border-color: white; transform: translate(-50%, -50%) rotate(45deg); width: 8px; height: 8px;}
+        #crosshair.ult-active::before, #crosshair.ult-active::after { display: none; }
+
+        /* Kill Feed */
+        #kill-feed {
+            position: absolute; top: 20px; right: 20px; display: flex;
+            flex-direction: column; align-items: flex-end; gap: 5px;
+        }
+        .kill-msg {
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.7)); color: white;
+            padding: 5px 15px; font-size: 14px; border-right: 3px solid #ff4655;
+            animation: fadeOut 3s forwards; display: flex; align-items: center; gap: 10px;
+        }
+        .kill-msg.ally { border-right-color: cyan; }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translateX(0); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(20px); }
+        }
+
+        #blocker {
+            position: absolute; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; z-index: 20;
+        }
+        #instructions { font-size: 36px; cursor: pointer; text-align: center; }
+        .key-hint { font-size: 16px; color: #ccc; margin-top: 10px; }
+        .key-hint.shop-hint { margin-top: 10px; color: #ffd700; font-size: 18px; display: none; }
+
+        #damage-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(255, 0, 0, 0.6) 100%);
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        
+        .win-msg {
+            position: absolute; top: 40%; width: 100%; text-align: center;
+            font-size: 60px; font-weight: 900; color: white; text-transform: uppercase;
+            text-shadow: 0 0 20px #ff4655; z-index: 5; display: none;
+        }
+        
+        #restart-btn {
+            margin-top: 20px; padding: 10px 20px; font-size: 20px;
+            background: #ff4655; color: white; border: none; cursor: pointer;
+            display: none; pointer-events: auto;
+        }
+
+        /* --- SCOREBOARD STYLES --- */
+        #scoreboard {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); z-index: 15;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .sb-container {
+            display: flex; gap: 50px; width: 80%; justify-content: center;
+        }
+        .sb-team { width: 100%; }
+        .sb-header {
+            font-size: 24px; font-weight: bold; padding: 10px; border-bottom: 2px solid white; margin-bottom: 10px;
+        }
+        .sb-header.ally { color: cyan; border-color: cyan; }
+        .sb-header.enemy { color: #ff4655; border-color: #ff4655; }
+        
+        table { width: 100%; border-collapse: collapse; color: white; }
+        th { text-align: left; padding: 10px; background: rgba(255,255,255,0.1); font-size: 14px; text-transform: uppercase; color: #aaa; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; }
+        .sb-row:hover { background: rgba(255,255,255,0.05); }
+        .sb-me { background: rgba(0, 255, 255, 0.1); }
+        .creds-text { color: #ffd700; }
+        .kda-text { letter-spacing: 2px; }
+        .loadout-text { font-size: 12px; color: #ccc; text-transform: uppercase; }
+
+        /* SHOP STYLES */
+        #shop-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.9); z-index: 25;
+            display: none; justify-content: center; align-items: center;
+        }
+        .shop-content {
+            background: #111; padding: 30px; border: 3px solid cyan;
+            width: 700px; max-height: 80%; overflow-y: auto; color: white;
+        }
+        .shop-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #555; padding-bottom: 10px; margin-bottom: 20px;
+        }
+        .shop-header h2 { margin: 0; color: cyan; }
+        .shop-header p { font-size: 20px; font-weight: bold; color: #ffd700; }
+        
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        
+        .item-list h3 { color: #ff4655; border-bottom: 1px dashed #ff4655; padding-bottom: 5px; margin-top: 0; }
+        .item-box {
+            background: #222; padding: 15px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid transparent; cursor: pointer; transition: background 0.2s;
+        }
+        .item-box:hover:not(.owned) { background: #333; border-color: cyan; }
+        .item-box.owned { border-color: limegreen; background: #0a2510; cursor: default; }
+        .item-info { display: flex; flex-direction: column; }
+        .item-name { font-size: 18px; font-weight: bold; }
+        .item-price { color: #ffd700; font-size: 16px; }
+        .item-status { font-size: 12px; font-weight: bold; }
+        .item-details { font-size: 12px; color: #aaa; }
+        #buy-time-msg {
+            font-size: 16px; color: white; text-align: center; margin-top: 20px;
+            background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="damage-overlay"></div>
+    <div id="crosshair"></div>
+    <div id="win-message" class="win-msg"></div>
+    
+    <div id="blocker">
+        <div id="instructions">
+            CLICK TO PLAY
+            <div class="key-hint">WASD to Move | SPACE to Jump (Hold to Drift)</div>
+            <div class="key-hint">Q: Updraft | E: Dash | C: Smoke | X: Blade Storm</div>
+            <div class="key-hint">HOLD TAB for SCOREBOARD</div>
+            <div class="key-hint shop-hint">PRESS **B** TO OPEN SHOP (BUY PHASE ONLY)</div>
+            <div class="key-hint" style="color:#ff4655; margin-top:5px;">PLANT SPIKE IN YELLOW ZONE (HOLD 4)</div>
+            <div class="key-hint" style="color:cyan; margin-top:5px;">(SPECTATOR: CLICK TO SWITCH VIEW)</div>
+        </div>
+        <button id="restart-btn">RESTART GAME</button>
+    </div>
+
+    <div id="shop-container">
+        <div class="shop-content">
+            <div class="shop-header">
+                <h2>BUY PHASE</h2>
+                <p id="shop-creds">¤ 800</p>
+            </div>
+
+            <div class="shop-grid">
+                <div class="item-list">
+                    <h3>WEAPONS</h3>
+                    <div id="shop-weapons"></div>
+                </div>
+                <div class="item-list">
+                    <h3>SHIELDS</h3>
+                    <div id="shop-shields"></div>
+                </div>
+            </div>
+            
+            <p id="buy-time-msg">Press B to close shop and continue.</p>
+        </div>
+    </div>
+
+    <div id="scoreboard">
+        <h2 style="color:white; margin-bottom: 30px; letter-spacing: 5px;">MATCH SCOREBOARD</h2>
+        <div class="sb-container">
+            <div class="sb-team">
+                <div class="sb-header ally">ATTACKERS</div>
+                <table>
+                    <thead><tr><th>Agent</th><th>Loadout</th><th>K / D / A</th><th>Creds</th></tr></thead>
+                    <tbody id="sb-body-ally"></tbody>
+                </table>
+            </div>
+            <div class="sb-team">
+                <div class="sb-header enemy">DEFENDERS</div>
+                <table>
+                    <thead><tr><th>Agent</th><th>Loadout</th><th>K / D / A</th><th>Creds</th></tr></thead>
+                    <tbody id="sb-body-enemy"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div id="game-info">
+                <span class="team-count count-ally" id="ally-count">5</span>
+                <div class="phase-timer" id="phase-timer">
+                    <span class="timer-text">00:00</span>
+                    <span class="round-info" id="round-info">ROUND 0</span>
+                </div>
+                <span class="team-count count-enemy" id="enemy-count">5</span>
+            </div>
+            
+            <div class="score-board-top">
+                <span class="score-ally" id="score-ally">0</span> - <span class="score-enemy" id="score-enemy">0</span>
+            </div>
+            
+            <div id="spectator-ui">SPECTATING</div>
+            
+            <div id="team-indicator">TEAM: ATTACKERS</div>
+            
+            <div id="spike-status">
+                <div class="spike-icon"></div>
+                <div class="spike-timer-bar">
+                    <div class="spike-timer-fill" id="spike-timer-fill"></div>
+                </div>
+            </div>
+
+            <div id="interaction-msg">HOLD 4 TO PLANT</div>
+            <div id="action-bar-container">
+                <div id="action-bar-fill"></div>
+            </div>
+        </div>
+
+        <div id="kill-feed"></div>
+
+        <div class="hud-bottom">
+            <div class="stat-box">
+                <div class="health-display" id="health-text">100</div>
+                <div class="health-bar-bg">
+                    <div class="health-bar-fill" id="health-bar"></div>
+                </div>
+            </div>
+
+            <div class="abilities">
+                <div class="ability-box" id="ab-c">
+                    <span class="ability-key">C</span><span class="ability-icon">💨</span>
+                    <span class="ability-charges" id="charge-c">2</span>
+                </div>
+                <div class="ability-box" id="ab-q">
+                    <span class="ability-key">Q</span><span class="ability-icon">🚀</span>
+                    <span class="ability-charges" id="charge-q">2</span>
+                </div>
+                <div class="ability-box" id="ability-e-box">
+                    <span class="ability-key">E</span><span class="ability-icon">⚡</span>
+                    <div class="cooldown-overlay" id="dash-cd"></div>
+                </div>
+                <div class="ability-box" id="ab-x">
+                    <span class="ability-key">X</span><span class="ability-icon">⚔️</span>
+                    <span class="ability-charges" id="charge-x">0 / 7</span>
+                </div>
+            </div>
+            
+            <div>
+                <div id="creds-display">¤ 800</div>
+                <div id="weapon-display">CLASSIC PISTOL</div>
+            </div>
+
+            <div class="ammo-box">
+                <div class="ammo-count" id="ammo-count">12</div>
+                <div class="ammo-sub" id="ammo-sub">/ 48</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+        // --- SHOP & GEAR CONFIGURATION ---
+        const INITIAL_CREDS = 800;
+        const ROUND_BONUS_CREDS = 3000;
+        const MAX_CREDS = 9000;
+        const STARTING_WEAPON = 'CLASSIC';
+
+        const WEAPONS = {
+            CLASSIC: { name: 'CLASSIC PISTOL', price: 0, damage: 15, firerate: 800, magSize: 12, reserve: 48, modelScale: 1.0 },
+            USP: { name: 'USP', price: 200, damage: 20, firerate: 600, magSize: 15, reserve: 45, modelScale: 1.0 },
+            VANDAL: { name: 'VANDAL', price: 2900, damage: 40, firerate: 450, magSize: 25, reserve: 75, modelScale: 1.2 },
+            PHANTOM: { name: 'PHANTOM', price: 2900, damage: 35, firerate: 400, magSize: 30, reserve: 60, modelScale: 1.2 }
+        };
+
+        const SHIELDS = {
+            NONE: { name: 'NONE', price: 0, armor: 0, maxHealth: 100 },
+            LIGHT: { name: 'LIGHT SHIELD', price: 400, armor: 25, maxHealth: 100 },
+            HEAVY: { name: 'HEAVY SHIELD', price: 1000, armor: 50, maxHealth: 100 }
+        };
+
+        // --- GLOBAL VARIABLES ---
+        let camera, scene, renderer, controls;
+        const objects = []; 
+        const colliders = [];
+        const enemies = [];
+        const teammates = [];
+        const barriers = [];
+        const smokes = [];
+
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false;
+        let isHoldingPlant = false, isHoldingDefuse = false;
+        let prevTime = performance.now();
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+
+        // Game State
+        let currentHealth = 100; 
+        let currentShield = 0; 
+        let maxShield = 0; 
+        let ammo; 
+        let MAX_AMMO;
+        let allyScore = 0;
+        let enemyScore = 0;
+        const MAX_SCORE = 13;
+        let isRoundOver = false;
+        let currentRound = 0; 
+        let rolesSwapped = false; // Track if attacker/defender roles are swapped
+
+        let isDashing = false;
+        let dashCooldown = 0;
+        let isGameOver = false;
+        const DASH_COOLDOWN_TIME = 2000;
+
+        // Jett Ability State & Points
+        let abilityCharges = { c: 2, q: 2, x: 0 };
+        const ULT_POINTS_NEEDED = 7;
+        let ultPoints = 0;
+        let isUltActive = false;
+        let ultKnives = 5;
+        let isDrifting = false; 
+        let spacePressed = false;
+
+        // PERSISTENT PLAYER STATS
+        const playerStats = {
+            kills: 0,
+            deaths: 0,
+            assists: 0,
+            creds: INITIAL_CREDS,
+            weapon: STARTING_WEAPON, 
+            shield: 'NONE', 
+            loadout: WEAPONS[STARTING_WEAPON].name, 
+            maxAmmo: WEAPONS[STARTING_WEAPON].reserve,
+            hasSpike: false,
+        };
+        
+        // PERSISTENT BOT STATS
+        const persistentAllyStats = [];
+        const persistentEnemyStats = [];
+
+        // Spectator State
+        let isSpectating = false;
+        let spectatorIndex = 0;
+        
+        // Phase Logic
+        let gamePhase = 'PREPARATION'; 
+        let phaseTime = 10.0;
+        
+        // Map Config
+        const PLAYER_SPAWN_Z = 40;
+        const SITE_Z = -10;
+        const DEFENDER_SPAWN_Z = -60;
+        
+        // Spike State
+        let spikeState = 'NOT_PLANTED';
+        const PLANT_TIME = 4000, DEFUSE_TIME = 7000, DETONATION_TIME = 45000;
+        let actionProgress = 0, spikeTimer = 0;
+        let plantZoneMesh, spikeMesh;
+        let spikeCarrier = null; // Tracks which player/bot is carrying spike
+        let aiDefuseProgress = {}; // Track defuse progress for each defender bot
+
+        // Gun
+        let playerGun;
+        let recoil = 0;
+
+        // UI
+        const ui = {
+            killFeed: document.getElementById('kill-feed'),
+            scoreAlly: document.getElementById('score-ally'),
+            scoreEnemy: document.getElementById('score-enemy'),
+            healthText: document.getElementById('health-text'),
+            healthBar: document.getElementById('health-bar'),
+            ammoText: document.getElementById('ammo-count'),
+            ammoSub: document.getElementById('ammo-sub'),
+            dashCd: document.getElementById('dash-cd'),
+            spikeStatus: document.getElementById('spike-status'),
+            spikeFill: document.getElementById('spike-timer-fill'),
+            interactMsg: document.getElementById('interaction-msg'),
+            actionBar: document.getElementById('action-bar-container'),
+            actionFill: document.getElementById('action-bar-fill'),
+            winMsg: document.getElementById('win-message'),
+            damageOverlay: document.getElementById('damage-overlay'),
+            timer: document.getElementById('phase-timer').querySelector('.timer-text'),
+            roundInfo: document.getElementById('round-info'),
+            allyCount: document.getElementById('ally-count'),
+            enemyCount: document.getElementById('enemy-count'),
+            spectator: document.getElementById('spectator-ui'),
+            teamIndicator: document.getElementById('team-indicator'),
+            bottomHud: document.querySelector('.hud-bottom'),
+            restartBtn: document.getElementById('restart-btn'),
+            scoreboard: document.getElementById('scoreboard'),
+            sbBodyAlly: document.getElementById('sb-body-ally'),
+            sbBodyEnemy: document.getElementById('sb-body-enemy'),
+            crosshair: document.getElementById('crosshair'),
+            weaponDisplay: document.getElementById('weapon-display'),
+            credsDisplay: document.getElementById('creds-display'),
+            // Shop UI
+            shopContainer: document.getElementById('shop-container'),
+            shopCreds: document.getElementById('shop-creds'),
+            shopWeapons: document.getElementById('shop-weapons'),
+            shopShields: document.getElementById('shop-shields'),
+            // Abilities
+            chargeC: document.getElementById('charge-c'),
+            chargeQ: document.getElementById('charge-q'),
+            chargeX: document.getElementById('charge-x'),
+            boxC: document.getElementById('ab-c'),
+            boxQ: document.getElementById('ab-q'),
+            boxX: document.getElementById('ab-x'),
+        };
+        
+        window.buyItem = buyItem;
+        window.renderShop = renderShop;
+
+        init();
+        animate();
+
+        function init() {
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            scene.fog = new THREE.Fog(0x87CEEB, 0, 75);
+
+            const light = new THREE.HemisphereLight(0xffffff, 0x444444, 3);
+            light.position.set(0.5, 1, 0.75);
+            scene.add(light);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            controls = new PointerLockControls(camera, document.body);
+            
+            const instructions = document.getElementById('instructions');
+            const blocker = document.getElementById('blocker');
+
+            instructions.addEventListener('click', () => { if(!isGameOver) controls.lock(); });
+            ui.restartBtn.addEventListener('click', () => location.reload());
+
+            controls.addEventListener('lock', () => {
+                instructions.style.display = 'none';
+                blocker.style.display = 'none';
+                ui.shopContainer.style.display = 'none';
+            });
+            controls.addEventListener('unlock', () => {
+                if (!isGameOver && ui.scoreboard.style.display !== 'flex' && ui.shopContainer.style.display !== 'flex') {
+                    blocker.style.display = 'flex';
+                    instructions.style.display = '';
+                    ui.restartBtn.style.display = 'none';
+                }
+            });
+
+            scene.add(controls.getObject());
+
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            document.addEventListener('mousedown', onMouseDown);
+
+            for(let i=0; i<4; i++) persistentAllyStats.push({ kills: 0, deaths: 0, assists: 0, creds: INITIAL_CREDS, weapon: STARTING_WEAPON, shield: 'NONE', loadout: WEAPONS[STARTING_WEAPON].name });
+            for(let i = 0; i < 5; i++) {
+                const isOpBot = i === 3; 
+                persistentEnemyStats.push({ 
+                    kills: 0, deaths: 0, assists: 0, creds: INITIAL_CREDS, 
+                    weapon: STARTING_WEAPON, shield: 'NONE',
+                    loadout: isOpBot ? 'CLASSIC (ACE)' : WEAPONS[STARTING_WEAPON].name
+                });
+            }
+
+            createLevel();
+            createSpikeAndSite();
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize);
+
+            resetRound(true);
+        }
+        
+        function resetRound(isFirstRound = false) {
+            if (!isFirstRound) currentRound++; 
+            else currentRound = 1;
+            
+            // Check if teams should swap roles at round 3
+            if (currentRound === 3 && !rolesSwapped) {
+                rolesSwapped = true;
+            }
+
+            [...enemies, ...teammates, ...barriers, ...smokes].forEach(obj => {
+                if (obj.mesh) scene.remove(obj.mesh); 
+                else scene.remove(obj);
+            });
+            enemies.length = 0;
+            teammates.length = 0;
+            barriers.length = 0;
+            smokes.length = 0;
+            
+            // --- ECONOMY & BUY PHASE LOGIC ---
+            if (isFirstRound) {
+                playerStats.creds = INITIAL_CREDS;
+                playerStats.weapon = STARTING_WEAPON;
+                playerStats.shield = 'NONE';
+                
+                persistentAllyStats.forEach(s => { s.creds = INITIAL_CREDS; s.weapon = STARTING_WEAPON; s.shield = 'NONE'; s.loadout = WEAPONS[STARTING_WEAPON].name; });
+                persistentEnemyStats.forEach(s => { s.creds = INITIAL_CREDS; s.weapon = STARTING_WEAPON; s.shield = 'NONE'; });
+            } else {
+                playerStats.creds = Math.min(playerStats.creds + ROUND_BONUS_CREDS, MAX_CREDS);
+                persistentAllyStats.forEach(s => s.creds = Math.min(s.creds + ROUND_BONUS_CREDS, MAX_CREDS));
+                persistentEnemyStats.forEach(s => s.creds = Math.min(s.creds + ROUND_BONUS_CREDS, MAX_CREDS));
+
+                persistentAllyStats.forEach(s => botBuy(s));
+                persistentEnemyStats.forEach(s => botBuy(s));
+            }
+            
+            const playerWeapon = WEAPONS[playerStats.weapon];
+            ammo = playerWeapon.magSize;
+            MAX_AMMO = playerWeapon.magSize;
+            playerStats.maxAmmo = playerWeapon.reserve;
+            
+            const playerShield = SHIELDS[playerStats.shield];
+            currentHealth = 100;
+            currentShield = playerShield.armor;
+            maxShield = playerShield.armor;
+
+            isSpectating = false;
+            isDashing = false;
+            dashCooldown = 0;
+            isRoundOver = false;
+            
+            abilityCharges.c = 2;
+            abilityCharges.q = 2;
+            if(isFirstRound) {
+                ultPoints = 0;
+                abilityCharges.x = 0;
+            }
+
+            deactivateUlt(); 
+            updateAbilityUI();
+
+            camera.position.set(0, 1.6, PLAYER_SPAWN_Z);
+            controls.getObject().rotation.set(0, 0, 0); 
+            velocity.set(0,0,0);
+            
+            spikeState = 'NOT_PLANTED';
+            actionProgress = 0;
+            spikeMesh.visible = false;
+            // Spike spawns at current attacker spawn location
+            const spikeSpawnZ = !rolesSwapped ? PLAYER_SPAWN_Z - 5 : DEFENDER_SPAWN_Z + 5;
+            spikeMesh.position.set(0, 1, spikeSpawnZ);
+            spikeCarrier = null;
+            playerStats.hasSpike = false;
+            aiDefuseProgress = {};
+            ui.spikeStatus.style.display = 'none';
+            ui.winMsg.style.display = 'none';
+            ui.restartBtn.style.display = 'none';
+            ui.shopContainer.style.display = 'none';
+
+            updateHealthUI();
+            ui.ammoText.innerText = ammo;
+            ui.ammoSub.innerText = `/ ${playerStats.maxAmmo}`;
+            ui.spectator.style.display = 'none';
+            ui.bottomHud.style.display = 'flex';
+            playerGun.mesh.visible = true;
+            ui.dashCd.style.height = '0%';
+            ui.credsDisplay.innerText = `¤ ${playerStats.creds}`;
+            ui.weaponDisplay.innerText = playerWeapon.name;
+
+
+            createBarriers();
+            spawnTeammates();
+            spawnEnemies();
+            updateTeamIndicator();
+            
+            gamePhase = 'PREPARATION';
+            phaseTime = 10.0;
+            ui.timer.style.borderTopColor = 'cyan';
+            ui.roundInfo.innerText = `ROUND ${currentRound}`;
+            
+            ui.scoreAlly.innerText = allyScore;
+            ui.scoreEnemy.innerText = enemyScore;
+            
+            if (controls.isLocked) {
+                document.getElementById('blocker').style.display = 'none';
+            }
+        }
+
+        function toggleShop() {
+            if (gamePhase !== 'PREPARATION' || isSpectating || isRoundOver) return;
+            
+            if (ui.shopContainer.style.display === 'flex') {
+                ui.shopContainer.style.display = 'none';
+                controls.lock();
+            } else {
+                ui.shopContainer.style.display = 'flex';
+                controls.unlock();
+                renderShop();
+            }
+        }
+        
+        function updateHealthUI() {
+            let totalHealth = 100 + maxShield;
+            let currentTotal = currentHealth + currentShield;
+
+            ui.healthText.innerHTML = `${Math.max(0, currentHealth)}`;
+            
+            if (maxShield > 0) {
+                 ui.healthText.innerHTML += ` <span style="color:cyan;">${currentShield}</span><span id="shield-icon" style="background-color:cyan;"></span>`;
+            }
+            
+            ui.healthBar.style.width = (currentTotal / totalHealth * 100) + '%';
+            
+            if (currentShield > 0) {
+                const shieldPercent = (currentShield / totalHealth * 100);
+                const healthPercent = (currentHealth / totalHealth * 100);
+                ui.healthBar.style.background = `linear-gradient(to right, cyan ${shieldPercent}%, #ff4655 ${shieldPercent + healthPercent}%)`;
+            } else {
+                ui.healthBar.style.background = '#ff4655';
+            }
+        }
+
+        function renderShop() {
+            ui.shopCreds.innerText = `¤ ${playerStats.creds}`;
+            
+            let weaponHtml = '';
+            for (const key in WEAPONS) {
+                const weapon = WEAPONS[key];
+                const isOwned = playerStats.weapon === key;
+                const canAfford = playerStats.creds >= weapon.price;
+                const isBetter = playerStats.weapon !== STARTING_WEAPON;
+                
+                if(key === STARTING_WEAPON && isBetter && currentRound > 1) continue;
+                
+                const status = isOwned ? 'OWNED' : (canAfford ? 'BUY' : 'TOO EXPENSIVE');
+                const clickAction = canAfford && !isOwned ? `buyItem('WEAPON', '${key}')` : '';
+                const ownedClass = isOwned ? 'owned' : (canAfford ? '' : 'disabled');
+
+                weaponHtml += `
+                    <div class="item-box ${ownedClass}" onclick="${clickAction}">
+                        <div class="item-info">
+                            <span class="item-name">${weapon.name}</span>
+                            <span class="item-details">DMG: ${weapon.damage} | RPM: ${Math.round(60000/weapon.firerate)}</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="item-price">${key !== STARTING_WEAPON ? `¤ ${weapon.price}` : 'STARTING'}</span>
+                            <span class="item-status" style="color:${isOwned ? 'limegreen' : (canAfford ? 'cyan' : '#ff4655')}">${status}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            ui.shopWeapons.innerHTML = weaponHtml;
+
+            let shieldHtml = '';
+            for (const key in SHIELDS) {
+                const shield = SHIELDS[key];
+                const isOwned = playerStats.shield === key;
+                const canAfford = playerStats.creds >= shield.price;
+                
+                if (key === 'NONE' && playerStats.shield !== 'NONE') continue;
+
+                const status = isOwned ? 'OWNED' : (canAfford ? 'BUY' : 'TOO EXPENSIVE');
+                const clickAction = canAfford && !isOwned ? `buyItem('SHIELD', '${key}')` : '';
+                const ownedClass = isOwned ? 'owned' : (canAfford ? '' : 'disabled');
+
+                shieldHtml += `
+                    <div class="item-box ${ownedClass}" onclick="${clickAction}">
+                        <div class="item-info">
+                            <span class="item-name">${shield.name}</span>
+                            <span class="item-details">ARMOR: ${shield.armor}</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="item-price">${key !== 'NONE' ? `¤ ${shield.price}` : 'FREE'}</span>
+                            <span class="item-status" style="color:${isOwned ? 'limegreen' : (canAfford ? 'cyan' : '#ff4655')}">${status}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            ui.shopShields.innerHTML = shieldHtml;
+        }
+
+        function buyItem(type, key) {
+            if (type === 'WEAPON') {
+                const weapon = WEAPONS[key];
+                if (playerStats.creds >= weapon.price && playerStats.weapon !== key) {
+                    
+                    if (playerStats.weapon !== STARTING_WEAPON) {
+                        const oldWeapon = WEAPONS[playerStats.weapon];
+                        playerStats.creds += Math.floor(oldWeapon.price * 0.5);
+                    }
+                    
+                    playerStats.creds -= weapon.price;
+                    playerStats.weapon = key;
+                    playerStats.loadout = weapon.name;
+                    
+                    ammo = weapon.magSize;
+                    MAX_AMMO = weapon.magSize;
+                    playerStats.maxAmmo = weapon.reserve;
+                    ui.ammoText.innerText = ammo;
+                    ui.ammoSub.innerText = `/ ${playerStats.maxAmmo}`;
+                    ui.weaponDisplay.innerText = weapon.name;
+                }
+            } else if (type === 'SHIELD') {
+                const shield = SHIELDS[key];
+                if (playerStats.creds >= shield.price && playerStats.shield !== key) {
+                    playerStats.creds -= shield.price;
+                    playerStats.shield = key;
+                    currentShield = shield.armor;
+                    maxShield = shield.armor;
+                    updateHealthUI();
+                }
+            }
+            ui.credsDisplay.innerText = `¤ ${playerStats.creds}`;
+            renderShop();
+        }
+
+        function botBuy(stats) {
+            let creds = stats.creds;
+            
+            if (creds >= SHIELDS.HEAVY.price) {
+                stats.creds -= SHIELDS.HEAVY.price;
+                stats.shield = 'HEAVY';
+            } else if (creds >= SHIELDS.LIGHT.price && stats.shield === 'NONE') {
+                stats.creds -= SHIELDS.LIGHT.price;
+                stats.shield = 'LIGHT';
+            }
+            
+            let desiredWeapon = STARTING_WEAPON;
+            
+            if (stats.loadout.includes('(ACE)')) {
+                desiredWeapon = 'VANDAL';
+            }
+            
+            if (creds >= WEAPONS.PHANTOM.price) {
+                desiredWeapon = 'PHANTOM';
+            } else if (creds >= WEAPONS.VANDAL.price) {
+                desiredWeapon = 'VANDAL';
+            } else if (creds >= WEAPONS.USP.price) {
+                desiredWeapon = 'USP';
+            } 
+
+            if (desiredWeapon !== stats.weapon) {
+                const newWeapon = WEAPONS[desiredWeapon];
+                
+                if (stats.weapon !== STARTING_WEAPON) {
+                    const oldWeapon = WEAPONS[stats.weapon];
+                    stats.creds += Math.floor(oldWeapon.price * 0.5);
+                }
+                
+                if (stats.creds >= newWeapon.price) {
+                    stats.creds -= newWeapon.price;
+                    stats.weapon = desiredWeapon;
+                    stats.loadout = newWeapon.name;
+                    if (stats.loadout.includes('(ACE)')) stats.loadout += ' (ACE)'; 
+                } 
+            }
+        }
+
+        function onKeyDown(event) {
+            switch (event.code) {
+                case 'KeyW': moveForward = true; break;
+                case 'KeyA': moveLeft = true; break;
+                case 'KeyS': moveBackward = true; break;
+                case 'KeyD': moveRight = true; break;
+                case 'Space': 
+                    spacePressed = true;
+                    if(canJump) { velocity.y += 15; canJump = false; }
+                    break;
+                case 'KeyE': 
+                    if (!playerStats.hasSpike && spikeState === 'NOT_PLANTED') {
+                        const pos = controls.getObject().position;
+                        if (pos.distanceTo(spikeMesh.position) < 5) {
+                            playerStats.hasSpike = true;
+                            spikeCarrier = 'PLAYER';
+                            ui.interactMsg.style.display = 'none';
+                        }
+                    }
+                    if (!playerStats.hasSpike) useDash();
+                    break;
+                case 'KeyR': reload(); break;
+                case 'Digit4': isHoldingPlant = true; break;
+                case 'KeyF': isHoldingDefuse = true; break;
+                case 'KeyB': toggleShop(); break; 
+                case 'Tab': 
+                    event.preventDefault(); 
+                    ui.scoreboard.style.display = 'flex';
+                    updateScoreboardData();
+                    break;
+                case 'KeyC': castSmoke(); break;
+                case 'KeyQ': castUpdraft(); break;
+                case 'KeyX': toggleUlt(); break;
+            }
+        }
+        function onKeyUp(event) {
+            switch (event.code) {
+                case 'KeyW': moveForward = false; break;
+                case 'KeyA': moveLeft = false; break;
+                case 'KeyS': moveBackward = false; break;
+                case 'KeyD': moveRight = false; break;
+                case 'Space': spacePressed = false; break;
+                case 'Digit4': isHoldingPlant = false; actionProgress = 0; updateActionBar(); break;
+                case 'KeyF': isHoldingDefuse = false; actionProgress = 0; updateActionBar(); break;
+                case 'Tab': ui.scoreboard.style.display = 'none'; break;
+            }
+        }
+        
+        function onMouseDown() {
+            if (isSpectating) {
+                switchSpectatorTarget();
+            } else {
+                shoot();
+            }
+        }
+
+        function addUltPoint() {
+            if (abilityCharges.x > 0) return; 
+            
+            ultPoints++;
+            if (ultPoints >= ULT_POINTS_NEEDED) {
+                ultPoints = 0; 
+                abilityCharges.x = 1; 
+            }
+            updateAbilityUI();
+        }
+
+        function updateAbilityUI() {
+            ui.chargeC.innerText = abilityCharges.c;
+            ui.chargeQ.innerText = abilityCharges.q;
+            
+            if (isUltActive) {
+                ui.chargeX.innerText = "ACTIVE";
+            } else if (abilityCharges.x > 0) {
+                ui.chargeX.innerText = "READY";
+            } else {
+                ui.chargeX.innerText = `${ultPoints} / ${ULT_POINTS_NEEDED}`;
+            }
+            
+            if(abilityCharges.c === 0) ui.boxC.classList.add('empty'); else ui.boxC.classList.remove('empty');
+            if(abilityCharges.q === 0) ui.boxQ.classList.add('empty'); else ui.boxQ.classList.remove('empty');
+            
+            if(abilityCharges.x === 0 && !isUltActive) ui.boxX.classList.add('empty'); else ui.boxX.classList.remove('empty');
+            if(isUltActive) ui.boxX.classList.add('active-ult'); else ui.boxX.classList.remove('active-ult');
+        }
+
+        function castSmoke() {
+            if (abilityCharges.c <= 0 || isSpectating || isRoundOver || gamePhase !== 'LIVE') return;
+            abilityCharges.c--;
+            updateAbilityUI();
+
+            const sphereGeo = new THREE.SphereGeometry(0.2, 16, 16);
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+            const smokeBall = new THREE.Mesh(sphereGeo, sphereMat);
+            
+            smokeBall.position.copy(camera.position);
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            smokeBall.position.add(dir.multiplyScalar(1));
+
+            scene.add(smokeBall);
+
+            smokes.push({
+                mesh: smokeBall,
+                velocity: dir.normalize().multiplyScalar(40),
+                state: 'FLYING',
+                timer: 0
+            });
+        }
+
+        function castUpdraft() {
+            if (abilityCharges.q <= 0 || isSpectating || isRoundOver || gamePhase !== 'LIVE') return;
+            abilityCharges.q--;
+            updateAbilityUI();
+            velocity.y = 50; 
+            canJump = false;
+        }
+
+        function toggleUlt() {
+            if (isUltActive) return; 
+            if (abilityCharges.x > 0) {
+                activateUlt();
+            }
+        }
+
+        function activateUlt() {
+            isUltActive = true;
+            ultKnives = 5;
+            abilityCharges.x--; 
+            
+            playerGun.mesh.children.forEach(c => {
+                 if(c.material) {
+                     c.userData.oldColor = c.material.color.getHex();
+                     c.material.color.setHex(0x00ffff);
+                     c.material.emissive = new THREE.Color(0x00aaaa);
+                 }
+            });
+            
+            ui.ammoText.innerText = ultKnives;
+            ui.ammoText.style.color = 'cyan';
+            ui.crosshair.classList.add('ult-active');
+            updateAbilityUI();
+        }
+
+        function deactivateUlt() {
+            isUltActive = false;
+            ui.crosshair.classList.remove('ult-active');
+            ui.ammoText.style.color = 'white';
+            ui.ammoText.innerText = ammo;
+            
+             if(playerGun && playerGun.mesh) {
+                playerGun.mesh.children.forEach(c => {
+                    if(c.userData.oldColor !== undefined) {
+                        c.material.color.setHex(c.userData.oldColor);
+                        c.material.emissive = new THREE.Color(0x000000);
+                    }
+                });
+             }
+             updateAbilityUI();
+        }
+
+        function updateSmokes(delta) {
+            for (let i = smokes.length - 1; i >= 0; i--) {
+                const s = smokes[i];
+                if (s.state === 'FLYING') {
+                    s.mesh.position.add(s.velocity.clone().multiplyScalar(delta));
+                    s.timer += delta;
+                    let hit = false;
+                    if (s.mesh.position.y <= 0.5) hit = true;
+                    if (s.timer > 1.5) hit = true;
+                    const ray = new THREE.Raycaster(s.mesh.position, s.velocity.clone().normalize(), 0, 1.0);
+                    if (ray.intersectObjects(objects).length > 0) hit = true;
+
+                    if (hit) {
+                        s.state = 'EXPANDING';
+                        s.timer = 0;
+                        s.mesh.material = new THREE.MeshStandardMaterial({
+                            color: 0xdddddd, transparent: true, opacity: 0.9, roughness: 1, side: THREE.DoubleSide
+                        });
+                    }
+                } else if (s.state === 'EXPANDING') {
+                    s.timer += delta;
+                    const maxScale = 15; 
+                    const growSpeed = 30;
+                    if (s.mesh.scale.x < maxScale) {
+                        const newScale = s.mesh.scale.x + (growSpeed * delta);
+                        s.mesh.scale.set(newScale, newScale, newScale);
+                    } else {
+                        s.state = 'ACTIVE';
+                        s.timer = 0;
+                    }
+                } else if (s.state === 'ACTIVE') {
+                    s.timer += delta;
+                    if (s.timer > 7.0) s.state = 'DISSIPATING';
+                } else if (s.state === 'DISSIPATING') {
+                    s.mesh.material.opacity -= delta;
+                    if (s.mesh.material.opacity <= 0) {
+                        scene.remove(s.mesh);
+                        smokes.splice(i, 1);
+                    }
+                }
+            }
+        }
+
+
+        // --- STANDARD GAME FUNCTIONS ---
+
+        function updateScoreboardData() {
+            let allies = [];
+            allies.push({
+                name: "JETT (YOU)",
+                stats: playerStats,
+                isMe: true
+            });
+            teammates.forEach((t, i) => {
+                allies.push({
+                    name: `ALLY ${i+1}`,
+                    stats: t.userData.stats,
+                    isMe: false
+                });
+            });
+
+            allies.sort((a, b) => b.stats.kills - a.stats.kills);
+
+            let allyHtml = '';
+            allies.forEach(a => {
+                const s = a.stats;
+                const rowClass = a.isMe ? 'sb-row sb-me' : 'sb-row';
+                const shieldName = SHIELDS[s.shield] ? SHIELDS[s.shield].name.split(' ')[0] : 'NONE';
+                
+                let loadoutStr = s.loadout;
+                if(a.isMe && isUltActive) loadoutStr = 'BLADE STORM';
+
+                allyHtml += `
+                    <tr class="${rowClass}">
+                        <td>${a.name}</td>
+                        <td class="loadout-text">${loadoutStr} (${shieldName})</td>
+                        <td class="kda-text">${s.kills} / ${s.deaths} / ${s.assists}</td>
+                        <td class="creds-text">¤ ${s.creds}</td>
+                    </tr>
+                `;
+            });
+            ui.sbBodyAlly.innerHTML = allyHtml;
+
+            let enemyList = [];
+            enemies.forEach((e, i) => {
+                enemyList.push({
+                    name: `ENEMY ${i+1}`,
+                    stats: e.userData.stats
+                });
+            });
+
+            enemyList.sort((a, b) => b.stats.kills - a.stats.kills);
+
+            let enemyHtml = '';
+            enemyList.forEach(e => {
+                const s = e.stats;
+                const shieldName = SHIELDS[s.shield] ? SHIELDS[s.shield].name.split(' ')[0] : 'NONE';
+                enemyHtml += `
+                    <tr class="sb-row">
+                        <td>${e.name}</td>
+                        <td class="loadout-text">${WEAPONS[s.weapon].name} (${shieldName})</td>
+                        <td class="kda-text">${s.kills} / ${s.deaths} / ${s.assists}</td>
+                        <td class="creds-text">¤ ${s.creds}</td>
+                    </tr>
+                `;
+            });
+            ui.sbBodyEnemy.innerHTML = enemyHtml;
+        }
+
+        // --- IMPROVED MAP GENERATION ---
+        function createLevel() {
+            // Remove old objects
+            objects.forEach(obj => scene.remove(obj));
+            objects.length = 0;
+            colliders.length = 0;
+
+            // Floor
+            const floor = new THREE.Mesh(
+                new THREE.PlaneGeometry(200, 200),
+                new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.8 })
+            );
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            floor.userData = { type: 'WALL' }; // Tag as wall
+            scene.add(floor);
+            objects.push(floor);
+            
+            const grid = new THREE.GridHelper(200, 50, 0x000000, 0x000000);
+            grid.position.y = 0.01;
+            grid.material.opacity = 0.2;
+            grid.material.transparent = true;
+            scene.add(grid);
+
+            // Wall Factory
+            function createWall(x, z, w, h, d, color = 0x8B4513) {
+                const geo = new THREE.BoxGeometry(w, h, d);
+                const mat = new THREE.MeshStandardMaterial({ color: color });
+                const wall = new THREE.Mesh(geo, mat);
+                wall.position.set(x, h/2, z);
+                wall.castShadow = true;
+                wall.receiveShadow = true;
+                wall.userData = { type: 'WALL' }; // Tag as wall
+                scene.add(wall);
+                objects.push(wall);
+                wall.updateMatrixWorld();
+                colliders.push(new THREE.Box3().setFromObject(wall));
+            }
+
+            // --- MAP LAYOUT ---
+            
+            // Outer Perimeter Walls
+            createWall(0, -60, 100, 15, 2, 0x555555); // Back Site Wall
+            createWall(0, 60, 100, 15, 2, 0x555555);  // Spawn Back Wall
+            createWall(-50, 0, 2, 15, 120, 0x555555); // Left Border
+            createWall(50, 0, 2, 15, 120, 0x555555);  // Right Border
+
+            // "Long" Lane (Left Side)
+            createWall(-30, 20, 2, 8, 40, 0xcd853f); // Long Lane Wall Left
+            createWall(-15, 20, 2, 8, 40, 0xcd853f); // Long Lane Wall Right
+            
+            // "Short/Garage" Lane (Right Side)
+            createWall(25, 10, 20, 8, 20, 0xcd853f); // Garage Block
+            
+            // Mid structures (Cover)
+            createWall(0, 30, 10, 4, 2, 0x8B4513); // Mid Box Spawn Side
+            
+            // Site Structures (The Goal Area)
+            createWall(0, -10, 6, 5, 6, 0x2e8b57); // Site Central Box (Green)
+            createWall(-15, -15, 4, 4, 4, 0x8B4513); // Back Left Box
+            createWall(15, -15, 4, 4, 4, 0x8B4513); // Back Right Box
+            
+            // Platform
+            createWall(0, -35, 30, 2, 10, 0x444444); // Back Site Platform
+
+            const site_col = new THREE.Mesh(new THREE.BoxGeometry(10, 1, 10), new THREE.MeshBasicMaterial());
+            site_col.position.set(0, 0.5, SITE_Z);
+            site_col.updateMatrixWorld();
+            colliders.push(new THREE.Box3().setFromObject(site_col));
+        }
+
+        function createBarriers() {
+            const bGeo = new THREE.BoxGeometry(10, 5, 0.5);
+            const bMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+            
+            const barrier1 = new THREE.Mesh(bGeo, bMat);
+            barrier1.position.set(-22, 2.5, 40); // Block Long
+            scene.add(barrier1);
+            barriers.push(barrier1);
+
+            const barrier2 = new THREE.Mesh(bGeo, bMat);
+            barrier2.position.set(22, 2.5, 40); // Block Short
+            scene.add(barrier2);
+            barriers.push(barrier2);
+            
+            const bGeoWide = new THREE.BoxGeometry(20, 5, 0.5);
+            const barrier3 = new THREE.Mesh(bGeoWide, bMat);
+            barrier3.position.set(0, 2.5, 40); 
+            scene.add(barrier3);
+            barriers.push(barrier3);
+        }
+
+        function createGunModel() {
+            const group = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.6), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+            group.add(body);
+            const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.4), new THREE.MeshStandardMaterial({ color: 0x333333 }));
+            barrel.position.set(0, 0.05, -0.4);
+            group.add(barrel);
+            const accent = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.02, 0.5), new THREE.MeshStandardMaterial({ color: 0xff4655 }));
+            accent.position.y = 0.1;
+            group.add(accent);
+            const flash = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.8 }));
+            flash.position.set(0, 0.05, -0.7);
+            flash.visible = false;
+            group.add(flash);
+            return { mesh: group, flash: flash };
+        }
+
+        function spawnEnemies() {
+            const geo = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+            const mat = new THREE.MeshStandardMaterial({ color: 0xff4655 });
+
+            for (let i = 0; i < 5; i++) {
+                const enemy = createCharacter(geo, mat, 'ENEMY', persistentEnemyStats[i]);
+                let x = (Math.random() - 0.5) * 40;
+                let z = DEFENDER_SPAWN_Z + 5 + (Math.random() - 0.5) * 10;
+                enemy.position.set(x, 1, z);
+                scene.add(enemy);
+                enemies.push(enemy);
+            }
+            ui.enemyCount.innerText = 5;
+        }
+
+        function spawnTeammates() {
+            const geo = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x00ffff });
+
+            for (let i = 0; i < 4; i++) {
+                const ally = createCharacter(geo, mat, 'ALLY', persistentAllyStats[i]);
+                ally.position.set((Math.random()-0.5)*20, 1, PLAYER_SPAWN_Z + 5 + (Math.random()-0.5)*4);
+                scene.add(ally);
+                teammates.push(ally);
+            }
+            ui.allyCount.innerText = 5; 
+        }
+
+        function createCharacter(geo, mat, type, statsObj) {
+            const char = new THREE.Mesh(geo, mat.clone());
+            
+            const weaponStats = WEAPONS[statsObj.weapon];
+            const shieldStats = SHIELDS[statsObj.shield];
+
+            char.userData = { 
+                health: 100, 
+                shield: shieldStats.armor, 
+                weapon: statsObj.weapon, 
+                maxAmmo: weaponStats.reserve, 
+                ammo: weaponStats.magSize, 
+                isDead: false, 
+                lastShot: 0,
+                type: type,
+                isDashing: false,
+                dashCooldown: 0,
+                dashTime: 0,
+                stats: statsObj 
+            };
+            const bg = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.1), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+            bg.position.y = 1.2;
+            char.add(bg);
+            
+            const gun = createGunModel();
+            gun.mesh.position.set(0.4, 0.2, 0.4);
+            char.add(gun.mesh);
+            char.userData.gun = gun;
+            
+            return char;
+        }
+
+        function createSpikeAndSite() {
+            const zone = new THREE.Mesh(
+                new THREE.CylinderGeometry(5, 5, 0.2, 32),
+                new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.3 })
+            );
+            zone.position.set(0, 0.1, SITE_Z);
+            scene.add(zone);
+            plantZoneMesh = zone;
+            const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.3, 1, 8),
+                new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.5 })
+            );
+            spike.visible = true;
+            spike.position.set(0, 1, PLAYER_SPAWN_Z - 5);
+            scene.add(spike);
+            spikeMesh = spike;
+            
+            const ring = new THREE.Mesh(
+                new THREE.RingGeometry(0.5, 0.6, 32),
+                new THREE.MeshBasicMaterial({ color: 0xff4655, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
+            );
+            ring.rotateX(-Math.PI/2);
+            ring.name = "PulseRing";
+            spike.add(ring);
+            
+            if (!playerGun) {
+                playerGun = createGunModel();
+                playerGun.mesh.position.set(0.3, -0.3, -0.5);
+                camera.add(playerGun.mesh);
+            }
+        }
+
+        function updateGameLogic(delta) {
+            if (gamePhase === 'PREPARATION') {
+                phaseTime -= delta;
+                const secs = Math.ceil(phaseTime);
+                ui.timer.innerText = `BUY: ${secs}`;
+                ui.timer.style.borderTopColor = 'cyan';
+                if (phaseTime <= 0) {
+                    gamePhase = 'LIVE';
+                    ui.timer.innerText = "GAME LIVE";
+                    ui.timer.style.borderTopColor = '#ff4655';
+                    barriers.forEach(b => b.visible = false);
+                    ui.shopContainer.style.display = 'none'; 
+                }
+            } else if (gamePhase === 'LIVE' && !isRoundOver) {
+                const alliesAlive = teammates.filter(t=>!t.userData.isDead).length + (isSpectating ? 0 : 1);
+                const enemiesAlive = enemies.filter(e=>!e.userData.isDead).length;
+                
+                if (alliesAlive === 0 && spikeState !== 'PLANTED') endGame("DEFEAT (ELIM)", "red", 'ENEMY');
+                if (enemiesAlive === 0 && spikeState !== 'PLANTED') endGame("TEAM ACE (ELIM)", "cyan", 'ALLY');
+            }
+
+            updateSpikeLogic(delta);
+        }
+
+        function isPlayerAttacker() {
+            // Player starts as attacker, but if roles are swapped, they become defender
+            return !rolesSwapped;
+        }
+        
+        function updateTeamIndicator() {
+            if (isPlayerAttacker()) {
+                ui.teamIndicator.innerText = "TEAM: ATTACKERS";
+                ui.teamIndicator.style.color = 'cyan';
+                ui.teamIndicator.style.borderColor = 'cyan';
+                ui.teamIndicator.style.backgroundColor = 'rgba(0, 100, 150, 0.8)';
+            } else {
+                ui.teamIndicator.innerText = "TEAM: DEFENDERS";
+                ui.teamIndicator.style.color = '#ff4655';
+                ui.teamIndicator.style.borderColor = '#ff4655';
+                ui.teamIndicator.style.backgroundColor = 'rgba(150, 20, 20, 0.8)';
+            }
+        }
+
+        function updateSpikeLogic(delta) {
+            const pos = controls.getObject().position;
+            
+            // Spike visibility and position logic
+            if (spikeState === 'NOT_PLANTED' && !playerStats.hasSpike && !spikeCarrier) {
+                // Spike is on ground at spawn - show it
+                spikeMesh.visible = true;
+            } else if (spikeState === 'NOT_PLANTED' && (playerStats.hasSpike || spikeCarrier)) {
+                // Spike is being carried - update position and show it
+                if (spikeCarrier === 'PLAYER' && playerStats.hasSpike) {
+                    spikeMesh.position.copy(pos).add(new THREE.Vector3(0, 0.5, 0));
+                    spikeMesh.visible = true;
+                } else if (spikeCarrier && spikeCarrier !== 'PLAYER') {
+                    // Being carried by bot
+                    spikeMesh.position.copy(spikeCarrier.position).add(new THREE.Vector3(0, 0.5, 0));
+                    spikeMesh.visible = true;
+                }
+            } else if (spikeState === 'PLANTED') {
+                // Spike is planted - show it at plant location
+                spikeMesh.visible = true;
+            } else {
+                spikeMesh.visible = false;
+            }
+            
+            // Check for spike pickup (ONLY ATTACKERS can pick up)
+            if (spikeState === 'NOT_PLANTED' && !playerStats.hasSpike && !isSpectating && gamePhase === 'LIVE' && isPlayerAttacker()) {
+                const distToSpike = pos.distanceTo(spikeMesh.position);
+                if (distToSpike < 5) {
+                    ui.interactMsg.innerText = "PRESS E TO PICK UP SPIKE";
+                    ui.interactMsg.style.display = 'block';
+                }
+            }
+            
+            // Check planting zone
+            const dist = new THREE.Vector2(pos.x, pos.z - SITE_Z).length();
+            const inZone = dist < 5;
+            
+            if (spikeState === 'NOT_PLANTED') {
+                // Only ATTACKERS can plant
+                if(inZone && !isSpectating && gamePhase === 'LIVE' && playerStats.hasSpike && isPlayerAttacker()) {
+                    ui.interactMsg.innerText = "HOLD 4 TO PLANT";
+                    ui.interactMsg.style.display = 'block';
+                    if(isHoldingPlant) spikeState = 'PLANTING';
+                } else if (!playerStats.hasSpike && pos.distanceTo(spikeMesh.position) >= 5) {
+                    ui.interactMsg.style.display = 'none';
+                    isHoldingPlant = false;
+                }
+            } else if (spikeState === 'PLANTING') {
+                if (isHoldingPlant && inZone) {
+                    actionProgress += delta * 1000;
+                    ui.interactMsg.innerText = "PLANTING...";
+                    updateActionBar();
+                    if (actionProgress >= PLANT_TIME) {
+                        spikeState = 'PLANTED';
+                        spikeTimer = DETONATION_TIME;
+                        spikeMesh.position.set(pos.x, 0.5, pos.z);
+                        spikeMesh.visible = true;
+                        ui.spikeStatus.style.display = 'flex';
+                        playerStats.hasSpike = false;
+                        spikeCarrier = null;
+                        logKill('SPIKE', 'PLANTED', 'yellow');
+                        addUltPoint(); 
+                    }
+                } else {
+                    spikeState = 'NOT_PLANTED';
+                    actionProgress = 0;
+                    updateActionBar();
+                }
+            } else if (spikeState === 'PLANTED' || spikeState === 'DEFUSING') {
+                spikeTimer -= delta * 1000;
+                ui.spikeFill.style.width = (spikeTimer/DETONATION_TIME*100) + '%';
+                
+                // Only DEFENDERS can defuse
+                if (pos.distanceTo(spikeMesh.position) < 3 && !isSpectating) {
+                    if (isPlayerAttacker()) {
+                        // Player is attacker, can't defuse
+                        ui.interactMsg.innerText = "YOU CANNOT DEFUSE (DEFENDER ONLY)";
+                        ui.interactMsg.style.display = 'block';
+                        isHoldingDefuse = false;
+                    } else {
+                        // Player is defender, can defuse
+                        if (isHoldingDefuse) {
+                            spikeState = 'DEFUSING';
+                            actionProgress += delta * 1000;
+                            ui.interactMsg.innerText = "DEFUSING...";
+                            ui.interactMsg.style.display = 'block';
+                            updateActionBar();
+                            if (actionProgress >= DEFUSE_TIME) {
+                                addUltPoint(); 
+                                endGame("SPIKE DEFUSED", "cyan", 'ALLY');
+                            }
+                        } else {
+                            spikeState = 'PLANTED';
+                            actionProgress = 0;
+                            ui.interactMsg.innerText = "HOLD F TO DEFUSE";
+                            ui.interactMsg.style.display = 'block';
+                            updateActionBar();
+                        }
+                    }
+                } else {
+                    ui.interactMsg.style.display = 'none';
+                    isHoldingDefuse = false;
+                    spikeState = 'PLANTED';
+                }
+
+                if (spikeTimer <= 0) endGame("SPIKE DETONATED", "red", 'ENEMY');
+            }
+        }
+
+        function updateActionBar() {
+            if (actionProgress > 0) {
+                ui.actionBar.style.display = 'block';
+                const total = spikeState === 'PLANTING' ? PLANT_TIME : DEFUSE_TIME;
+                ui.actionFill.style.width = Math.min(100, (actionProgress / total * 100)) + '%';
+            } else {
+                ui.actionBar.style.display = 'none';
+            }
+        }
+
+        function useDash() {
+            if (dashCooldown > 0 || isSpectating || isGameOver || gamePhase !== 'LIVE' || isRoundOver) return;
+            
+            const dashDir = new THREE.Vector3();
+            if (moveForward) dashDir.z -= 1;
+            if (moveBackward) dashDir.z += 1;
+            if (moveLeft) dashDir.x -= 1;
+            if (moveRight) dashDir.x += 1;
+
+            if (dashDir.length() === 0) dashDir.z = -1; 
+            
+            dashDir.normalize().applyQuaternion(camera.quaternion);
+
+            velocity.add(dashDir.multiplyScalar(80));
+            velocity.y = 5; 
+            
+            dashCooldown = DASH_COOLDOWN_TIME;
+            camera.fov = 90;
+            camera.updateProjectionMatrix();
+            setTimeout(() => { camera.fov = 75; camera.updateProjectionMatrix(); }, 300);
+        }
+
+        function shoot() {
+            if (!controls.isLocked || isGameOver || isSpectating || gamePhase !== 'LIVE' || isRoundOver) return;
+            
+            const weapon = WEAPONS[playerStats.weapon];
+
+            if (isUltActive) {
+                if (ultKnives <= 0) return;
+                ultKnives--;
+                ui.ammoText.innerText = ultKnives;
+                if(ultKnives === 0) deactivateUlt();
+            } else {
+                if (ammo <= 0) return;
+                ammo--;
+                ui.ammoText.innerText = ammo;
+            }
+            
+            const flash = playerGun.flash;
+            flash.visible = true; 
+            flash.rotation.z = Math.random() * Math.PI;
+            setTimeout(() => flash.visible = false, 50);
+
+            if (!isUltActive) recoil += 0.1; 
+
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(new THREE.Vector2(0,0), camera);
+            
+            // --- FIXED: RAYCAST EVERYTHING AT ONCE (WALLS + ENEMIES) ---
+            // This prevents shooting through walls
+            const targets = [...enemies, ...objects];
+            const hits = ray.intersectObjects(targets);
+
+            const trailColor = isUltActive ? 0x00ffff : 0xffffaa;
+            
+            if (hits.length > 0) {
+                const firstHit = hits[0];
+                const hitObj = firstHit.object;
+                
+                // If the first thing we hit is a WALL, we stop there.
+                if (objects.includes(hitObj)) {
+                    drawTrail(playerGun.mesh, firstHit.point, trailColor);
+                    return; // Hit wall, bullet stops
+                }
+
+                // If it's an enemy
+                const isEnemy = enemies.includes(hitObj) || (hitObj.parent && enemies.includes(hitObj.parent));
+                if (isEnemy) {
+                    const enemy = enemies.includes(hitObj) ? hitObj : hitObj.parent;
+                    if (!enemy.userData.isDead) {
+                        const damage = isUltActive ? 150 : weapon.damage; 
+                        damageCharacter(enemy, damage, 'PLAYER');
+                    }
+                }
+                
+                drawTrail(playerGun.mesh, firstHit.point, trailColor);
+            } else {
+                const end = new THREE.Vector3(0,0,-100).applyQuaternion(camera.quaternion).add(camera.position);
+                drawTrail(playerGun.mesh, end, trailColor);
+            }
+        }
+
+        function updateAI(delta) {
+            if (gamePhase === 'PREPARATION' || isRoundOver) return;
+
+            // Define targets: Players, Allies, and Enemies
+            const humanTarget = { pos: controls.getObject().position, type: 'PLAYER', obj: null, mesh: null }; 
+            // Note: mesh is null for player, handled via position checks in aiShoot
+            
+            const allyTargets = teammates.filter(t => !t.userData.isDead).map(t => ({ pos: t.position, type: 'ALLY', obj: t, mesh: t }));
+            const enemyTargets = enemies.filter(e => !e.userData.isDead).map(e => ({ pos: e.position, type: 'ENEMY', obj: e, mesh: e }));
+            
+            // Add Player to 'allyTargets' list for Enemies to target
+            if (!isSpectating) allyTargets.push(humanTarget);
+
+            const allBots = [...enemies, ...teammates];
+            
+            allBots.forEach(bot => {
+                if (bot.userData.isDead) return;
+
+                // Check if allied bot can pick up spike
+                if (bot.userData.type === 'ALLY' && !spikeCarrier && spikeState === 'NOT_PLANTED' && bot.position.distanceTo(spikeMesh.position) < 5) {
+                    spikeCarrier = bot;
+                }
+                
+                // Update spike position if being carried by this bot
+                if (spikeCarrier === bot && spikeState === 'NOT_PLANTED') {
+                    spikeMesh.position.copy(bot.position).add(new THREE.Vector3(0, 0.5, 0));
+                }
+
+                // --- AI MOVEMENT LOGIC REWORKED ---
+                
+                // 1. Dash Logic
+                if (bot.userData.isDashing) {
+                    bot.userData.dashTime -= delta;
+                    if (bot.userData.dashTime <= 0) {
+                        bot.userData.isDashing = false;
+                    } else {
+                        const dashDir = new THREE.Vector3(0, 0, 1).applyQuaternion(bot.quaternion);
+                        moveAIWithCollision(bot, dashDir, 50, delta);
+                        return; // Dash overrides other movement
+                    }
+                }
+                if (bot.userData.dashCooldown > 0) bot.userData.dashCooldown -= delta;
+
+                // 2. Targeting Logic
+                let target = null;
+                let minDist = 999;
+                
+                // Allies target Enemies; Enemies target Allies (and Player)
+                const potentialTargets = bot.userData.type === 'ENEMY' ? allyTargets : enemyTargets;
+                
+                // Find closest VISIBLE target
+                potentialTargets.forEach(t => {
+                    const d = bot.position.distanceTo(t.pos);
+                    if (d < minDist && d < 60) { // Aggro range
+                         target = t;
+                        minDist = d;
+                    }
+                });
+
+                // 3. Action Logic
+                if (target) {
+                    // Turn to face target
+                    bot.lookAt(target.pos.x, bot.position.y, target.pos.z);
+                    
+                    // Dash randomly
+                    if (bot.userData.dashCooldown <= 0 && Math.random() < 0.005) { 
+                        bot.userData.isDashing = true;
+                        bot.userData.dashTime = 0.2; 
+                        bot.userData.dashCooldown = 5.0;
+                        const angle = (Math.random() - 0.5) * Math.PI; // Dash sideways/randomly
+                        bot.rotateY(angle);
+                        const dashDir = new THREE.Vector3(0, 0, 1).applyQuaternion(bot.quaternion);
+                        const color = bot.userData.type === 'ENEMY' ? 0xffaa00 : 0x00ffff;
+                        const start = bot.position.clone();
+                        const end = bot.position.clone().add(dashDir.multiplyScalar(5));
+                        drawTrail({ getWorldPosition: () => start }, end, color);
+                    }
+
+                    // Move towards target if too far, stop to shoot
+                    if (minDist > 15) {
+                        const dir = new THREE.Vector3().subVectors(target.pos, bot.position).normalize();
+                        moveAIWithCollision(bot, dir, 4.5, delta); // Slightly faster move speed
+                    } else if (minDist < 5) {
+                        // Back away if too close
+                         const dir = new THREE.Vector3().subVectors(bot.position, target.pos).normalize();
+                         moveAIWithCollision(bot, dir, 3, delta);
+                    }
+                    
+                    // Shoot
+                    const now = performance.now();
+                    const weapon = WEAPONS[bot.userData.weapon] || WEAPONS.CLASSIC;
+                    const fireRate = weapon.firerate + Math.random() * 200; // Slight humanization delay
+                    
+                    if (now - bot.userData.lastShot > fireRate) { 
+                        bot.userData.lastShot = now;
+                        aiShoot(bot, target);
+                    }
+                } else {
+                    // NO TARGET? MOVE TO OBJECTIVE!
+                    
+                    // Special logic for ALLIES carrying spike - they should plant it
+                    if (bot.userData.type === 'ALLY' && spikeCarrier === bot && spikeState === 'NOT_PLANTED') {
+                        const dirToSite = new THREE.Vector3().subVectors(new THREE.Vector3(0, bot.position.y, SITE_Z), bot.position).normalize();
+                        const distToSite = new THREE.Vector2(bot.position.x, bot.position.z - SITE_Z).length();
+                        
+                        if (distToSite > 5) {
+                            // Move towards site to plant
+                            moveAIWithCollision(bot, dirToSite, 4.5, delta);
+                        } else {
+                            // At site, plant the spike (simulate by triggering plant logic)
+                            // Move spike to bot position and mark it as planting
+                            spikeMesh.position.copy(bot.position).add(new THREE.Vector3(0, 0.5, 0));
+                            spikeState = 'PLANTING';
+                            aiDefuseProgress[bot.uuid] = 0;
+                            if (!aiDefuseProgress[bot.uuid]) aiDefuseProgress[bot.uuid] = 0;
+                            aiDefuseProgress[bot.uuid] += 0.1; // Increment planting progress
+                            if (aiDefuseProgress[bot.uuid] >= PLANT_TIME / 1000) {
+                                // Plant complete
+                                spikeState = 'PLANTED';
+                                spikeTimer = DETONATION_TIME;
+                                spikeCarrier = null;
+                            }
+                        }
+                        return; // Skip normal objective logic
+                    }
+                    
+                    // Special logic for DEFENDERS when spike is planted
+                    if (bot.userData.type === 'ENEMY' && spikeState === 'PLANTED') {
+                        const livingDefenders = enemies.filter(e => !e.userData.isDead);
+                        const defuserAssigned = livingDefenders[0]; // First defender defuses
+                        
+                        if (bot === defuserAssigned) {
+                            // This defender should move to spike and defuse
+                            const dirToSpike = new THREE.Vector3().subVectors(spikeMesh.position, bot.position).normalize();
+                            const distToSpike = bot.position.distanceTo(spikeMesh.position);
+                            
+                            if (distToSpike > 3) {
+                                moveAIWithCollision(bot, dirToSpike, 4, delta);
+                            } else {
+                                // At spike, defuse it (simulate pressing F)
+                                bot.userData.isDefusing = true;
+                            }
+                        } else {
+                            // Other defenders: stay near spike and defend it (move to spike area but stay alert for enemies)
+                            const dirToSpike = new THREE.Vector3().subVectors(spikeMesh.position, bot.position).normalize();
+                            const distToSpike = bot.position.distanceTo(spikeMesh.position);
+                            
+                            if (distToSpike > 8) {
+                                moveAIWithCollision(bot, dirToSpike, 4, delta);
+                            }
+                        }
+                        return; // Skip normal objective logic
+                    }
+                    
+                    // Normal objective logic
+                    let objectiveZ = 0;
+                    if (bot.userData.type === 'ALLY') {
+                        objectiveZ = SITE_Z; // Go to plant site
+                    } else {
+                        // Enemies patrol around site or push spawn
+                        objectiveZ = (Math.random() > 0.7) ? PLAYER_SPAWN_Z : SITE_Z; 
+                    }
+                    
+                    const objPos = new THREE.Vector3(bot.position.x, bot.position.y, objectiveZ);
+                    
+                    // Simple "Lane" logic - stay somewhat in current X lane
+                    if (Math.abs(bot.position.z - objectiveZ) > 2) {
+                         // Look towards objective
+                        const lookTarget = new THREE.Vector3(bot.position.x, bot.position.y, objectiveZ);
+                        bot.lookAt(lookTarget);
+                        const dir = new THREE.Vector3(0, 0, (objectiveZ - bot.position.z) > 0 ? 1 : -1);
+                        
+                        // Add some wiggle
+                        if(Math.random() < 0.05) dir.x += (Math.random()-0.5);
+                        dir.normalize();
+
+                        moveAIWithCollision(bot, dir, 3.5, delta);
+                    } else {
+                        // At objective, jitter around / patrol
+                         bot.rotation.y += (Math.random() - 0.5) * delta;
+                    }
+                }
+            });
+        }
+        
+        function updateAIDefuse(delta) {
+            // Handle AI bot defusing
+            if (spikeState === 'PLANTED' || spikeState === 'DEFUSING') {
+                const livingDefenders = enemies.filter(e => !e.userData.isDead);
+                
+                if (livingDefenders.length > 0) {
+                    const defuser = livingDefenders[0]; // First defender is the defuser
+                    
+                    if (defuser.position.distanceTo(spikeMesh.position) < 3) {
+                        // Defuser is at the spike, start defusing
+                        if (!aiDefuseProgress[defuser.uuid]) {
+                            aiDefuseProgress[defuser.uuid] = 0;
+                        }
+                        
+                        aiDefuseProgress[defuser.uuid] += delta * 1000;
+                        
+                        if (aiDefuseProgress[defuser.uuid] >= DEFUSE_TIME) {
+                            // Defuse complete
+                            endGame("SPIKE DEFUSED", "cyan", 'ALLY');
+                            aiDefuseProgress = {};
+                        }
+                    } else {
+                        // Defuser moved away, reset progress
+                        aiDefuseProgress[defuser.uuid] = 0;
+                    }
+                }
+            } else {
+                // Reset when spike not planted
+                aiDefuseProgress = {};
+            }
+        }
+        
+        function moveAIWithCollision(bot, dir, speed, delta) {
+            const originalPos = bot.position.clone();
+            const moveDist = speed * delta;
+            
+            // If bot hasn't moved in a while, they might be stuck - unstick them
+            if (!bot.userData.lastPos) bot.userData.lastPos = originalPos.clone();
+            const distMoved = bot.position.distanceTo(bot.userData.lastPos);
+            if (distMoved < 0.1 && Math.random() < 0.1) {
+                // Stuck! Try a random direction escape
+                bot.position.x += (Math.random() - 0.5) * 3;
+                bot.position.z += (Math.random() - 0.5) * 3;
+            }
+            bot.userData.lastPos = bot.position.clone();
+            
+            // Try moving diagonally first (more natural pathfinding)
+            bot.position.x += dir.x * moveDist;
+            bot.position.z += dir.z * moveDist;
+            if (checkEntityCollision(bot)) {
+                bot.position.copy(originalPos);
+                
+                // If diagonal failed, try X only
+                bot.position.x += dir.x * moveDist;
+                if (checkEntityCollision(bot)) {
+                    bot.position.x = originalPos.x;
+                    
+                    // Try Z only
+                    bot.position.z += dir.z * moveDist;
+                    if (checkEntityCollision(bot)) {
+                        bot.position.z = originalPos.z;
+                    }
+                }
+            }
+        }
+        
+        function checkEntityCollision(entity) {
+            const box = new THREE.Box3();
+            const pos = entity.position;
+            box.min.set(pos.x - 0.5, pos.y - 1, pos.z - 0.5);
+            box.max.set(pos.x + 0.5, pos.y + 1, pos.z + 0.5);
+            for (const c of colliders) {
+                if (box.intersectsBox(c)) return true;
+            }
+            return false;
+        }
+
+        function aiShoot(shooter, target) {
+            const flash = shooter.userData.gun.flash;
+            flash.visible = true; setTimeout(()=>flash.visible=false, 50);
+            
+            const isAlly = shooter.userData.type === 'ALLY';
+            const weapon = WEAPONS[shooter.userData.weapon] || WEAPONS.CLASSIC;
+            const damage = weapon.damage;
+
+            // 1. Calculate ray start and direction
+            const origin = shooter.position.clone().add(new THREE.Vector3(0, 0.5, 0));
+            const dest = target.type === 'PLAYER' ? target.pos.clone() : target.pos.clone().add(new THREE.Vector3(0, 0.5, 0));
+            
+            // Add inaccuracy
+            const accuracy = isAlly ? 0.90 : 0.85; // Allies are slightly better now
+            if (Math.random() > accuracy) {
+                dest.x += (Math.random() - 0.5) * 3;
+                dest.y += (Math.random() - 0.5) * 3;
+            }
+
+            const dir = new THREE.Vector3().subVectors(dest, origin).normalize();
+            const ray = new THREE.Raycaster(origin, dir, 0, 100);
+            
+            // 2. RAYCAST EVERYTHING (WALLS + TARGET)
+            // We need to see what we hit FIRST.
+            let intersectList = [...objects];
+            if (target.type === 'PLAYER') {
+                // We can't raycast against "controls", so we raycast walls only.
+                // If walls are hit closer than distance to player, it's a miss.
+                const distToPlayer = origin.distanceTo(dest);
+                const wallHits = ray.intersectObjects(objects);
+                
+                if (wallHits.length > 0 && wallHits[0].distance < distToPlayer) {
+                    // Hit wall before player
+                    const color = shooter.userData.type === 'ENEMY' ? 0xffaa00 : 0x00ffff;
+                    drawTrail(shooter.userData.gun.mesh, wallHits[0].point, color);
+                    return; // BLOCKED
+                }
+                
+                // If no wall, we hit player
+                 damagePlayer(damage);
+                 const color = shooter.userData.type === 'ENEMY' ? 0xffaa00 : 0x00ffff;
+                 drawTrail(shooter.userData.gun.mesh, dest, color);
+                 return;
+
+            } else {
+                // Target is a Bot (Mesh)
+                intersectList.push(target.mesh);
+                
+                const hits = ray.intersectObjects(intersectList);
+                
+                if (hits.length > 0) {
+                    const firstHit = hits[0];
+                    if (objects.includes(firstHit.object)) {
+                        // Hit wall
+                        const color = shooter.userData.type === 'ENEMY' ? 0xffaa00 : 0x00ffff;
+                        drawTrail(shooter.userData.gun.mesh, firstHit.point, color);
+                        return; // BLOCKED
+                    } else if (firstHit.object === target.mesh || firstHit.object.parent === target.mesh) {
+                        // Hit Target
+                        damageCharacter(target.obj, damage, shooter);
+                        const color = shooter.userData.type === 'ENEMY' ? 0xffaa00 : 0x00ffff;
+                        drawTrail(shooter.userData.gun.mesh, firstHit.point, color);
+                        return;
+                    }
+                }
+            }
+            
+            // Missed everything
+            const color = shooter.userData.type === 'ENEMY' ? 0xffaa00 : 0x00ffff;
+            drawTrail(shooter.userData.gun.mesh, dest, color);
+        }
+
+        function damageCharacter(char, amount, attacker) {
+            if (char.userData.isDead || isRoundOver) return;
+            
+            let damageRemaining = amount;
+            let charShield = char.userData.shield;
+
+            // 1. Damage Shield
+            if (charShield > 0) {
+                charShield -= damageRemaining;
+                if (charShield < 0) {
+                    damageRemaining = -charShield;
+                    charShield = 0;
+                } else {
+                    damageRemaining = 0;
+                }
+            }
+            char.userData.shield = charShield;
+
+            // 2. Damage Health
+            char.userData.health -= damageRemaining;
+            
+            const mat = char.material;
+            const oldHex = mat.color.getHex();
+            mat.color.setHex(0xffffff);
+            setTimeout(() => mat.color.setHex(oldHex), 50);
+
+            if (char.userData.health <= 0) {
+                char.userData.isDead = true;
+                
+                // Drop spike if being carried
+                if (spikeCarrier === char) {
+                    spikeCarrier = null;
+                }
+                if (spikeCarrier === 'PLAYER') {
+                    playerStats.hasSpike = false;
+                    spikeCarrier = null;
+                }
+                
+                char.userData.stats.deaths++;
+                
+                char.userData.stats.weapon = STARTING_WEAPON;
+                char.userData.stats.loadout = WEAPONS[STARTING_WEAPON].name; 
+                
+                let attackerType = '';
+                if (attacker === 'PLAYER') {
+                    attackerType = 'PLAYER';
+                    playerStats.kills++;
+                    playerStats.creds = Math.min(playerStats.creds + 300, MAX_CREDS);
+                    
+                    if (isUltActive) {
+                        ultKnives = 5; 
+                        ui.ammoText.innerText = ultKnives;
+                    } else {
+                        addUltPoint(); 
+                    }
+                    ui.credsDisplay.innerText = `¤ ${playerStats.creds}`;
+
+                } else if (attacker && attacker.userData) {
+                    attackerType = attacker.userData.type;
+                    attacker.userData.stats.kills++;
+                    attacker.userData.stats.creds = Math.min(attacker.userData.stats.creds + 300, MAX_CREDS);
+                }
+
+                char.rotation.x = Math.PI/2; 
+                char.position.y = 0.5;
+                
+                setTimeout(() => {
+                    scene.remove(char);
+                    char.visible = false; 
+
+                    ui.enemyCount.innerText = enemies.filter(e => !e.userData.isDead).length;
+                    ui.allyCount.innerText = teammates.filter(t => !t.userData.isDead).length + (isSpectating ? 0 : 1);
+                    
+                    if (isSpectating && char.userData.type === 'ALLY') switchSpectatorTarget();
+                    
+                    const alliesAlive = teammates.filter(t=>!t.userData.isDead).length + (isSpectating ? 0 : 1);
+                    const enemiesAlive = enemies.filter(e=>!e.userData.isDead).length;
+                        
+                    if (alliesAlive === 0) endGame("DEFEAT (ELIM)", "red", 'ENEMY');
+                    if (enemiesAlive === 0 && spikeState !== 'PLANTED' && spikeState !== 'DEFUSING') {
+                         endGame("TEAM ACE (ELIM)", "cyan", 'ALLY');
+                    }
+                    if (enemiesAlive === 0 && (spikeState === 'PLANTED' || spikeState === 'DEFUSING')) {
+                        endGame("SPIKE DEFUSED (ELIM)", "cyan", 'ALLY');
+                    }
+                }, 2000);
+                
+                const killerName = attacker === 'PLAYER' ? 'YOU' : (attackerType === 'ALLY' ? 'ALLY' : 'ENEMY');
+                const victimName = char.userData.type === 'ENEMY' ? 'ENEMY' : 'ALLY';
+                logKill(killerName, victimName, attackerType === 'ALLY' || attackerType === 'PLAYER' ? 'white' : 'red');
+            }
+        }
+
+        function damagePlayer(amount) {
+            if (isSpectating || isGameOver || isRoundOver) return;
+            
+            let damageRemaining = amount;
+            
+            // 1. Damage Shield first
+            if (currentShield > 0) {
+                currentShield -= damageRemaining;
+                if (currentShield < 0) {
+                    damageRemaining = -currentShield;
+                    currentShield = 0;
+                } else {
+                    damageRemaining = 0;
+                }
+            }
+            
+            // 2. Damage Health
+            currentHealth -= damageRemaining;
+            updateHealthUI();
+            
+            ui.damageOverlay.style.opacity = 0.8;
+            setTimeout(() => ui.damageOverlay.style.opacity = 0, 300);
+
+            if (currentHealth <= 0) {
+                playerStats.deaths++;
+                playerStats.weapon = STARTING_WEAPON;
+                playerStats.loadout = WEAPONS[STARTING_WEAPON].name;
+                addUltPoint(); 
+                enableSpectatorMode();
+            }
+        }
+        
+        function enableSpectatorMode() {
+            if(isSpectating) return;
+            isSpectating = true;
+            deactivateUlt(); 
+            ui.spectator.style.display = 'block';
+            ui.bottomHud.style.display = 'none'; 
+            playerGun.mesh.visible = false;
+            
+            const living = teammates.filter(t => !t.userData.isDead);
+            if (living.length > 0) {
+                switchSpectatorTarget();
+            } else {
+                endGame("DEFEAT (ELIM)", "red", 'ENEMY');
+            }
+        }
+        
+        function switchSpectatorTarget() {
+            const livingTeammates = teammates.filter(t => !t.userData.isDead);
+            if (livingTeammates.length === 0) return; 
+            spectatorIndex = (spectatorIndex + 1) % livingTeammates.length;
+        }
+
+        function drawTrail(startObj, endPos, color) {
+            if (startObj === playerGun.mesh && isSpectating) return;
+            let start;
+            if (startObj.getWorldPosition) {
+                start = startObj.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0,0.1,0));
+            } else {
+                start = startObj.getWorldPosition();
+            }
+            
+            const geo = new THREE.BufferGeometry().setFromPoints([start, endPos]);
+            const mat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.8 });
+            const line = new THREE.Line(geo, mat);
+            scene.add(line);
+            let op = 1;
+            const t = setInterval(() => {
+                op -= 0.1;
+                line.material.opacity = op;
+                if(op<=0) { clearInterval(t); scene.remove(line); }
+            }, 30);
+        }
+
+        function logKill(killer, victim, color) {
+            const msg = document.createElement('div');
+            msg.className = 'kill-msg';
+            if(color === 'yellow') {
+                msg.innerHTML = `SPIKE PLANTED`;
+                msg.style.borderRightColor = 'yellow';
+            } else {
+                msg.innerHTML = `${killer} <div class="kill-icon"></div> ${victim}`;
+                if (killer === 'ALLY' || killer === 'YOU') msg.classList.add('ally');
+            }
+            ui.killFeed.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+        
+        function endGame(text, color, winningTeam) {
+            if(isRoundOver || isGameOver) return;
+            isRoundOver = true; 
+            
+            ui.winMsg.innerText = text;
+            ui.winMsg.style.color = color;
+            ui.winMsg.style.display = 'block';
+            controls.unlock();
+            
+            if (winningTeam === 'ALLY') allyScore++;
+            else if (winningTeam === 'ENEMY') enemyScore++;
+            
+            ui.scoreAlly.innerText = allyScore;
+            ui.scoreEnemy.innerText = enemyScore;
+            
+            if (allyScore >= MAX_SCORE || enemyScore >= MAX_SCORE) {
+                isGameOver = true;
+                const finalMsg = allyScore > enemyScore ? "VICTORY" : "DEFEAT";
+                ui.winMsg.innerText = finalMsg;
+                ui.winMsg.style.color = allyScore > enemyScore ? 'cyan' : 'red';
+                ui.restartBtn.style.display = 'block';
+                ui.spectator.style.display = 'none';
+            } else {
+                setTimeout(() => resetRound(false), 3000);
+            }
+        }
+        
+        function checkCollisions() {
+            if (isSpectating || isGameOver) return false;
+            const playerBox = new THREE.Box3();
+            const pos = controls.getObject().position;
+            playerBox.min.set(pos.x - 0.5, pos.y - 1.5, pos.z - 0.5);
+            playerBox.max.set(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
+
+            for (const collider of colliders) {
+                if (playerBox.intersectsBox(collider)) return true;
+            }
+            
+            if (gamePhase === 'PREPARATION') {
+                for (const b of barriers) {
+                    const bBox = new THREE.Box3().setFromObject(b);
+                    if (playerBox.intersectsBox(bBox)) return true;
+                }
+            }
+            return false;
+        }
+
+        function reload() {
+            if(ammo < MAX_AMMO && playerStats.maxAmmo > 0 && gamePhase === 'LIVE' && !isSpectating && !isRoundOver && !isUltActive) {
+                ui.ammoText.style.color = 'yellow';
+                setTimeout(() => { 
+                    const needed = MAX_AMMO - ammo;
+                    const canTake = Math.min(needed, playerStats.maxAmmo);
+                    ammo += canTake;
+                    playerStats.maxAmmo -= canTake;
+                    ui.ammoText.innerText = ammo; 
+                    ui.ammoSub.innerText = `/ ${playerStats.maxAmmo}`;
+                    ui.ammoText.style.color='white'; 
+                }, 1000);
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now();
+            const delta = (time - prevTime) / 1000;
+            prevTime = time;
+            
+            if (controls.isLocked && !isGameOver) {
+                if (isSpectating) {
+                    const living = teammates.filter(t => !t.userData.isDead);
+                    if (spectatorIndex >= living.length) spectatorIndex = 0;
+                    
+                    const target = living[spectatorIndex];
+                    if (target) {
+                        const camTarget = target.position.clone().add(new THREE.Vector3(0, 0.6, 0));
+                        camera.position.lerp(camTarget, 0.1); 
+                        ui.spectator.innerText = `SPECTATING ALLY ${spectatorIndex + 1}`;
+                    }
+                } else {
+                    // COOLDOWN LOGIC
+                    if(dashCooldown > 0) {
+                        dashCooldown -= delta * 1000;
+                        ui.dashCd.style.height = (dashCooldown/DASH_COOLDOWN_TIME*100) + '%';
+                    }
+
+                    // PHYSICS & MOVEMENT
+                    velocity.x -= velocity.x * 10.0 * delta;
+                    velocity.z -= velocity.z * 10.0 * delta;
+                    
+                    const gravity = (spacePressed && velocity.y < 0) ? 2.0 : 9.8; 
+                    velocity.y -= gravity * 10.0 * delta;
+
+                    direction.z = Number(moveForward) - Number(moveBackward);
+                    direction.x = Number(moveRight) - Number(moveLeft);
+                    direction.normalize();
+
+                    if (moveForward || moveBackward) velocity.z -= direction.z * 100.0 * delta;
+                    if (moveLeft || moveRight) velocity.x -= direction.x * 100.0 * delta;
+
+                    const oldPos = controls.getObject().position.clone();
+                    controls.moveRight(-velocity.x * delta);
+                    controls.moveForward(-velocity.z * delta);
+
+                    if (checkCollisions()) {
+                        const colPos = controls.getObject().position.clone();
+                        controls.getObject().position.x = oldPos.x;
+                        controls.getObject().position.z = colPos.z;
+                        if(checkCollisions()) {
+                            controls.getObject().position.x = colPos.x;
+                            controls.getObject().position.z = oldPos.z;
+                            if(checkCollisions()) controls.getObject().position.copy(oldPos);
+                        }
+                    }
+
+                    controls.getObject().position.y += (velocity.y * delta);
+                    if (controls.getObject().position.y < 1.6) {
+                        velocity.y = 0;
+                        controls.getObject().position.y = 1.6;
+                        canJump = true;
+                    }
+
+                    // GUN SWAY & RECOIL
+                    if (recoil > 0) {
+                        recoil -= delta * 2;
+                        playerGun.mesh.position.z = -0.5 + (recoil * 0.1);
+                        playerGun.mesh.rotation.x = recoil * 0.2;
+                    }
+                    if (moveForward || moveBackward || moveLeft || moveRight) {
+                        playerGun.mesh.position.y = -0.3 + Math.sin(time * 0.01) * 0.01;
+                    }
+                }
+                
+                updateGameLogic(delta);
+                updateAI(delta);
+                updateAIDefuse(delta);
+                updateSmokes(delta);
+            }
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
