@@ -66,6 +66,7 @@ A simple web version of Valorant.
 - C: Smoke
 - X: Blade Storm
 - Tab: Scoreboard
+
 **If you're on attacker side**
 - E (Near Spike): To pick up the spike
 - Plant Spike in yellow zone (Hold 4)
