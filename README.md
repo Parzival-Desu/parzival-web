@@ -109,7 +109,7 @@ This game offers the challenge of creating an efficient and profitable network w
 **Created by:** Rayhan Khadafi (Parzival)
 
 **Assets:**
-- Character Art (Airi): [nsaid](https://nsaid.itch.io/)
+- Character Art (Airi & MC in Real Typing Code): [nsaid](https://nsaid.itch.io/)
 - Character Art (Aiko): [NoranekoGames](https://noranekogames.itch.io/)
 - Backgrounds: Various artists (credited in-game)
 - Backsound Music for both "My Journey" & "Afterlight Days": [DavidKBD](https://www.davidkbd.com/)
