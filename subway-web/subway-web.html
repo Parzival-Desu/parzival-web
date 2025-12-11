@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Subway Tycoon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>🚇 City Subway Builder</h1>
+        <p>
+            <strong>Left Click</strong>: Place Station ($200) <br>
+            <strong>Drag Station-to-Station</strong>: Build Track ($10/unit)
+        </p>
+    </header>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="1200" height="800"></canvas>
+
+        <div id="infoPanel">
+            <div class="panel-section">
+                <p>💰 Budget: <span id="budget"></span></p>
+                <p>🏙️ Stations: <span id="stationCount"></span></p>
+                <p>🛤️ Track: <span id="trackLength"></span> km</p>
+                <p>🚂 Trains: <span id="trainCount"></span></p>
+            </div>
+            <div class="panel-section status-box">
+                <p class="cost-message" id="statusMsg">Ready to build.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+
+</body>
+</html>

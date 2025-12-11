@@ -1,0 +1,85 @@
+:root {
+    --bg-color: #f0f2f5;
+    --text-color: #333;
+    --primary-color: #008080; 
+    --panel-bg: #fff;
+    --canvas-border: #333;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    
+    /* --- NEW CENTERING CODE --- */
+    min-height: 100vh;           /* Force body to take full screen height */
+    display: flex;
+    flex-direction: column;      /* Stack header on top of game */
+    justify-content: center;     /* Center vertically */
+    align-items: center;         /* Center horizontally */
+    /* -------------------------- */
+    
+    user-select: none;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    background-color: var(--panel-bg);
+    padding: 10px 30px;
+    border: 2px solid var(--text-color);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    
+    /* Optional: Ensure header doesn't stretch too wide */
+    max-width: 1200px;
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+h1 { margin: 0 0 10px 0; font-size: 1.5rem; text-transform: uppercase; }
+p { margin: 0; font-size: 0.9rem; }
+
+#game-container {
+    display: flex;
+    gap: 0;
+    border: 4px solid var(--canvas-border);
+    box-shadow: 12px 12px 0px rgba(0,0,0,0.2); /* Bigger shadow for bigger game */
+}
+
+canvas {
+    background-color: #fff;
+    cursor: crosshair;
+    display: block;
+}
+
+#infoPanel {
+    width: 220px;
+    background-color: var(--panel-bg);
+    border-left: 4px solid var(--canvas-border);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-section {
+    padding: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.panel-section p {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#budget { color: #2e7d32; }
+
+.status-box {
+    background-color: #fafafa;
+    flex-grow: 1;
+}
+
+.cost-message {
+    font-weight: normal;
+    font-style: italic;
+    color: #555;
+}
