@@ -24,20 +24,19 @@ Portfolio website interaktif dengan fitur games, AI chatbot, dan night mode.
 
 ## GAMES
 
-1. **Flappy Bird**
+### Flappy Bird
 Fly through pipes! Click or Space to flap.
 
-2. **FPS: Maze Hunter**
+### FPS: Maze Hunter
 Shoot enemies in a 3D maze. WASD + Mouse.
 
-3. **Afterlight Days**
+### Afterlight Days
 A short romance visual novel experience.
 
-4. **Real Typing Code**
+### Real Typing Code
 Type the code accurately before time runs out!
 
-5. **🎵 Rhythm Game**
-
+### 🎵 Rhythm Game
 **Songs Available:**
 - Tutorial: monday morning (120 BPM) - Easy
 - Koi by Gen Hoshino (158 BPM) - Easy
@@ -49,14 +48,14 @@ Type the code accurately before time runs out!
 - D, F, J, K - Hit notes
 - ESC - Pause game
 
-7. **Osu!Web**
+### Osu!Web
 
 You can Import your Beatmap and play it
 
 **Controls:**
 - Only your mouse
 
-8. **Valorant-Web**
+### Valorant-Web
 A simple web version of Valorant.
 
 **Controls:**
@@ -74,7 +73,7 @@ A simple web version of Valorant.
 **If you're on defender side**
 - Defuse spike in the yellow zone (Hold 4)
 
-9. **City Subway Builder**
+### City Subway Builder
 
 "City Subway Builder" is a simulation game about building and managing a city's railway network. Players are responsible for designing, building, and managing a mass transit system to serve the city.
 
