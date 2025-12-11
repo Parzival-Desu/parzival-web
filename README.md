@@ -110,8 +110,10 @@ This game offers the challenge of creating an efficient and profitable network w
 
 **Assets:**
 - Character Art (Airi): [nsaid](https://nsaid.itch.io/)
+- Character Art (Aiko): [NoranekoGames](https://noranekogames.itch.io/)
 - Backgrounds: Various artists (credited in-game)
-- Music: Listed in rhythm game
+- Backsound Music for both "My Journey" & "Afterlight Days": [DavidKBD](https://www.davidkbd.com/)
+- Other Music: Listed in rhythm game
 
 ## 📝 License
 
