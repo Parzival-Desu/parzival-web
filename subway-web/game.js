@@ -3,20 +3,11 @@ const CANVAS_ID = 'gameCanvas';
 const STATION_RADIUS = 10;
 const STATION_COST = 200;
 const TRACK_COST_PER_UNIT = 10;
-const TRAIN_SPEED = 2; // Pixels per frame
+const TRAIN_SPEED = 2; 
 const TRAINS_PER_STATION = 2;
-const INCOME_INTERVAL = 1000; // ms
 
-// Colors
-const COLOR_TRACK = '#008080';     // Teal
-const COLOR_STATION = '#ffffff';   // White
-const COLOR_STATION_BORDER = '#333';
-const COLOR_TRAIN = '#ff0055';     // Hot Pink
-const COLOR_CITY_BLOCK = '#e0e0e0';
-const COLOR_CITY_ROAD = '#ffffff';
-
-// --- Game State ---
-let budget = 3000; // Starting budget
+// --- State ---
+let budget = 2500;
 let stations = [];
 let tracks = [];
 let trains = [];
@@ -26,102 +17,123 @@ let dragging = false;
 let startStation = null;
 let currentMousePos = { x: 0, y: 0 };
 let stationIdCounter = 1;
+let isDeleteMode = false; // NEW: Delete mode flag
+let hoverTrack = null;    // NEW: Track being hovered for deletion
+let hoverStation = null;  // NEW: Station being hovered for deletion
 
 // --- Setup ---
 const canvas = document.getElementById(CANVAS_ID);
 const ctx = canvas.getContext('2d');
-
-// UI Elements
 const uiBudget = document.getElementById('budget');
 const uiStations = document.getElementById('stationCount');
 const uiTrack = document.getElementById('trackLength');
 const uiTrains = document.getElementById('trainCount');
 const uiStatus = document.getElementById('statusMsg');
+const deleteBtn = document.getElementById('toggleDeleteBtn');
 
 // --- Helper Functions ---
 
-function snapToGrid(val) {
-    // Snap to a 40px grid for that "city block" alignment
-    return Math.round(val / 40) * 40;
-}
-
+function snapToGrid(val) { return Math.round(val / 40) * 40; }
 function getDistance(p1, p2) {
     const dx = p1.x - p2.x;
     const dy = p1.y - p2.y;
     return Math.sqrt(dx * dx + dy * dy);
 }
-
 function getStationAt(x, y) {
     for (const s of stations) {
         if (getDistance(s, { x, y }) < STATION_RADIUS * 2) return s;
     }
     return null;
 }
-
-/**
- * Generates a unique key for a track segment so we can identify it.
- * Order doesn't matter: 1-4 is the same as 4-1.
- */
 function getTrackKey(s1, s2) {
     return s1.id < s2.id ? `${s1.id}-${s2.id}` : `${s2.id}-${s1.id}`;
 }
 
+/**
+ * NEW: Finds a track near the given coordinates.
+ * This uses a basic point-to-line segment distance check.
+ */
+function getTrackAt(x, y) {
+    const clickP = { x, y };
+    const tolerance = 15; // How close the click has to be to the track line
+    
+    for (const t of tracks) {
+        const A = t.start;
+        const B = t.end;
+        
+        // Calculate vector AB and vector AC (where C is the click point)
+        const AB = { x: B.x - A.x, y: B.y - A.y };
+        const AC = { x: clickP.x - A.x, y: clickP.y - A.y };
+        
+        // Calculate the position of the projection of C onto the line AB
+        const t_param = (AC.x * AB.x + AC.y * AB.y) / (AB.x * AB.x + AB.y * AB.y);
+        
+        // Clamp t_param between 0 and 1 to ensure the point is within the segment
+        const t_clamped = Math.max(0, Math.min(1, t_param));
+        
+        // Find the closest point (P) on the segment
+        const P = {
+            x: A.x + t_clamped * AB.x,
+            y: A.y + t_clamped * AB.y
+        };
+        
+        // Calculate the distance from C to P
+        const distance = getDistance(clickP, P);
+        
+        if (distance <= tolerance) {
+            return t;
+        }
+    }
+    return null;
+}
+
+
 // --- Drawing Functions ---
 
 function drawCityMap() {
-    // Fill background (Road color)
-    ctx.fillStyle = COLOR_CITY_ROAD;
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw Blocks
-    ctx.fillStyle = COLOR_CITY_BLOCK;
-    const blockSize = 32;
-    const gridSize = 40; // 32px block + 8px road
     
-    // Offset slightly so stations snap to intersections (roads)
-    for (let x = 24; x < canvas.width; x += gridSize) {
-        for (let y = 24; y < canvas.height; y += gridSize) {
-            ctx.fillRect(x, y, blockSize, blockSize);
+    ctx.fillStyle = '#f0f0f0';
+    const gridSize = 40;
+    const blockSize = 34;
+    
+    for (let x = 0; x < canvas.width; x += gridSize) {
+        for (let y = 0; y < canvas.height; y += gridSize) {
+            ctx.fillRect(x + 3, y + 3, blockSize, blockSize);
         }
     }
 }
 
 function drawTracks() {
     ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
     for (const t of tracks) {
         ctx.beginPath();
         ctx.moveTo(t.start.x, t.start.y);
         ctx.lineTo(t.end.x, t.end.y);
+        
         ctx.lineWidth = 6;
-        ctx.strokeStyle = COLOR_TRACK;
+        ctx.strokeStyle = (t === hoverTrack && isDeleteMode) ? 'rgba(231, 76, 60, 0.7)' : '#34495e';
         ctx.stroke();
         
-        // Inner rail detail
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#fff';
         ctx.stroke();
     }
-
-    // Drag line (preview)
+    // ... (Drawing drag line remains the same)
     if (dragging && startStation) {
         const sx = snapToGrid(currentMousePos.x);
         const sy = snapToGrid(currentMousePos.y);
-        
         ctx.beginPath();
         ctx.moveTo(startStation.x, startStation.y);
         ctx.lineTo(sx, sy);
         ctx.lineWidth = 4;
-        ctx.strokeStyle = 'rgba(0,0,0,0.2)'; // Ghost line
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
         ctx.stroke();
-        
-        // Calculate potential cost
         const dist = getDistance(startStation, {x: sx, y: sy});
         const cost = Math.floor(dist * TRACK_COST_PER_UNIT);
-        
-        uiStatus.textContent = `Building Track: $${cost}`;
-        uiStatus.style.color = cost > budget ? 'red' : 'green';
+        uiStatus.textContent = `Cost: $${cost}`;
+        uiStatus.style.color = cost > budget ? '#e74c3c' : '#27ae60';
     }
 }
 
@@ -129,50 +141,99 @@ function drawStations() {
     for (const s of stations) {
         ctx.beginPath();
         ctx.arc(s.x, s.y, STATION_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = COLOR_STATION;
+        
+        ctx.fillStyle = (s === hoverStation && isDeleteMode) ? 'rgba(231, 76, 60, 0.2)' : '#fff';
         ctx.fill();
+        
         ctx.lineWidth = 3;
-        ctx.strokeStyle = COLOR_STATION_BORDER;
+        ctx.strokeStyle = (s === hoverStation && isDeleteMode) ? '#e74c3c' : '#2c3e50';
         ctx.stroke();
         
-        // Station Label
         ctx.fillStyle = '#000';
-        ctx.font = '10px monospace';
+        ctx.font = 'bold 10px Arial';
         ctx.fillText(`S${s.id}`, s.x + 12, s.y - 12);
     }
 }
 
 function drawTrains() {
-    ctx.fillStyle = COLOR_TRAIN;
+    ctx.fillStyle = '#e74c3c';
     for (const t of trains) {
-        const size = 6;
-        ctx.fillRect(t.x - size/2, t.y - size/2, size, size);
+        ctx.fillRect(t.x - 3, t.y - 3, 6, 6);
     }
 }
 
 function updateUI() {
-    uiBudget.textContent = Math.floor(budget);
+    uiBudget.textContent = `$${Math.floor(budget)}`;
     uiStations.textContent = stations.length;
     uiTrains.textContent = trains.length;
-    
-    // Calculate total track length
     const totalLen = tracks.reduce((acc, t) => acc + t.length, 0);
-    uiTrack.textContent = (totalLen / 100).toFixed(1); // Scale down for display
+    uiTrack.textContent = (totalLen / 100).toFixed(1);
 }
 
-// --- Game Logic ---
+// --- Deletion Logic (NEW) ---
+
+function deleteTrack(trackToDelete) {
+    if (!trackToDelete) return;
+    
+    // 1. Calculate Refund
+    const cost = Math.floor(trackToDelete.length * TRACK_COST_PER_UNIT);
+    budget += cost * 0.5; // Refund 50% of the cost
+
+    // 2. Remove track
+    tracks = tracks.filter(t => t !== trackToDelete);
+    hoverTrack = null;
+
+    // 3. Check for stranded trains
+    // Trains traveling on the deleted track must be reset/deleted
+    trains.forEach(train => {
+        if (train.targetTrack === trackToDelete) {
+            // Option 1: Teleport train back to the station it came from
+            train.x = train.targetTrack.start.x;
+            train.y = train.targetTrack.start.y;
+            train.currentStation = train.targetTrack.start;
+            train.targetTrack = null;
+            train.lastTrackKey = null;
+        }
+    });
+
+    uiStatus.textContent = `Track deleted. Refunded $${(cost * 0.5).toFixed(0)}.`;
+    uiStatus.style.color = '#e74c3c';
+}
+
+function deleteStation(stationToDelete) {
+    if (!stationToDelete) return;
+
+    // 1. Calculate Refund
+    budget += STATION_COST * 0.5; // Refund 50% of station cost
+
+    // 2. Remove all connected tracks first
+    const tracksToRemove = tracks.filter(t => 
+        t.start === stationToDelete || t.end === stationToDelete
+    );
+    tracksToRemove.forEach(t => deleteTrack(t)); // This handles track refunds and stranded trains
+
+    // 3. Remove all trains currently at this station
+    trains = trains.filter(t => t.currentStation !== stationToDelete);
+
+    // 4. Remove the station
+    stations = stations.filter(s => s !== stationToDelete);
+    hoverStation = null;
+    
+    uiStatus.textContent = `Station S${stationToDelete.id} and all connections deleted.`;
+    uiStatus.style.color = '#e74c3c';
+}
+
+// --- Main Loop and Other Logic (Train logic is unchanged) ---
+// (All other game logic, including updateTrains and gameLoop, remains the same)
 
 function spawnTrains(station) {
     for (let i = 0; i < TRAINS_PER_STATION; i++) {
         trains.push({
-            x: station.x,
-            y: station.y,
+            x: station.x, y: station.y,
             currentStation: station,
-            targetTrack: null,
-            targetStation: null,
-            distanceTraveled: 0,
-            direction: 1, // 1 or -1
-            lastTrackKey: null // KEY FIX: Remembers previous track
+            targetTrack: null, targetStation: null,
+            distanceTraveled: 0, direction: 1,
+            lastTrackKey: null
         });
     }
 }
@@ -180,118 +241,72 @@ function spawnTrains(station) {
 function placeStation(x, y) {
     const sx = snapToGrid(x);
     const sy = snapToGrid(y);
-
     if (getStationAt(sx, sy)) {
-        uiStatus.textContent = "Station blocked!";
+        uiStatus.textContent = "Location blocked";
         return;
     }
-
     if (budget >= STATION_COST) {
         budget -= STATION_COST;
         const newStation = { id: stationIdCounter++, x: sx, y: sy };
         stations.push(newStation);
         spawnTrains(newStation);
-        uiStatus.textContent = "Station Placed.";
+        uiStatus.textContent = "Station Placed";
         uiStatus.style.color = 'black';
     } else {
-        uiStatus.textContent = "Insufficient Funds!";
-        uiStatus.style.color = 'red';
+        uiStatus.textContent = "No Money!";
+        uiStatus.style.color = '#e74c3c';
     }
 }
 
 function placeTrack(endStation) {
     if (!startStation || startStation === endStation) return;
-
-    // Check if track exists
     const key = getTrackKey(startStation, endStation);
-    if (tracks.some(t => t.key === key)) {
-        uiStatus.textContent = "Track already exists.";
-        return;
-    }
-
+    if (tracks.some(t => t.key === key)) return;
     const dist = getDistance(startStation, endStation);
     const cost = Math.floor(dist * TRACK_COST_PER_UNIT);
-
     if (budget >= cost) {
         budget -= cost;
-        tracks.push({
-            start: startStation,
-            end: endStation,
-            length: dist,
-            key: key
-        });
-        uiStatus.textContent = "Track Built.";
+        tracks.push({ start: startStation, end: endStation, length: dist, key: key });
+        uiStatus.textContent = "Track Built";
         uiStatus.style.color = 'black';
     } else {
-        uiStatus.textContent = "Insufficient Funds!";
-        uiStatus.style.color = 'red';
+        uiStatus.textContent = "Too Expensive!";
+        uiStatus.style.color = '#e74c3c';
     }
 }
 
-// --- THE CORE MOVEMENT LOGIC (FIXED) ---
 function updateTrains() {
     for (const train of trains) {
-        
-        // 1. Stopped at a station, needs a new destination
         if (train.currentStation && !train.targetTrack) {
+            let options = tracks.filter(t => t.start === train.currentStation || t.end === train.currentStation);
+            const nonBacktrack = options.filter(t => t.key !== train.lastTrackKey);
+            if (nonBacktrack.length > 0) options = nonBacktrack;
             
-            // Find connected tracks
-            let options = tracks.filter(t => 
-                t.start === train.currentStation || t.end === train.currentStation
-            );
-
-            // Filter out the track we just came from (unless it's the only option)
-            const nonBacktrackOptions = options.filter(t => t.key !== train.lastTrackKey);
-            
-            if (nonBacktrackOptions.length > 0) {
-                // We have choices that aren't "go back", pick one randomly
-                options = nonBacktrackOptions;
-            } 
-            // Else: We hit a dead end, `options` still contains the backtrack track, so we use it.
-
             if (options.length > 0) {
-                // Pick random track from valid options
                 const choice = options[Math.floor(Math.random() * options.length)];
-                
                 train.targetTrack = choice;
                 train.distanceTraveled = 0;
-                
-                // Set direction and destination
                 if (choice.start === train.currentStation) {
-                    train.targetStation = choice.end;
-                    train.direction = 1;
+                    train.targetStation = choice.end; train.direction = 1;
                 } else {
-                    train.targetStation = choice.start;
-                    train.direction = -1;
+                    train.targetStation = choice.start; train.direction = -1;
                 }
-
-                // Clear station state
                 train.currentStation = null;
             }
             continue;
         }
-
-        // 2. Moving along a track
         if (train.targetTrack) {
             train.distanceTraveled += TRAIN_SPEED;
-            
             const t = train.targetTrack;
             const ratio = train.distanceTraveled / t.length;
-
             const startP = train.direction === 1 ? t.start : t.end;
             const endP = train.direction === 1 ? t.end : t.start;
-
             train.x = startP.x + (endP.x - startP.x) * ratio;
             train.y = startP.y + (endP.y - startP.y) * ratio;
-
-            // Arrived?
             if (train.distanceTraveled >= t.length) {
                 train.x = train.targetStation.x;
                 train.y = train.targetStation.y;
-                
-                // Remember where we came from
                 train.lastTrackKey = train.targetTrack.key;
-                
                 train.currentStation = train.targetStation;
                 train.targetTrack = null;
                 train.targetStation = null;
@@ -300,47 +315,61 @@ function updateTrains() {
     }
 }
 
-// --- Main Loop ---
 
 function gameLoop() {
-    // Clear & Redraw
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     drawCityMap();
     drawTracks();
     drawStations();
-    
     updateTrains();
     drawTrains();
-    
     updateUI();
-    
     requestAnimationFrame(gameLoop);
 }
 
-// Income Cycle
+// Income
 setInterval(() => {
-    // Base income + Bonus for connected network size
-    const income = 100 + (stations.length * 15) + (trains.length * 5);
+    const income = 50 + (stations.length * 15) + (trains.length * 5);
     budget += income;
     uiStatus.textContent = `Income: +$${income}`;
-    uiStatus.style.color = '#008080';
-}, INCOME_INTERVAL);
+    uiStatus.style.color = '#27ae60';
+}, 3000);
 
-// --- Input Handling ---
+// --- Input Handling (UPDATED) ---
+
+// NEW: Toggle Delete Mode Function
+deleteBtn.addEventListener('click', () => {
+    isDeleteMode = !isDeleteMode;
+    deleteBtn.classList.toggle('active', isDeleteMode);
+    deleteBtn.textContent = isDeleteMode ? "🚫 Delete Mode (ON)" : "🚫 Delete Mode (OFF)";
+    uiStatus.textContent = isDeleteMode ? "Click a Station or Track to delete." : "Ready to build.";
+});
 
 canvas.addEventListener('mousedown', e => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    const clickedStation = getStationAt(x, y);
-    
-    if (clickedStation) {
-        dragging = true;
-        startStation = clickedStation;
+    if (isDeleteMode) {
+        // --- DELETE MODE ACTION ---
+        const clickedStation = getStationAt(x, y);
+        const clickedTrack = getTrackAt(x, y);
+        
+        if (clickedStation) {
+            deleteStation(clickedStation);
+        } else if (clickedTrack) {
+            deleteTrack(clickedTrack);
+        }
+        
     } else {
-        placeStation(x, y);
+        // --- BUILD MODE ACTION ---
+        const clickedStation = getStationAt(x, y);
+        
+        if (clickedStation) {
+            dragging = true;
+            startStation = clickedStation;
+        } else {
+            placeStation(x, y);
+        }
     }
 });
 
@@ -348,6 +377,23 @@ canvas.addEventListener('mousemove', e => {
     const rect = canvas.getBoundingClientRect();
     currentMousePos.x = e.clientX - rect.left;
     currentMousePos.y = e.clientY - rect.top;
+
+    if (isDeleteMode) {
+        // Update hover feedback in Delete Mode
+        hoverStation = getStationAt(currentMousePos.x, currentMousePos.y);
+        hoverTrack = getTrackAt(currentMousePos.x, currentMousePos.y);
+        canvas.style.cursor = (hoverStation || hoverTrack) ? 'pointer' : 'default';
+        if (hoverStation) uiStatus.textContent = `Click to delete S${hoverStation.id}. (50% Refund)`;
+        else if (hoverTrack) uiStatus.textContent = `Click to delete track. (50% Refund)`;
+        else uiStatus.textContent = "Click a Station or Track to delete.";
+
+    } else if (dragging && startStation) {
+        // Keep normal building drag cursor
+        canvas.style.cursor = 'crosshair';
+    } else {
+        // Normal cursor
+        canvas.style.cursor = 'crosshair';
+    }
 });
 
 canvas.addEventListener('mouseup', e => {
@@ -355,19 +401,10 @@ canvas.addEventListener('mouseup', e => {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        
-        const endStation = getStationAt(x, y);
-        
-        if (endStation) {
-            placeTrack(endStation);
-        } else {
-            uiStatus.textContent = "Cancelled.";
-        }
+        const end = getStationAt(x, y);
+        if (end) placeTrack(end);
     }
-    dragging = false;
-    startStation = null;
+    dragging = false; startStation = null;
 });
 
-// Start
 requestAnimationFrame(gameLoop);
-console.log("Subway Tycoon Started.");

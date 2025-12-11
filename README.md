@@ -13,6 +13,8 @@ Portfolio website interaktif dengan fitur games, AI chatbot, dan night mode.
 - **Rhythm Game** - 4-lane rhythm game dengan BPM sync
 - **Osu!Web** - It's just a normal osu, but web version (and also a low budget version cause I'm stupid making this)
 - **Journey Timeline** - Interactive life journey
+- **Valorant-Web** - A simple web version of Valorant.
+- **City Subway Builder** - "City Subway Builder" is a simulation game about building and managing a city's railway network. Players are responsible for designing, building, and managing a mass transit system to serve the city.
 
 ### Easter Eggs 🥚
 1. **Developer Mode** - Klik logo 5x untuk unlock
@@ -20,52 +22,21 @@ Portfolio website interaktif dengan fitur games, AI chatbot, dan night mode.
 3. **Night Mode** - Dark theme toggle
 4. **Secret Code** - Di Real Typing Challenge, ketik "console.log('Airi is cute!');"
 
-## 🚀 Quick Start
+## GAMES
 
-1. Clone/download project ini
-2. Pastikan struktur folder:
-```
-website/
-├── index.html
-├── about.html
-├── gallery.html
-├── games.html
-├── proseka-rhythm.html
-├── song/
-│   ├── Koi.mp3
-│   ├── monday morning.mp3
-│   ├── shin takara jima.mp3
-│   └── ...
-├── img/
-├── audio/
-└── ...
-```
-
-3. Buka `index.html` di browser **ATAU** jalanin pake local server:
-```bash
-# Pake Python
-python -m http.server 5500
-
-# Atau pake Live Server (VS Code extension)
-```
-
-4. Buka `http://localhost:5500`
-
-5. You can also check the websites here! https://parzival-web.vercel.app/
-
-## Flappy Bird
+1. **Flappy Bird**
 Fly through pipes! Click or Space to flap.
 
-## FPS: Maze Hunter
+2. **FPS: Maze Hunter**
 Shoot enemies in a 3D maze. WASD + Mouse.
 
-## Afterlight Days
-A short visual novel experience.
+3. **Afterlight Days**
+A short romance visual novel experience.
 
-## Real Typing Code
+4. **Real Typing Code**
 Type the code accurately before time runs out!
 
-## 🎵 Rhythm Game
+5. **🎵 Rhythm Game**
 
 **Songs Available:**
 - Tutorial: monday morning (120 BPM) - Easy
@@ -78,12 +49,53 @@ Type the code accurately before time runs out!
 - D, F, J, K - Hit notes
 - ESC - Pause game
 
-## Osu!Web
+7. **Osu!Web**
 
 You can Import your Beatmap and play it
 
 **Controls:**
 - Only your mouse
+
+8. **Valorant-Web**
+A simple web version of Valorant.
+
+**Controls:**
+- WASD to move
+- SPACE to jump (Hold to Drift)
+- Q: Updraft
+- E: Dash
+- C: Smoke
+- X: Blade Storm
+- Tab: Scoreboard
+**If you're on attacker side**
+- E (Near Spike): To pick up the spike
+- Plant Spike in yellow zone (Hold 4)
+
+**If you're on defender side**
+- Defuse spike in the yellow zone (Hold 4)
+
+9. **City Subway Builder**
+
+"City Subway Builder" is a simulation game about building and managing a city's railway network. Players are responsible for designing, building, and managing a mass transit system to serve the city.
+
+**Main Features**
+
+- Network Building:
+- Station: Click on an intersection on the city grid map to place a new Station ($200).
+- Track: Drag from one Station to another to build a rail line ($10 per unit distance).
+- Traffic Simulation: Each newly constructed Station automatically releases two trains onto the network.
+- Intelligent Routing System: Trains move automatically, using basic routing logic designed to prevent trains from repeatedly traveling back and forth on the same track, encouraging exploration of the entire network.
+- Budget Management: Players start with a limited budget.
+- Income: The budget increases periodically (every 3 seconds), calculated based on the network size (number of stations and trains).
+
+- Delete Mode:
+Players can activate Delete Mode to delete existing Stations or Tracks by simply clicking on them.
+
+Deleting an item will grant a 50% refund of the initial construction cost.
+
+Trains on the deleted track will automatically return to the last station they visited.
+
+This game offers the challenge of creating an efficient and profitable network with strategic route planning.
 
 ## 🛠️ Tech Stack
 
@@ -91,25 +103,6 @@ You can Import your Beatmap and play it
 - Canvas API (Games)
 - SessionStorage (Dev mode persistence)
 - Responsive Design
-
-## 📁 Project Structure
-```
-├── Games
-│   ├── Rhythm Game (proseka-rhythm.html)
-│   ├── Afterlight Days (VN)
-│   ├── Real Typing Challenge
-│   ├── Flappy Bird
-│   └── FPS Maze Hunter
-├── Portfolio Pages
-│   ├── 2D/3D Character Art
-│   ├── VTuber Models
-│   ├── Interior Design
-│   └── Novel (Lunar Veil)
-└── Interactive Features
-    ├── Dev Mode
-    ├── AI Chatbot (Airi)
-    └── Journey Timeline
-```
 
 ## 🎨 Credits
 

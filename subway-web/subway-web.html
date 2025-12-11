@@ -8,26 +8,44 @@
 </head>
 <body>
 
-    <header>
-        <h1>🚇 City Subway Builder</h1>
-        <p>
-            <strong>Left Click</strong>: Place Station ($200) <br>
-            <strong>Drag Station-to-Station</strong>: Build Track ($10/unit)
-        </p>
-    </header>
+    <div id="game-wrapper">
+        
+        <canvas id="gameCanvas" width="1000" height="750"></canvas>
 
-    <div id="game-container">
-        <canvas id="gameCanvas" width="1200" height="800"></canvas>
-
-        <div id="infoPanel">
-            <div class="panel-section">
-                <p>💰 Budget: <span id="budget"></span></p>
-                <p>🏙️ Stations: <span id="stationCount"></span></p>
-                <p>🛤️ Track: <span id="trackLength"></span> km</p>
-                <p>🚂 Trains: <span id="trainCount"></span></p>
+        <div id="side-panel">
+            <div class="panel-header">
+                <h1>🚇 Subway Builder</h1>
+                <p class="instructions">
+                    <strong>Left Click:</strong> New Station ($200)<br>
+                    <strong>Drag:</strong> Build Track ($10/unit)
+                </p>
             </div>
-            <div class="panel-section status-box">
-                <p class="cost-message" id="statusMsg">Ready to build.</p>
+
+            <div id="control-panel">
+                <button id="toggleDeleteBtn">🚫 Delete Mode (OFF)</button>
+            </div>
+
+            <div class="panel-stats">
+                <div class="stat-row">
+                    <span>💰 Budget</span>
+                    <span id="budget" class="highlight-val"></span>
+                </div>
+                <div class="stat-row">
+                    <span>🏙️ Stations</span>
+                    <span id="stationCount"></span>
+                </div>
+                <div class="stat-row">
+                    <span>🛤️ Track (km)</span>
+                    <span id="trackLength"></span>
+                </div>
+                <div class="stat-row">
+                    <span>🚂 Trains</span>
+                    <span id="trainCount"></span>
+                </div>
+            </div>
+
+            <div class="panel-status">
+                <p id="statusMsg">Ready to build.</p>
             </div>
         </div>
     </div>
