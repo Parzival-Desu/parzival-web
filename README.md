@@ -15,6 +15,7 @@ Portfolio website interaktif dengan fitur games, AI chatbot, dan night mode.
 - **Journey Timeline** - Interactive life journey
 - **Valorant-Web** - A simple web version of Valorant.
 - **City Subway Builder** - "City Subway Builder" is a simulation game about building and managing a city's railway network. Players are responsible for designing, building, and managing a mass transit system to serve the city.
+- **Nightwatch Station** - This is just a FNAF no budget created by me, that's it.
 
 ### Easter Eggs 🥚
 1. **Developer Mode** - Klik logo 5x untuk unlock
@@ -96,6 +97,10 @@ Deleting an item will grant a 50% refund of the initial construction cost.
 Trains on the deleted track will automatically return to the last station they visited.
 
 This game offers the challenge of creating an efficient and profitable network with strategic route planning.
+
+### Nightwatch Station
+
+This is just a FNAF no budget created by me, that's it.
 
 ## 🛠️ Tech Stack
 
