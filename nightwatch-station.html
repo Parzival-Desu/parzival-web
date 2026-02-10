@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nightwatch Station</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'Digital';
+            src: url('data:font/woff2;base64,d09GMgABAAAAAAMoAA0AAAAAB6AAAALbAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgR4cKgZgADwBNgIkAzAEBgWDKAcgG8YFyC4K7GY8QQNBRBQxGo1Go9FoNBqNRqP5H4/H4/F4PB6Px+PxeDwej8fj8Xg8Ho/H4/F4PB6Px+PxeDwej8fj8Xg8Ho/H4/F4PB6Px+PxeDz+P4AYAzBmDMCYMQBjxgCMGf8fwJgxAGPGAIwZAzBmDMCY8f8BjBkDMGYMwJgxAGPGAIwZ/x/AmDEAY8YAjBkDMGYMwJjx/wGMGf8=') format('woff2');
+        }
+
+        :root {
+            --monitor-green: #1eff00;
+            --monitor-dark: #001100;
+            --monitor-dim: #003300;
+            --warning-red: #ff0000;
+            --power-yellow: #ffff00;
+            --ui-border: #00ff00;
+            --shadow-black: rgba(0, 0, 0, 0.9);
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            overflow: hidden;
+            cursor: default;
+            user-select: none;
+        }
+
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+        }
+
+        /* Office View */
+        #office-view {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background: 
+                radial-gradient(ellipse at 50% 100%, rgba(50, 50, 50, 0.3) 0%, transparent 70%),
+                linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 50%, #000000 100%);
+            transition: filter 0.3s;
+        }
+
+        #office-view.monitor-up {
+            filter: brightness(0.3);
+        }
+
+        /* Office Elements */
+        .office-door {
+            position: absolute;
+            width: 150px;
+            height: 400px;
+            background: linear-gradient(90deg, #2a2a2a 0%, #1a1a1a 100%);
+            border: 2px solid #444;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .office-door.left {
+            left: -150px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .office-door.right {
+            right: -150px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .office-door.closed.left {
+            left: 0;
+        }
+
+        .office-door.closed.right {
+            right: 0;
+        }
+
+        /* Control Panel */
+        #control-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            background: linear-gradient(180deg, transparent 0%, #0a0a0a 20%, #000 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px 40px;
+            z-index: 10;
+        }
+
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .door-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-button {
+            padding: 12px 24px;
+            background: linear-gradient(180deg, #2a4a2a 0%, #1a3a1a 100%);
+            border: 2px solid var(--monitor-green);
+            color: var(--monitor-green);
+            font-family: 'Digital', 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                0 0 10px rgba(30, 255, 0, 0.3),
+                inset 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(30, 255, 0, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .control-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .control-button:active {
+            transform: scale(0.95);
+            box-shadow: 
+                0 0 20px rgba(30, 255, 0, 0.6),
+                inset 0 0 10px rgba(0, 0, 0, 0.7);
+        }
+
+        .control-button.active {
+            background: linear-gradient(180deg, #3a6a3a 0%, #2a5a2a 100%);
+            box-shadow: 
+                0 0 20px rgba(30, 255, 0, 0.8),
+                inset 0 0 10px rgba(30, 255, 0, 0.3);
+        }
+
+        .control-button.light {
+            background: linear-gradient(180deg, #4a4a2a 0%, #3a3a1a 100%);
+            border-color: var(--power-yellow);
+            color: var(--power-yellow);
+        }
+
+        .control-button.light:active {
+            box-shadow: 
+                0 0 30px rgba(255, 255, 0, 0.8),
+                inset 0 0 10px rgba(255, 255, 0, 0.3);
+        }
+
+        /* Center HUD */
+        #center-hud {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+            z-index: 20;
+        }
+
+        .hud-element {
+            background: rgba(0, 17, 0, 0.9);
+            border: 2px solid var(--monitor-green);
+            padding: 15px 25px;
+            box-shadow: 
+                0 0 20px rgba(30, 255, 0, 0.4),
+                inset 0 0 10px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        #time-display {
+            font-family: 'Digital', 'Courier New', monospace;
+            font-size: 32px;
+            color: var(--monitor-green);
+            text-shadow: 0 0 10px rgba(30, 255, 0, 0.8);
+            letter-spacing: 4px;
+        }
+
+        #power-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #power-label {
+            font-size: 12px;
+            color: var(--monitor-dim);
+            letter-spacing: 2px;
+        }
+
+        #power-percentage {
+            font-family: 'Digital', 'Courier New', monospace;
+            font-size: 28px;
+            color: var(--monitor-green);
+            text-shadow: 0 0 10px rgba(30, 255, 0, 0.8);
+        }
+
+        #power-percentage.warning {
+            color: var(--power-yellow);
+            animation: pulse-warning 1s infinite;
+        }
+
+        #power-percentage.critical {
+            color: var(--warning-red);
+            animation: pulse-critical 0.5s infinite;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes pulse-critical {
+            0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(255, 0, 0, 1); }
+            50% { opacity: 0.4; text-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+        }
+
+        #usage-indicator {
+            font-size: 11px;
+            color: var(--monitor-dim);
+            letter-spacing: 1px;
+        }
+
+        /* Monitor System */
+        #monitor-system {
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            height: 85%;
+            background: 
+                linear-gradient(180deg, rgba(0, 17, 0, 0.95) 0%, rgba(0, 34, 0, 0.98) 100%);
+            border-top: 4px solid var(--monitor-green);
+            transition: bottom 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 100;
+            box-shadow: 0 -20px 60px rgba(30, 255, 0, 0.3);
+        }
+
+        #monitor-system.active {
+            bottom: 0;
+        }
+
+        #monitor-system::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 0, 0.03) 2px,
+                    rgba(0, 255, 0, 0.03) 4px
+                );
+            pointer-events: none;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        #camera-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid var(--monitor-green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #camera-title {
+            font-family: 'Digital', monospace;
+            font-size: 24px;
+            color: var(--monitor-green);
+            text-shadow: 0 0 15px rgba(30, 255, 0, 0.8);
+            letter-spacing: 4px;
+        }
+
+        #camera-name {
+            font-size: 18px;
+            color: var(--monitor-dim);
+            letter-spacing: 2px;
+        }
+
+        #camera-grid {
+            position: absolute;
+            right: 20px;
+            top: 80px;
+            bottom: 20px;
+            width: 320px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--monitor-green);
+            box-shadow: 0 0 20px rgba(30, 255, 0, 0.3);
+            overflow-y: auto;
+        }
+
+        .camera-button {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #001a00 0%, #000a00 100%);
+            border: 1px solid var(--monitor-dim);
+            color: var(--monitor-green);
+            font-family: 'Digital', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(30, 255, 0, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .camera-button:hover::before {
+            opacity: 1;
+        }
+
+        .camera-button:hover {
+            border-color: var(--monitor-green);
+            box-shadow: 0 0 15px rgba(30, 255, 0, 0.5);
+            transform: scale(1.05);
+        }
+
+        .camera-button.active {
+            background: linear-gradient(135deg, #003a00 0%, #002a00 100%);
+            border-color: var(--monitor-green);
+            box-shadow: 
+                0 0 20px rgba(30, 255, 0, 0.8),
+                inset 0 0 15px rgba(30, 255, 0, 0.2);
+        }
+
+        .camera-button.has-animatronic::after {
+            content: '!';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: var(--warning-red);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: alert-pulse 1s infinite;
+        }
+
+        @keyframes alert-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        #camera-feed {
+            position: absolute;
+            left: 20px;
+            top: 80px;
+            right: 360px;
+            bottom: 20px;
+            background: #000;
+            border: 3px solid var(--monitor-green);
+            box-shadow: 
+                0 0 30px rgba(30, 255, 0, 0.4),
+                inset 0 0 30px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        #feed-canvas {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            filter: contrast(1.2) brightness(0.9);
+        }
+
+        .static-overlay {
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter><rect width="200" height="200" filter="url(%23noise)" opacity="0.3"/></svg>');
+            opacity: 0.15;
+            pointer-events: none;
+            animation: static-flicker 0.1s infinite;
+        }
+
+        @keyframes static-flicker {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.08; }
+        }
+
+        #monitor-toggle {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            background: linear-gradient(180deg, #2a4a2a 0%, #1a3a1a 100%);
+            border: 3px solid var(--monitor-green);
+            color: var(--monitor-green);
+            font-family: 'Digital', monospace;
+            font-size: 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            z-index: 15;
+            box-shadow: 0 0 20px rgba(30, 255, 0, 0.5);
+            transition: all 0.2s;
+        }
+
+        #monitor-toggle:hover {
+            box-shadow: 0 0 30px rgba(30, 255, 0, 0.8);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        #monitor-toggle:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        /* Menu Screen */
+        #menu-screen {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at center, rgba(0, 40, 0, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%),
+                linear-gradient(45deg, #001100 25%, transparent 25%, transparent 75%, #001100 75%, #001100),
+                linear-gradient(45deg, #001100 25%, transparent 25%, transparent 75%, #001100 75%, #001100);
+            background-size: 100% 100%, 20px 20px, 20px 20px;
+            background-position: 0 0, 0 0, 10px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s;
+        }
+
+        #menu-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #game-title {
+            font-family: 'Digital', monospace;
+            font-size: 64px;
+            color: var(--monitor-green);
+            text-shadow: 
+                0 0 20px rgba(30, 255, 0, 0.8),
+                0 0 40px rgba(30, 255, 0, 0.5);
+            margin-bottom: 50px;
+            letter-spacing: 8px;
+            animation: title-flicker 3s infinite;
+        }
+
+        @keyframes title-flicker {
+            0%, 100% { opacity: 1; }
+            95% { opacity: 1; }
+            96% { opacity: 0.8; }
+            97% { opacity: 1; }
+            98% { opacity: 0.9; }
+            99% { opacity: 1; }
+        }
+
+        .menu-button {
+            padding: 20px 60px;
+            margin: 10px;
+            background: linear-gradient(180deg, #1a3a1a 0%, #0a2a0a 100%);
+            border: 3px solid var(--monitor-green);
+            color: var(--monitor-green);
+            font-family: 'Digital', monospace;
+            font-size: 24px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            box-shadow: 0 0 20px rgba(30, 255, 0, 0.4);
+            transition: all 0.3s;
+        }
+
+        .menu-button:hover {
+            background: linear-gradient(180deg, #2a4a2a 0%, #1a3a1a 100%);
+            box-shadow: 0 0 40px rgba(30, 255, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .menu-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Game Over Screen */
+        #jumpscare-screen {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            overflow: hidden;
+        }
+
+        #jumpscare-screen.active {
+            display: flex;
+            animation: jumpscare-shake 0.1s infinite;
+        }
+
+        @keyframes jumpscare-shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, 10px) rotate(-2deg); }
+            50% { transform: translate(10px, -10px) rotate(2deg); }
+            75% { transform: translate(-10px, -10px) rotate(-1deg); }
+            100% { transform: translate(10px, 10px) rotate(1deg); }
+        }
+
+        #jumpscare-face {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: jumpscare-zoom 0.3s ease-out;
+        }
+
+        @keyframes jumpscare-zoom {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .jumpscare-animatronic {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .jumpscare-head {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 100px rgba(255, 0, 0, 0.8);
+        }
+
+        .jumpscare-eyes {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 80px;
+        }
+
+        .jumpscare-eye {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            animation: eye-glow 0.2s infinite;
+        }
+
+        @keyframes eye-glow {
+            0%, 100% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+            50% { box-shadow: 0 0 50px rgba(255, 0, 0, 1); }
+        }
+
+        .jumpscare-pupil {
+            width: 30px;
+            height: 30px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .jumpscare-mouth {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 80px;
+            background: #000;
+            border-radius: 0 0 60px 60px;
+            box-shadow: inset 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+
+        .jumpscare-teeth {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .jumpscare-tooth {
+            width: 12px;
+            height: 30px;
+            background: #fff;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .jumpscare-static {
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter><rect width="200" height="200" filter="url(%23noise)"/></svg>');
+            opacity: 0.4;
+            animation: static-flash 0.1s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes static-flash {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .jumpscare-flash {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            animation: flash-fade 0.5s ease-out forwards;
+        }
+
+        @keyframes flash-fade {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        #gameover-screen {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        #gameover-screen.visible {
+            display: flex;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #gameover-text {
+            font-family: 'Digital', monospace;
+            font-size: 72px;
+            color: var(--warning-red);
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+            margin-bottom: 30px;
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        #survival-time {
+            font-size: 32px;
+            color: var(--monitor-green);
+            margin-bottom: 40px;
+        }
+
+        /* Victory Screen */
+        #victory-screen {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at center, rgba(0, 80, 0, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        #victory-screen.visible {
+            display: flex;
+            animation: fadeIn 1s;
+        }
+
+        #victory-text {
+            font-family: 'Digital', monospace;
+            font-size: 56px;
+            color: var(--monitor-green);
+            text-shadow: 0 0 30px rgba(30, 255, 0, 0.9);
+            margin-bottom: 30px;
+            animation: victory-pulse 2s infinite;
+        }
+
+        @keyframes victory-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Audio Indicators */
+        .audio-indicator {
+            position: absolute;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--monitor-green);
+            color: var(--monitor-green);
+            font-size: 12px;
+            pointer-events: none;
+            animation: fadeOut 2s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .audio-indicator.left {
+            left: 100px;
+            top: 50%;
+        }
+
+        .audio-indicator.right {
+            right: 100px;
+            top: 50%;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .loading-text {
+            font-family: 'Digital', monospace;
+            font-size: 32px;
+            color: var(--monitor-green);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Hallway Lights */
+        .hallway-light {
+            position: absolute;
+            width: 200px;
+            height: 100%;
+            top: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .hallway-light.left {
+            left: 0;
+            background: radial-gradient(ellipse at right center, rgba(255, 255, 0, 0.4) 0%, transparent 70%);
+        }
+
+        .hallway-light.right {
+            right: 0;
+            background: radial-gradient(ellipse at left center, rgba(255, 255, 0, 0.4) 0%, transparent 70%);
+        }
+
+        .hallway-light.active {
+            opacity: 1;
+        }
+
+        /* Instructions Modal */
+        #instructions-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 40px;
+        }
+
+        #instructions-modal.visible {
+            display: flex;
+        }
+
+        .instructions-content {
+            max-width: 800px;
+            background: linear-gradient(180deg, #002200 0%, #001100 100%);
+            border: 3px solid var(--monitor-green);
+            padding: 40px;
+            box-shadow: 0 0 40px rgba(30, 255, 0, 0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .instructions-content h2 {
+            font-family: 'Digital', monospace;
+            color: var(--monitor-green);
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(30, 255, 0, 0.8);
+        }
+
+        .instructions-content h3 {
+            font-family: 'Digital', monospace;
+            color: var(--monitor-green);
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(30, 255, 0, 0.6);
+        }
+
+        .instructions-content p {
+            color: #88ff88;
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .instructions-content ul {
+            color: #88ff88;
+            font-size: 16px;
+            line-height: 1.8;
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instructions-content li {
+            margin-bottom: 8px;
+        }
+
+        .instructions-content strong {
+            color: var(--monitor-green);
+            font-weight: bold;
+        }
+
+        .instructions-content kbd {
+            background: #004400;
+            border: 2px solid var(--monitor-green);
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-family: 'Digital', monospace;
+            color: var(--monitor-green);
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(30, 255, 0, 0.3);
+        }
+
+        /* Animatronic at Door Indicator */
+        .door-warning {
+            position: absolute;
+            top: 40%;
+            font-family: 'Digital', monospace;
+            font-size: 24px;
+            color: var(--warning-red);
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border: 2px solid var(--warning-red);
+            display: none;
+            animation: warning-flash 0.5s infinite;
+            z-index: 50;
+        }
+
+        .door-warning.left {
+            left: 180px;
+        }
+
+        .door-warning.right {
+            right: 180px;
+        }
+
+        .door-warning.visible {
+            display: block;
+        }
+
+        @keyframes warning-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            #camera-grid {
+                width: 250px;
+            }
+            
+            #camera-feed {
+                right: 280px;
+            }
+
+            .control-button {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Menu Screen -->
+        <div id="menu-screen">
+            <h1 id="game-title">NIGHTWATCH STATION</h1>
+            <button class="menu-button" onclick="startGame()">Start Night</button>
+            <button class="menu-button" onclick="showInstructions()">Instructions</button>
+        </div>
+
+        <!-- Instructions Modal -->
+        <div id="instructions-modal">
+            <div class="instructions-content">
+                <h2>NIGHTWATCH STATION - INSTRUCTIONS</h2>
+                
+                <h3>OBJECTIVE</h3>
+                <p>Survive from 12 AM to 6 AM without being caught by the animatronics.</p>
+                
+                <h3>CONTROLS</h3>
+                <ul>
+                    <li><kbd>SPACE</kbd> or <strong>Monitor Button</strong> - Toggle security camera system</li>
+                    <li><kbd>A</kbd> or <strong>◄ Door</strong> - Close/open left door</li>
+                    <li><kbd>D</kbd> or <strong>Door ►</strong> - Close/open right door</li>
+                    <li><kbd>Q</kbd> or <strong>◄ Light</strong> - Check left hallway (momentary)</li>
+                    <li><kbd>E</kbd> or <strong>Light ►</strong> - Check right hallway (momentary)</li>
+                    <li><strong>Camera Buttons</strong> - Switch between different room views</li>
+                </ul>
+                
+                <h3>HOW ANIMATRONICS ATTACK</h3>
+                <p><strong>1. They move through rooms</strong> - Use cameras to track them. Rooms with animatronics show a red <strong>!</strong> indicator.</p>
+                <p><strong>2. They reach your doors</strong> - You'll hear footsteps and see "♪ SOUND" on the left or right side.</p>
+                <p><strong>3. Visual warnings appear</strong> - Red "THREAT DETECTED" warnings show when they're at your door.</p>
+                <p><strong>4. Check with lights</strong> - Press hallway lights to confirm if someone's there (you'll see/hear them).</p>
+                <p><strong>5. CLOSE THE DOOR!</strong> - If an animatronic is at your door and it's open, they'll attack after ~5 seconds.</p>
+                <p><strong>6. Wait it out</strong> - Keep the door closed until they leave, then open it to save power.</p>
+                
+                <h3>POWER MANAGEMENT</h3>
+                <ul>
+                    <li>Everything uses power (shown as USAGE: 1-6)</li>
+                    <li>Using cameras = +1 usage</li>
+                    <li>Each closed door = +1 usage</li>
+                    <li>Each light on = +1 usage (momentary)</li>
+                    <li><strong>If power hits 0%, you lose!</strong></li>
+                </ul>
+                
+                <h3>STRATEGY TIPS</h3>
+                <ul>
+                    <li>Check cameras regularly but don't leave monitor up constantly</li>
+                    <li>Use lights sparingly - only when you hear sounds</li>
+                    <li>Close doors only when threats are present</li>
+                    <li>Balance monitoring vs. power conservation</li>
+                    <li>Animatronics get faster and more aggressive each hour</li>
+                </ul>
+                
+                <button class="menu-button" onclick="hideInstructions()">Got It!</button>
+            </div>
+        </div>
+
+        <!-- Office View -->
+        <div id="office-view">
+            <div class="hallway-light left" id="light-left"></div>
+            <div class="hallway-light right" id="light-right"></div>
+            <div class="office-door left" id="door-left"></div>
+            <div class="office-door right" id="door-right"></div>
+            <div class="door-warning left" id="warning-left">⚠ THREAT DETECTED</div>
+            <div class="door-warning right" id="warning-right">⚠ THREAT DETECTED</div>
+        </div>
+
+        <!-- HUD -->
+        <div id="center-hud">
+            <div class="hud-element">
+                <div id="time-display">12 AM</div>
+            </div>
+            <div class="hud-element">
+                <div id="power-display">
+                    <div id="power-label">POWER</div>
+                    <div id="power-percentage">100%</div>
+                    <div id="usage-indicator">USAGE: 1</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div id="control-panel">
+            <div class="control-section">
+                <div class="door-controls">
+                    <button class="control-button" id="btn-light-left">◄ Light</button>
+                    <button class="control-button" id="btn-door-left">◄ Door</button>
+                </div>
+            </div>
+            
+            <button class="control-button" id="monitor-toggle" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);">
+                Monitor
+            </button>
+
+            <div class="control-section">
+                <div class="door-controls">
+                    <button class="control-button" id="btn-light-right">Light ►</button>
+                    <button class="control-button" id="btn-door-right">Door ►</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitor System -->
+        <div id="monitor-system">
+            <div id="camera-header">
+                <div id="camera-title">SECURITY CAMERAS</div>
+                <div id="camera-name">CAM 01 - STAGE</div>
+            </div>
+            
+            <div id="camera-feed">
+                <canvas id="feed-canvas"></canvas>
+                <div class="static-overlay"></div>
+            </div>
+
+            <div id="camera-grid"></div>
+        </div>
+
+        <!-- Jumpscare Screen -->
+        <div id="jumpscare-screen">
+            <div id="jumpscare-face">
+                <div class="jumpscare-animatronic">
+                    <div class="jumpscare-head" id="jumpscare-head">
+                        <div class="jumpscare-eyes">
+                            <div class="jumpscare-eye">
+                                <div class="jumpscare-pupil"></div>
+                            </div>
+                            <div class="jumpscare-eye">
+                                <div class="jumpscare-pupil"></div>
+                            </div>
+                        </div>
+                        <div class="jumpscare-mouth">
+                            <div class="jumpscare-teeth">
+                                <div class="jumpscare-tooth"></div>
+                                <div class="jumpscare-tooth"></div>
+                                <div class="jumpscare-tooth"></div>
+                                <div class="jumpscare-tooth"></div>
+                                <div class="jumpscare-tooth"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="jumpscare-static"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameover-screen">
+            <div id="gameover-text">POWER OUT</div>
+            <div id="survival-time">You survived until: <span id="death-time">12 AM</span></div>
+            <button class="menu-button" onclick="restartGame()">Try Again</button>
+            <button class="menu-button" onclick="returnToMenu()">Main Menu</button>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen">
+            <div id="victory-text">6 AM - NIGHT COMPLETE</div>
+            <div id="survival-time">You survived the night!</div>
+            <button class="menu-button" onclick="restartGame()">Next Night</button>
+            <button class="menu-button" onclick="returnToMenu()">Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== GAME STATE ====================
+        const GameState = {
+            playing: false,
+            time: 0, // 0 = 12AM, 360 = 6AM (minutes)
+            power: 100,
+            powerUsage: 1,
+            monitorUp: false,
+            currentCamera: 0,
+            doors: { left: false, right: false },
+            lights: { left: false, right: false },
+            gameOver: false,
+            victory: false
+        };
+
+        // ==================== CAMERA SYSTEM ====================
+        const cameras = [
+            { id: 0, name: 'CAM 01 - STAGE', shortName: 'CAM 01' },
+            { id: 1, name: 'CAM 02 - DINING AREA', shortName: 'CAM 02' },
+            { id: 2, name: 'CAM 03 - BACKSTAGE', shortName: 'CAM 03' },
+            { id: 3, name: 'CAM 04 - STORAGE', shortName: 'CAM 04' },
+            { id: 4, name: 'CAM 05 - HALLWAY A', shortName: 'CAM 05' },
+            { id: 5, name: 'CAM 06 - HALLWAY B', shortName: 'CAM 06' },
+            { id: 6, name: 'CAM 07 - MAINTENANCE', shortName: 'CAM 07' },
+            { id: 7, name: 'CAM 08 - RESTROOMS', shortName: 'CAM 08' },
+            { id: 8, name: 'CAM 09 - KITCHEN', shortName: 'CAM 09' }
+        ];
+
+        // ==================== ANIMATRONICS ====================
+        class Animatronic {
+            constructor(name, startRoom, color, aiLevel = 1) {
+                this.name = name;
+                this.currentRoom = startRoom;
+                this.color = color;
+                this.aiLevel = aiLevel;
+                this.moveTimer = 0;
+                this.attackTimer = 0;
+                this.canMove = true;
+                this.atDoor = null; // 'left' or 'right' or null
+            }
+
+            update(deltaTime) {
+                if (!GameState.playing) return;
+
+                this.moveTimer += deltaTime;
+                
+                // Movement opportunity every 3-8 seconds based on AI level
+                const moveInterval = 8000 - (this.aiLevel * 1000);
+                if (this.moveTimer >= moveInterval) {
+                    this.moveTimer = 0;
+                    this.tryMove();
+                }
+
+                // Attack if at door
+                if (this.atDoor && !GameState.doors[this.atDoor]) {
+                    this.attackTimer += deltaTime;
+                    if (this.attackTimer >= 5000) {
+                        this.attack();
+                    }
+                }
+            }
+
+            tryMove() {
+                // Probability increases with AI level and time
+                const timeModifier = 1 + (GameState.time / 360);
+                const moveProbability = (this.aiLevel * 0.2 * timeModifier);
+                
+                if (Math.random() < moveProbability) {
+                    this.move();
+                }
+            }
+
+            move() {
+                const paths = {
+                    0: [1, 2], // Stage -> Dining, Backstage
+                    1: [0, 3, 4], // Dining -> Stage, Storage, Hallway A
+                    2: [0, 3], // Backstage -> Stage, Storage
+                    3: [1, 2, 6], // Storage -> Dining, Backstage, Maintenance
+                    4: [1, 5, 'left'], // Hallway A -> Dining, Hallway B, Left Door
+                    5: [4, 8, 'right'], // Hallway B -> Hallway A, Kitchen, Right Door
+                    6: [3, 7], // Maintenance -> Storage, Restrooms
+                    7: [6, 8], // Restrooms -> Maintenance, Kitchen
+                    8: [5, 7] // Kitchen -> Hallway B, Restrooms
+                };
+
+                const possibleMoves = paths[this.currentRoom] || [];
+                if (possibleMoves.length === 0) return;
+
+                const nextRoom = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                
+                if (nextRoom === 'left' || nextRoom === 'right') {
+                    this.atDoor = nextRoom;
+                    this.attackTimer = 0;
+                    playSound('footsteps', nextRoom);
+                    updateDoorWarnings();
+                } else {
+                    this.currentRoom = nextRoom;
+                    this.atDoor = null;
+                    playSound('movement');
+                    updateDoorWarnings();
+                }
+
+                updateCameraIndicators();
+            }
+
+            attack() {
+                if (!GameState.doors[this.atDoor]) {
+                    triggerJumpscare(this.name);
+                }
+            }
+
+            reset() {
+                this.currentRoom = 0;
+                this.atDoor = null;
+                this.moveTimer = 0;
+                this.attackTimer = 0;
+                updateDoorWarnings();
+            }
+        }
+
+        // Create animatronics
+        const animatronics = [
+            new Animatronic('Freddy', 0, '#8B4513', 1),
+            new Animatronic('Bonnie', 0, '#5C4DB8', 2),
+            new Animatronic('Chica', 0, '#FFD700', 2),
+            new Animatronic('Foxy', 2, '#C41E3A', 3)
+        ];
+
+        // ==================== AUDIO SYSTEM ====================
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const sounds = {};
+
+        function createSound(type) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'button':
+                    oscillator.frequency.value = 400;
+                    oscillator.type = 'square';
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    break;
+                case 'door':
+                    oscillator.frequency.value = 100;
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    break;
+                case 'camera':
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'square';
+                    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    break;
+                case 'footsteps':
+                    oscillator.frequency.value = 150;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    break;
+                case 'movement':
+                    oscillator.frequency.value = 200;
+                    oscillator.type = 'triangle';
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    break;
+                case 'jumpscare':
+                    // Create harsh, scary sound
+                    oscillator.frequency.value = 200;
+                    oscillator.type = 'sawtooth';
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 2000;
+                    gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+                    
+                    // Add frequency sweep for scream effect
+                    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                    oscillator.frequency.linearRampToValueAtTime(100, audioContext.currentTime + 0.5);
+                    break;
+            }
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 2);
+        }
+
+        function playScreamSound() {
+            // Create multiple oscillators for a more complex scream
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    createSound('jumpscare');
+                }, i * 50);
+            }
+        }
+
+        function playSound(type, direction = null) {
+            try {
+                createSound(type);
+                
+                if (direction && (direction === 'left' || direction === 'right')) {
+                    showAudioIndicator(direction);
+                }
+            } catch(e) {
+                console.log('Audio context not started yet');
+            }
+        }
+
+        function showAudioIndicator(direction) {
+            const indicator = document.createElement('div');
+            indicator.className = `audio-indicator ${direction}`;
+            indicator.textContent = '♪ SOUND';
+            document.getElementById('office-view').appendChild(indicator);
+            setTimeout(() => indicator.remove(), 2000);
+        }
+
+        // ==================== CANVAS RENDERING ====================
+        const canvas = document.getElementById('feed-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            const container = document.getElementById('camera-feed');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function renderCamera() {
+            if (!GameState.monitorUp) return;
+
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw room background
+            const room = cameras[GameState.currentCamera];
+            ctx.fillStyle = '#0a1a0a';
+            ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
+
+            // Draw room label
+            ctx.fillStyle = '#1eff00';
+            ctx.font = '24px "Digital", monospace';
+            ctx.fillText(room.name, 70, 90);
+
+            // Draw timestamp
+            const timeStr = formatTime();
+            ctx.fillStyle = '#00ff00';
+            ctx.font = '16px "Digital", monospace';
+            ctx.fillText(timeStr, canvas.width - 150, 80);
+
+            // Draw animatronics in this room
+            const animatronicsHere = animatronics.filter(a => a.currentRoom === GameState.currentCamera);
+            animatronicsHere.forEach((anim, index) => {
+                const x = (canvas.width / 2) + (index * 80) - (animatronicsHere.length * 40);
+                const y = canvas.height / 2;
+                
+                // Draw simple shape for animatronic
+                ctx.fillStyle = anim.color;
+                ctx.beginPath();
+                ctx.arc(x, y, 40, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw eyes
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(x - 15, y - 10, 8, 0, Math.PI * 2);
+                ctx.arc(x + 15, y - 10, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(x - 15, y - 10, 4, 0, Math.PI * 2);
+                ctx.arc(x + 15, y - 10, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw name
+                ctx.fillStyle = '#1eff00';
+                ctx.font = '14px "Digital", monospace';
+                ctx.fillText(anim.name, x - 30, y + 70);
+            });
+
+            // Add noise effect
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = (Math.random() - 0.5) * 30;
+                data[i] += noise;
+                data[i + 1] += noise;
+                data[i + 2] += noise;
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // ==================== UI CONTROLS ====================
+        function initializeCameraGrid() {
+            const grid = document.getElementById('camera-grid');
+            cameras.forEach(cam => {
+                const btn = document.createElement('button');
+                btn.className = 'camera-button';
+                btn.textContent = cam.shortName;
+                btn.dataset.camId = cam.id;
+                btn.onclick = () => switchCamera(cam.id);
+                grid.appendChild(btn);
+            });
+            updateCameraButtons();
+        }
+
+        function switchCamera(camId) {
+            GameState.currentCamera = camId;
+            document.getElementById('camera-name').textContent = cameras[camId].name;
+            playSound('camera');
+            updateCameraButtons();
+            renderCamera();
+        }
+
+        function updateCameraButtons() {
+            const buttons = document.querySelectorAll('.camera-button');
+            buttons.forEach(btn => {
+                const camId = parseInt(btn.dataset.camId);
+                btn.classList.toggle('active', camId === GameState.currentCamera);
+                
+                // Check if animatronic is in this room
+                const hasAnimatronic = animatronics.some(a => a.currentRoom === camId);
+                btn.classList.toggle('has-animatronic', hasAnimatronic);
+            });
+        }
+
+        function updateCameraIndicators() {
+            updateCameraButtons();
+            renderCamera();
+        }
+
+        function updateDoorWarnings() {
+            const leftWarning = document.getElementById('warning-left');
+            const rightWarning = document.getElementById('warning-right');
+            
+            const leftThreat = animatronics.some(a => a.atDoor === 'left');
+            const rightThreat = animatronics.some(a => a.atDoor === 'right');
+            
+            leftWarning.classList.toggle('visible', leftThreat && !GameState.doors.left);
+            rightWarning.classList.toggle('visible', rightThreat && !GameState.doors.right);
+        }
+
+        function toggleMonitor() {
+            GameState.monitorUp = !GameState.monitorUp;
+            const monitor = document.getElementById('monitor-system');
+            const office = document.getElementById('office-view');
+            
+            monitor.classList.toggle('active', GameState.monitorUp);
+            office.classList.toggle('monitor-up', GameState.monitorUp);
+            
+            playSound('camera');
+            
+            if (GameState.monitorUp) {
+                renderCamera();
+            }
+            
+            updatePowerUsage();
+        }
+
+        function toggleDoor(side) {
+            if (GameState.gameOver) return;
+            
+            GameState.doors[side] = !GameState.doors[side];
+            const door = document.getElementById(`door-${side}`);
+            const btn = document.getElementById(`btn-door-${side}`);
+            
+            door.classList.toggle('closed', GameState.doors[side]);
+            btn.classList.toggle('active', GameState.doors[side]);
+            
+            playSound('door');
+            updatePowerUsage();
+            updateDoorWarnings();
+
+            // Reset attack timer if animatronic at this door
+            animatronics.forEach(anim => {
+                if (anim.atDoor === side && GameState.doors[side]) {
+                    anim.attackTimer = 0;
+                }
+            });
+        }
+
+        function toggleLight(side) {
+            if (GameState.gameOver) return;
+            
+            const wasOn = GameState.lights[side];
+            
+            // Lights are momentary, not toggle
+            GameState.lights[side] = true;
+            const light = document.getElementById(`light-${side}`);
+            const btn = document.getElementById(`btn-light-${side}`);
+            
+            light.classList.add('active');
+            btn.classList.add('active');
+            
+            playSound('button');
+            updatePowerUsage();
+
+            // Check if animatronic at door
+            const animAtDoor = animatronics.find(a => a.atDoor === side);
+            if (animAtDoor) {
+                showAudioIndicator(side);
+            }
+            
+            // Auto-release after 500ms
+            setTimeout(() => {
+                GameState.lights[side] = false;
+                light.classList.remove('active');
+                btn.classList.remove('active');
+                updatePowerUsage();
+            }, 500);
+        }
+
+        // ==================== POWER SYSTEM ====================
+        function updatePowerUsage() {
+            let usage = 1; // Base usage
+            
+            if (GameState.monitorUp) usage += 1;
+            if (GameState.doors.left) usage += 1;
+            if (GameState.doors.right) usage += 1;
+            if (GameState.lights.left) usage += 1;
+            if (GameState.lights.right) usage += 1;
+            
+            GameState.powerUsage = usage;
+            document.getElementById('usage-indicator').textContent = `USAGE: ${usage}`;
+        }
+
+        function updatePower(deltaTime) {
+            if (!GameState.playing || GameState.power <= 0) return;
+            
+            // Drain power based on usage (higher usage = faster drain)
+            const drainRate = GameState.powerUsage * 0.015; // % per second
+            GameState.power -= drainRate * (deltaTime / 1000);
+            
+            if (GameState.power < 0) GameState.power = 0;
+            
+            // Update display
+            const powerPercent = Math.ceil(GameState.power);
+            const powerEl = document.getElementById('power-percentage');
+            powerEl.textContent = `${powerPercent}%`;
+            
+            // Warning states
+            powerEl.classList.toggle('warning', GameState.power < 30 && GameState.power >= 10);
+            powerEl.classList.toggle('critical', GameState.power < 10);
+            
+            // Power out
+            if (GameState.power <= 0) {
+                powerOut();
+            }
+        }
+
+        function powerOut() {
+            GameState.gameOver = true;
+            
+            // Close all doors
+            GameState.doors.left = false;
+            GameState.doors.right = false;
+            document.querySelectorAll('.office-door').forEach(door => {
+                door.classList.remove('closed');
+            });
+            
+            // Turn off monitor
+            if (GameState.monitorUp) {
+                toggleMonitor();
+            }
+            
+            // Trigger jumpscare after delay
+            setTimeout(() => {
+                triggerJumpscare('Power Out');
+            }, 3000);
+        }
+
+        // ==================== TIME SYSTEM ====================
+        function updateTime(deltaTime) {
+            if (!GameState.playing) return;
+            
+            // Each hour is 90 seconds (6 hours = 540 seconds = 9 minutes)
+            GameState.time += deltaTime / 1500; // Increased from 1500 to make night longer
+            
+            if (GameState.time >= 360) {
+                victory();
+                return;
+            }
+            
+            const timeDisplay = document.getElementById('time-display');
+            timeDisplay.textContent = formatTime();
+            
+            // Increase AI difficulty over time
+            const hour = Math.floor(GameState.time / 60);
+            animatronics.forEach(anim => {
+                anim.aiLevel = Math.min(5, Math.floor(1 + hour * 0.5));
+            });
+        }
+
+        function formatTime() {
+            const totalMinutes = Math.floor(GameState.time);
+            const hour = Math.floor(totalMinutes / 60);
+            return `${hour + 12} AM`;
+        }
+
+        // ==================== GAME OVER / VICTORY ====================
+        function triggerJumpscare(source) {
+            GameState.gameOver = true;
+            GameState.playing = false;
+            
+            // Close monitor if open
+            if (GameState.monitorUp) {
+                const monitor = document.getElementById('monitor-system');
+                const office = document.getElementById('office-view');
+                monitor.classList.remove('active');
+                office.classList.remove('monitor-up');
+                GameState.monitorUp = false;
+            }
+            
+            // Show jumpscare screen
+            const jumpscareScreen = document.getElementById('jumpscare-screen');
+            const jumpscareHead = document.getElementById('jumpscare-head');
+            
+            // Set animatronic color based on who attacked
+            let color = '#8B4513'; // Default Freddy brown
+            if (source.includes('Bonnie')) color = '#5C4DB8';
+            else if (source.includes('Chica')) color = '#FFD700';
+            else if (source.includes('Foxy')) color = '#C41E3A';
+            
+            jumpscareHead.style.background = `radial-gradient(circle at center, ${color} 0%, ${color}dd 50%, ${color}88 100%)`;
+            
+            // Play scream sound
+            playScreamSound();
+            
+            // Show jumpscare
+            jumpscareScreen.classList.add('active');
+            
+            // Add flash effect
+            const flash = document.createElement('div');
+            flash.className = 'jumpscare-flash';
+            jumpscareScreen.appendChild(flash);
+            
+            // After 1.5 seconds, show game over screen
+            setTimeout(() => {
+                jumpscareScreen.classList.remove('active');
+                flash.remove();
+                
+                const gameoverScreen = document.getElementById('gameover-screen');
+                const deathTime = document.getElementById('death-time');
+                
+                deathTime.textContent = formatTime();
+                
+                if (source === 'Power Out') {
+                    document.getElementById('gameover-text').textContent = 'POWER OUT';
+                } else {
+                    document.getElementById('gameover-text').textContent = `${source.toUpperCase()} GOT YOU`;
+                }
+                
+                gameoverScreen.classList.add('visible');
+            }, 1500);
+        }
+
+        function victory() {
+            GameState.victory = true;
+            GameState.playing = false;
+            
+            const victoryScreen = document.getElementById('victory-screen');
+            victoryScreen.classList.add('visible');
+            
+            playSound('camera');
+        }
+
+        // ==================== GAME LOOP ====================
+        let lastTime = 0;
+
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            if (GameState.playing) {
+                updateTime(deltaTime);
+                updatePower(deltaTime);
+                
+                // Update animatronics
+                animatronics.forEach(anim => anim.update(deltaTime));
+                
+                // Render camera if monitor is up
+                if (GameState.monitorUp && Math.random() < 0.1) { // Update camera at ~6 FPS
+                    renderCamera();
+                }
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ==================== GAME CONTROL ====================
+        function startGame() {
+            // Hide menu
+            document.getElementById('menu-screen').classList.add('hidden');
+            
+            // Reset game state
+            GameState.playing = true;
+            GameState.time = 0;
+            GameState.power = 100;
+            GameState.powerUsage = 1;
+            GameState.monitorUp = false;
+            GameState.currentCamera = 0;
+            GameState.doors = { left: false, right: false };
+            GameState.lights = { left: false, right: false };
+            GameState.gameOver = false;
+            GameState.victory = false;
+            
+            // Reset UI
+            document.getElementById('time-display').textContent = '12 AM';
+            document.getElementById('power-percentage').textContent = '100%';
+            document.getElementById('power-percentage').className = '';
+            document.getElementById('gameover-screen').classList.remove('visible');
+            document.getElementById('victory-screen').classList.remove('visible');
+            document.getElementById('jumpscare-screen').classList.remove('active');
+            
+            // Reset animatronics
+            animatronics.forEach(anim => anim.reset());
+            
+            // Reset doors
+            document.querySelectorAll('.office-door').forEach(door => {
+                door.classList.remove('closed');
+            });
+            document.querySelectorAll('.control-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            updateCameraIndicators();
+            updatePowerUsage();
+            
+            // Start audio context
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            playSound('button');
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        function returnToMenu() {
+            GameState.playing = false;
+            document.getElementById('menu-screen').classList.remove('hidden');
+            document.getElementById('gameover-screen').classList.remove('visible');
+            document.getElementById('victory-screen').classList.remove('visible');
+            
+            if (GameState.monitorUp) {
+                toggleMonitor();
+            }
+        }
+
+        function showInstructions() {
+            document.getElementById('instructions-modal').classList.add('visible');
+        }
+
+        function hideInstructions() {
+            document.getElementById('instructions-modal').classList.remove('visible');
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('monitor-toggle').addEventListener('click', toggleMonitor);
+        document.getElementById('btn-door-left').addEventListener('click', () => toggleDoor('left'));
+        document.getElementById('btn-door-right').addEventListener('click', () => toggleDoor('right'));
+        
+        document.getElementById('btn-light-left').addEventListener('mousedown', () => toggleLight('left'));
+        document.getElementById('btn-light-right').addEventListener('mousedown', () => toggleLight('right'));
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!GameState.playing) return;
+            
+            switch(e.key.toLowerCase()) {
+                case ' ':
+                    toggleMonitor();
+                    break;
+                case 'a':
+                    toggleDoor('left');
+                    break;
+                case 'd':
+                    toggleDoor('right');
+                    break;
+                case 'q':
+                    toggleLight('left');
+                    break;
+                case 'e':
+                    toggleLight('right');
+                    break;
+            }
+        });
+
+        // ==================== INITIALIZATION ====================
+        initializeCameraGrid();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
