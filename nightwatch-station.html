@@ -317,6 +317,28 @@
             letter-spacing: 2px;
         }
 
+        /* Center the camera name in the header */
+        #camera-header {
+            position: relative;
+        }
+
+        #camera-name {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        #close-monitor {
+            background: transparent;
+            border: 1px solid rgba(0,255,0,0.15);
+            color: var(--monitor-green);
+            padding: 6px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
         #camera-grid {
             position: absolute;
             right: 20px;
@@ -1063,6 +1085,7 @@
             <div id="camera-header">
                 <div id="camera-title">SECURITY CAMERAS</div>
                 <div id="camera-name">CAM 01 - STAGE</div>
+                <button id="close-monitor" onclick="toggleMonitor()" aria-label="Close monitor">X</button>
             </div>
             
             <div id="camera-feed">
@@ -1363,10 +1386,12 @@
             ctx.fillStyle = '#0a1a0a';
             ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
 
-            // Draw room label
+            // Draw room label (centered)
             ctx.fillStyle = '#1eff00';
             ctx.font = '24px "Digital", monospace';
-            ctx.fillText(room.name, 70, 90);
+            ctx.textAlign = 'center';
+            ctx.fillText(room.name, canvas.width / 2, 90);
+            ctx.textAlign = 'left';
 
             // Draw timestamp
             const timeStr = formatTime();
